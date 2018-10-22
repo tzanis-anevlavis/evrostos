@@ -1,0 +1,16 @@
+-------------------- Evrostos: the rLTL Verifier! --------------------
+---------------------- rLTL Verification Report ----------------------
+
+Model used: ./examples/mot_example.smv
+
+----------------------------------------------------------------------
+Original rLTL Formula No1:
+(rF(rG (ta12non & ta13non))) => (rG(rF (!tsctr1) ))
+
+Translated LTL formulas:
+(((F (G (ta12non & ta13non))) => (G (F (!tsctr1)))) & (((F (F (G (ta12non & ta13non)))) => (F (G (F (!tsctr1))))) & (((F (G (F (ta12non & ta13non)))) => (G (F (F (!tsctr1))))) & ((F (F (ta12non & ta13non))) => (F (F (!tsctr1)))))))
+(((F (F (G (ta12non & ta13non)))) => (F (G (F (!tsctr1))))) & (((F (G (F (ta12non & ta13non)))) => (G (F (F (!tsctr1))))) & ((F (F (ta12non & ta13non))) => (F (F (!tsctr1))))))
+(((F (G (F (ta12non & ta13non)))) => (G (F (F (!tsctr1))))) & ((F (F (ta12non & ta13non))) => (F (F (!tsctr1)))))
+((F (F (ta12non & ta13non))) => (F (F (!tsctr1))))
+
+Model Checking of the original rLTL formula took 4.157642 seconds, and returns truth value 0001.

@@ -1,0 +1,4 @@
+label1   : st = 6 | st = 1 ;
+label2  : st = 1 | st = 2 ;
+_label3  : st = 2 | st = 1 ;
+_label_4 : st = 1 | st = 5 ;

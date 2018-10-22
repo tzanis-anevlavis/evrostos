@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://nusmv.fbk.eu/xml/counter-example" elementFormDefault="unqualified" xmlns="http://nusmv.fbk.eu/xml/counter-example">
+    <xsd:complexType name="counter-example">
+    	<xsd:sequence>
+    		<xsd:element name="node" type="node"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</xsd:element>
+    		<xsd:element name="loops" type="xsd:string"
+    			maxOccurs="1" minOccurs="0">
+    		</xsd:element>
+    	</xsd:sequence>
+    	<xsd:attribute name="type" type="xsd:decimal" use="required"></xsd:attribute>
+    	<xsd:attribute name="id" type="xsd:decimal"></xsd:attribute>
+    	<xsd:attribute name="desc" type="xsd:string" use="required"></xsd:attribute>
+    </xsd:complexType>
+    <xsd:element name="counter-example" type="counter-example"></xsd:element>
+
+    <xsd:complexType name="node">
+    	<xsd:sequence>
+    		<xsd:element name="state" type="Section"
+    			maxOccurs="1" minOccurs="1">
+    		</xsd:element>
+    		<xsd:element name="combinatorial" type="Section"
+    			maxOccurs="1" minOccurs="0">
+    		</xsd:element>
+    		<xsd:element name="input" type="Section"
+    			maxOccurs="1" minOccurs="0">
+    		</xsd:element>
+    	</xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="Section">
+    	<xsd:sequence>
+    		<xsd:element name="value" type="value"
+    			maxOccurs="unbounded" minOccurs="0">
+                </xsd:element>
+    	</xsd:sequence>
+                <xsd:attribute name="id" type="xsd:decimal"/> 
+    </xsd:complexType>
+
+    <xsd:complexType name="value">
+      <xsd:simpleContent>
+        <xsd:extension base="xsd:string">
+          <xsd:attribute name="variable" type="xsd:string" />
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType> 
+
+</xsd:schema>

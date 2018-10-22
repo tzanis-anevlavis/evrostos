@@ -1,0 +1,117 @@
+/***************************************************************  -*-C-*-  ***/
+%{
+
+#if HAVE_CONFIG_H
+#include "nusmv-config.h"
+#endif
+
+#include "cudd/util.h"
+
+#include "nusmv/core/utils/utils.h"
+#include "nusmv/core/utils/ustring.h"
+#include "nusmv/core/node/node.h"
+#include "nusmv/core/utils/ErrorMgr.h"
+#include "nusmv/core/utils/WordNumberMgr.h"
+
+#include <ctype.h>
+#include <stdlib.h> /* for strtol */
+#include <limits.h> /* for LLONG_MAX */
+
+#include "nusmv/core/utils/portability.h" /* for errno */
+#include "nusmv/core/parser/grammar.h" /* For yacc/lex interaction */
+#include "nusmv/core/parser/parser.h"
+
+/* For direct interpretation of atomic (ATOM and NUMBER)
+   and boolan (TRUE and FALSE) constants. */
+#include "nusmv/core/parser/symbols.h"
+static int nusmv_skip_comment(void);
+static int nusmv_skip_multiline_comment(void);
+
+ extern NuSMVEnv_ptr __nusmv_parser_env__;
+
+void Parser_switch_to_psl(void);
+
+/* The below code is only meaningful for flex version 2.5.31 which is
+   buggy since it does not define the yy_prev_more_offset static
+   variable */
+#if defined YY_FLEX_SUBMINOR_VERSION &&         \
+  defined YY_FLEX_MAJOR_VERSION &&              \
+  defined YY_FLEX_MINOR_VERSION
+#if YY_FLEX_SUBMINOR_VERSION == 31 &&           \
+  YY_FLEX_MINOR_VERSION == 5 &&                 \
+  YY_FLEX_MAJOR_VERSION == 2
+static int yy_prev_more_offset = 0;
+#endif
+#endif
+
+#if ! NUSMV_HAVE_ISATTY
+static inline int isatty(int d) { return 0; }
+#endif
+
+/*
+   The following are needed in order to allow parsing of long
+   comments, that otherwise will cause errors since flex thinks that
+   it is using REJECT even if it isn't.  The "%option noreject" seems
+   to be ignored in the latest (and previous) versions of flex.
+*/
+#ifdef YY_USES_REJECT
+#undef YY_USES_REJECT
+#endif
+
+#if NUSMV_HAVE_ERRNO_H
+#define YY_INPUT(buf, result, max_size) \
+        if ( YY_CURRENT_BUFFER->yy_is_interactive ) \
+                { \
+                int c = '*', n; \
+                for (n=0; n<max_size && \
+                     (c = getc(yyin)) != EOF && \
+                     c!=' ' && c!='\n' && c!='\t' && c!='\r' && c!='\f'; ++n ) \
+                        buf[n] = (char) c; \
+                if (c==' ' || c=='\n' || c=='\t' || c=='\r' || c=='\f') buf[n++] = (char) c; \
+                if (c == EOF && ferror(yyin)) YY_FATAL_ERROR( "input in flex scanner failed" ); \
+                result = n; \
+                } \
+        else \
+                { \
+                errno=0; \
+                while ( (result = fread(buf, 1, max_size, yyin))==0 && ferror(yyin)) \
+                        { \
+                        if(errno != EINTR) \
+                                { \
+                                YY_FATAL_ERROR( "input in flex scanner failed" ); \
+                                break; \
+                                } \
+                        errno=0; \
+                        clearerr(yyin); \
+                        } \
+                }
+#else /*  NUSMV_HAVE_ERRNO_H */
+#define YY_INPUT(buf, result, max_size) \
+        if ( YY_CURRENT_BUFFER->yy_is_interactive ) \
+                { \
+                int c = '*', n; \
+                for (n=0; n<max_size && \
+                     (c = getc(yyin)) != EOF && \
+                     c!=' ' && c!='\n' && c!='\t' && c!='\r' && c!='\f'; ++n ) \
+                        buf[n] = (char) c; \
+                if (c==' ' || c=='\n' || c=='\t' || c=='\r' || c=='\f') buf[n++] = (char) c; \
+                if (c == EOF && ferror(yyin)) YY_FATAL_ERROR( "input in flex scanner failed" ); \
+                result = n; \
+                } \
+        else \
+                { \
+                while ( (result = fread(buf, 1, max_size, yyin))==0 && ferror(yyin)) \
+                        { \
+                        clearerr(yyin); \
+                        } \
+                }
+#endif /* NUSMV_HAVE_ERRNO_H */
+
+%}
+%a        15000
+%o        25000
+
+%pointer
+%option yylineno
+%option noreject
+%option always-interactive

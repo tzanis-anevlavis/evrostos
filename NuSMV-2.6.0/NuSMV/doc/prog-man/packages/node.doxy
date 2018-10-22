@@ -1,0 +1,22 @@
+/*!
+  \dir nusmv/core/node
+  \brief This is the node package
+
+  This package contains a lot of nodes..
+
+  THIS IS JUST AN EXAMPLE. EDIT THE
+  <i>doc/doxygen/packages/node.doxy</i> FOR CHANGING THIS PAGE.
+
+*/
+
+/*!
+  \dir nusmv/core/node/anonymizers
+  \brief This is the node anonimizers package
+
+  This package contains a lot of nodes anonomizers..
+
+  THIS IS JUST AN EXAMPLE. EDIT THE
+  <i>doc/doxygen/packages/node.doxy</i> FOR CHANGING THIS PAGE.
+
+*/
+

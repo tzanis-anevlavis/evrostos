@@ -1,0 +1,34 @@
+% -*-latex-*-
+\begin{nusmvCommand}{dump\_fsm} {Dumps (in DOT format) selected parts of the bdd
+  fsm, with optional expression}
+
+\cmdLine{dump\_fsm [-h] -o <fname> [-i] [-I] [-t] [-f] [-r] [-e <expr>]}
+
+Dumps selected parts of the bdd fsm, with optional expression, in DOT format. At
+least one among options [iIte] must be specified.
+
+\begin{cmdOpt}
+
+    \opt{-o \parameter{fname}}{Dumps to the specified file name.}
+
+    \opt{-i}{ Dumps the initial states of the FSM, among with other
+    selected outputs.}
+
+    \opt{-I}{Dumps the invariant states of the FSM, among with other
+    selected outputs.}
+
+    \opt{-t}{Dumps the (monolithic) transition relation of the FSM, among with other
+    selected outputs.}
+
+    \opt{-F}{Dumps the (monolithic) fair states of the FSM, among with other
+    selected outputs.}
+
+    \opt{-r}{Dumps the (monolithic) reachable states of the FSM, among with other
+    selected outputs.}
+
+    \opt{-e \parameter{expr}}{Dumps the specified expression, among with other
+    selected outputs (see also command dump\_expr).}
+
+\end{cmdOpt}
+
+\end{nusmvCommand}

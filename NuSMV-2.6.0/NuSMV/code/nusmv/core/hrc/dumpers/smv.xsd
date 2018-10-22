@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://es.fbk.eu/xsd"
+           xmlns="http://es.fbk.eu/xsd"
+           elementFormDefault="qualified">
+
+  <!-- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~- -->
+  <!-- definition of simple elements -->
+  <xs:element name="name" type="xs:string"/>
+
+  <xs:element name="proptype">
+	  <xs:simpleType>
+	    <xs:restriction base="xs:string">
+		    <xs:enumeration value="CTL"/>
+		    <xs:enumeration value="LTL"/>
+		    <xs:enumeration value="INVAR"/>
+		    <xs:enumeration value="COMPUTE"/>
+		    <xs:enumeration value="PSL"/>
+	    </xs:restriction>
+	  </xs:simpleType>
+  </xs:element>
+
+  <!-- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~ -->
+
+
+  <!-- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~ -->
+  <!-- definition of complex elements -->
+  <!-- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~ -->
+
+
+  <!-- General SMV Element -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~ -->
+  <xs:complexType name="SmvElement">
+    <xs:attribute name="lineno" type="xs:integer" />
+  </xs:complexType>
+
+  <xs:element name="FormalParameter">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="name" type="xs:string"/>
+        <xs:element name="type" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="FormalParameters">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="FormalParameter" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ActualParameters">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="value" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ModInstance">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="SmvElement">
+          <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="type" type="xs:string"/>
+            <xs:element ref="ActualParameters"/>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Var">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="SmvElement">
+          <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="type" type="xs:string"/>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Function">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="SmvElement">
+          <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="type" type="xs:string"/>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="Vars">
+    <xs:sequence>
+      <xs:element ref="Var" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="ModInstances">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ModInstance" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="StateVars">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="Vars">
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="InputVars">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="Vars">
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="FrozenVars">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="Vars">
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Constant">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="name" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Define">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element name="body" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ArrayDefine">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element name="body" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Defines">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="Define" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="ArrayDefine" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Constants">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Constant" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Functions">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Function" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="InitAssign">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="InvarAssign">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="NextAssign">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Assigns">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="InitAssign" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="InvarAssign" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="NextAssign" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="Init">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="expr" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Invar">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="expr" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Trans">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="expr" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Constraints">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="Init" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="Invar" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="Trans" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="Justice">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="expr" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Compassion">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="expr1" type="xs:string"/>
+          <xs:element name="expr2" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Fairness">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="Justice" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="Compassion" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="Spec">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element ref="name"/>
+          <xs:element ref="proptype"/>
+          <xs:element name="expr" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Specs">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="Spec" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="Module">
+  <xs:complexType>
+    <xs:complexContent>
+      <xs:extension base="SmvElement">
+        <xs:sequence>
+          <xs:element name="name" type="xs:string"/>
+
+          <xs:element ref="FormalParameters" minOccurs="0"/>
+
+          <xs:element ref="ModInstances" minOccurs="0"/>
+          <xs:element ref="StateVars" minOccurs="0"/>
+          <xs:element ref="InputVars" minOccurs="0"/>
+          <xs:element ref="FrozenVars" minOccurs="0"/>
+          <xs:element ref="Defines" minOccurs="0"/>
+          <xs:element ref="Constants" minOccurs="0"/>
+          <xs:element ref="Functions" minOccurs="0"/>
+
+          <xs:element ref="Assigns" minOccurs="0"/>
+          <xs:element ref="Constraints" minOccurs="0"/>
+
+          <xs:element ref="Fairness" minOccurs="0"/>
+          <xs:element ref="Specs" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Modules">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Module" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="Error">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="filename" type="xs:string"/>
+        <xs:element name="lineno" type="xs:integer"/>
+        <xs:element name="token" type="xs:string"/>
+        <xs:element name="message" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="SyntaxErrors">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Error" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="CompilerInfo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="SyntaxErrors" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="SmvHRC">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="Modules" minOccurs="0"/>
+      <xs:element ref="CompilerInfo" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  </xs:element>
+
+  <!-- -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~ -->
+
+</xs:schema>

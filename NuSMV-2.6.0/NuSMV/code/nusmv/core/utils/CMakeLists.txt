@@ -1,0 +1,120 @@
+if(HAVE_BIGNUMBERS)
+    set(words_src
+        BigWordNumber.c
+        BigWordNumberMgr.c
+        BigWordNumberInt.c
+        bignumbers/bignumbers.c
+        bignumbers/numbers.c
+        )
+else()
+    set(words_src
+        WordNumber.c
+        WordNumberMgr.c
+        )
+endif()
+
+if(MSVC)
+  set(msvc_src
+    utils_msvc.c
+    )
+else()
+  set(msvc_src
+    )
+endif()
+
+
+set(SRCS
+  array.c
+  avl.c
+  heap.c
+  NodeList.c
+  Olist.c
+  range.c
+  Sset.c
+  ucmd.c
+  utils.c
+  EnvObject.c
+  OStream.c
+  Logger.c
+  assoc.c
+  error.c
+  list.c
+  object.c
+  portability.c
+  Slist.c
+  TimerBench.c
+  ustring.c
+  utils_io.c
+  NodeGraph.c
+  Stack.c
+  Pair.c
+  Triple.c
+  UStringMgr.c
+  StreamMgr.c
+  ErrorMgr.c
+  LRUCache.c
+  OAHash.c
+  Tuple5.c
+  DLlist.c
+  BiMap.c
+  watchdog_util.c
+  Vector.c
+
+  ${words_src}
+  ${msvc_src}
+)
+
+nusmv_add_pkg_lib(${SRCS})
+
+nusmv_add_pkg_headers(
+  array.h
+  defs.h
+  list.h
+  object.h
+  portability.h
+  Sset.h
+  ustring.h
+  EnvObject.h
+  EnvObject_private.h
+  OStream.h
+  Logger.h
+  WordNumber.h
+  WordNumberMgr.h
+  WordNumber_private.h
+  BigWordNumber_private.h
+  assoc.h
+  error.h
+  lsort.h
+  object_private.h
+  range.h
+  TimerBench.h
+  utils.h
+  avl.h
+  heap.h
+  NodeList.h
+  Olist.h
+  Slist.h
+  ucmd.h
+  utils_io.h
+  NodeGraph.h
+  Stack.h
+  Pair.h
+  Triple.h
+  UStringMgr.h
+  StreamMgr.h
+  ErrorMgr.h
+  LRUCache.h
+  OAHash.h
+  OAHash_private.h
+  Tuple5.h
+  DLlist.h
+  BiMap.h
+  bmc_profiler.h
+  watchdog_util.h
+
+  bignumbers/bvnumbersInt.h
+  bignumbers/bignumbers.h
+  bignumbers/numbersInt.h
+
+  utils_msvc.h
+  )

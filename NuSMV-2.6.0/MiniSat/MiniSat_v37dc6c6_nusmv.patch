@@ -1,0 +1,996 @@
+diff -Naur minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/CMakeLists.txt minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/CMakeLists.txt
+--- minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/CMakeLists.txt	2013-09-25 14:16:18.000000000 +0200
++++ minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/CMakeLists.txt	2015-07-10 15:40:41.490164215 +0200
+@@ -7,6 +7,7 @@
+ 
+ option(STATIC_BINARIES "Link binaries statically." ON)
+ option(USE_SORELEASE   "Use SORELEASE in shared library filename." ON)
++option(USE_ZLIB        "Use Zlib." ON)
+ 
+ #--------------------------------------------------------------------------------------------------
+ # Library version:
+@@ -26,14 +27,25 @@
+ #--------------------------------------------------------------------------------------------------
+ # Dependencies:
+ 
+-find_package(ZLIB)
+-include_directories(${ZLIB_INCLUDE_DIR})
++if(USE_ZLIB)
++  find_package(ZLIB)
++  include_directories(${ZLIB_INCLUDE_DIR})
++  add_definitions(-DMINISAT_USE_ZLIB)
++endif()
++
+ include_directories(${minisat_SOURCE_DIR})
+ 
++if (MSVC)
++  include_directories("external")
++endif()
++
+ #--------------------------------------------------------------------------------------------------
+ # Compile flags:
+ 
+ add_definitions(-D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS)
++if(CMAKE_COMPILER_IS_GNUCXX)
++  add_definitions(-fPIC)
++endif()
+ 
+ #--------------------------------------------------------------------------------------------------
+ # Build Targets:
+@@ -42,13 +54,17 @@
+     minisat/utils/Options.cc
+     minisat/utils/System.cc
+     minisat/core/Solver.cc
+-    minisat/simp/SimpSolver.cc)
++    minisat/simp/SimpSolver.cc
++    minisat/simp/Solver_C.cc # NuSMV
++    )
+ 
+ add_library(minisat-lib-static STATIC ${MINISAT_LIB_SOURCES})
+ add_library(minisat-lib-shared SHARED ${MINISAT_LIB_SOURCES})
+ 
+-target_link_libraries(minisat-lib-shared ${ZLIB_LIBRARY})
+-target_link_libraries(minisat-lib-static ${ZLIB_LIBRARY})
++if(USE_ZLIB)
++  target_link_libraries(minisat-lib-shared ${ZLIB_LIBRARY})
++  target_link_libraries(minisat-lib-static ${ZLIB_LIBRARY})
++endif()
+ 
+ add_executable(minisat_core minisat/core/Main.cc)
+ add_executable(minisat_simp minisat/simp/Main.cc)
+@@ -64,7 +80,7 @@
+ set_target_properties(minisat-lib-static PROPERTIES OUTPUT_NAME "minisat")
+ set_target_properties(minisat-lib-shared
+   PROPERTIES
+-    OUTPUT_NAME "minisat" 
++    OUTPUT_NAME "minisat"
+     VERSION ${MINISAT_VERSION}
+     SOVERSION ${MINISAT_SOVERSION})
+ 
+@@ -73,7 +89,7 @@
+ #--------------------------------------------------------------------------------------------------
+ # Installation targets:
+ 
+-install(TARGETS minisat-lib-static minisat-lib-shared minisat_core minisat_simp 
++install(TARGETS minisat-lib-static minisat-lib-shared minisat_core minisat_simp
+         RUNTIME DESTINATION bin
+         LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib)
+@@ -81,3 +97,23 @@
+ install(DIRECTORY minisat/mtl minisat/utils minisat/core minisat/simp
+         DESTINATION include/minisat
+         FILES_MATCHING PATTERN "*.h")
++
++
++### NuSMV ###################################################################
++set(minisat_libname MiniSat)
++get_target_property(_minisat_lib_loc minisat-lib-static LOCATION)
++get_filename_component(_minisat_lib_ext "${_minisat_lib_loc}" EXT)
++
++if (MSVC)
++  set(_minisat_lib_name
++    "${minisat_libname}${_minisat_lib_ext}")
++else()
++  set(_minisat_lib_name
++    "${CMAKE_STATIC_LIBRARY_PREFIX}${minisat_libname}${CMAKE_STATIC_LIBRARY_SUFFIX}")
++endif()
++
++add_custom_target(lib DEPENDS minisat-lib-static
++                  COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${PROJECT_SOURCE_DIR}/minisat/simp/Solver_C.h" "${PROJECT_BINARY_DIR}/Solver_C.h"
++                  COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${_minisat_lib_loc}" "${PROJECT_BINARY_DIR}/${_minisat_lib_name}"
++                  )
++#############################################################################
+diff -Naur minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/external/inttypes.h minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/external/inttypes.h
+--- minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/external/inttypes.h	1970-01-01 01:00:00.000000000 +0100
++++ minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/external/inttypes.h	2015-07-10 15:37:48.719358633 +0200
+@@ -0,0 +1,305 @@
++// ISO C9x  compliant inttypes.h for Microsoft Visual Studio
++// Based on ISO/IEC 9899:TC2 Committee draft (May 6, 2005) WG14/N1124 
++// 
++//  Copyright (c) 2006 Alexander Chemeris
++// 
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions are met:
++// 
++//   1. Redistributions of source code must retain the above copyright notice,
++//      this list of conditions and the following disclaimer.
++// 
++//   2. Redistributions in binary form must reproduce the above copyright
++//      notice, this list of conditions and the following disclaimer in the
++//      documentation and/or other materials provided with the distribution.
++// 
++//   3. The name of the author may be used to endorse or promote products
++//      derived from this software without specific prior written permission.
++// 
++// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
++// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
++// EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
++// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
++// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
++// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
++// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
++// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++// 
++///////////////////////////////////////////////////////////////////////////////
++
++#ifndef _MSC_VER // [
++#error "Use this header only with Microsoft Visual C++ compilers!"
++#endif // _MSC_VER ]
++
++#ifndef _MSC_INTTYPES_H_ // [
++#define _MSC_INTTYPES_H_
++
++#if _MSC_VER > 1000
++#pragma once
++#endif
++
++#include "stdint.h"
++
++// 7.8 Format conversion of integer types
++
++typedef struct {
++   intmax_t quot;
++   intmax_t rem;
++} imaxdiv_t;
++
++// 7.8.1 Macros for format specifiers
++
++#if !defined(__cplusplus) || defined(__STDC_FORMAT_MACROS) // [   See footnote 185 at page 198
++
++// The fprintf macros for signed integers are:
++#define PRId8       "d"
++#define PRIi8       "i"
++#define PRIdLEAST8  "d"
++#define PRIiLEAST8  "i"
++#define PRIdFAST8   "d"
++#define PRIiFAST8   "i"
++
++#define PRId16       "hd"
++#define PRIi16       "hi"
++#define PRIdLEAST16  "hd"
++#define PRIiLEAST16  "hi"
++#define PRIdFAST16   "hd"
++#define PRIiFAST16   "hi"
++
++#define PRId32       "I32d"
++#define PRIi32       "I32i"
++#define PRIdLEAST32  "I32d"
++#define PRIiLEAST32  "I32i"
++#define PRIdFAST32   "I32d"
++#define PRIiFAST32   "I32i"
++
++#define PRId64       "I64d"
++#define PRIi64       "I64i"
++#define PRIdLEAST64  "I64d"
++#define PRIiLEAST64  "I64i"
++#define PRIdFAST64   "I64d"
++#define PRIiFAST64   "I64i"
++
++#define PRIdMAX     "I64d"
++#define PRIiMAX     "I64i"
++
++#define PRIdPTR     "Id"
++#define PRIiPTR     "Ii"
++
++// The fprintf macros for unsigned integers are:
++#define PRIo8       "o"
++#define PRIu8       "u"
++#define PRIx8       "x"
++#define PRIX8       "X"
++#define PRIoLEAST8  "o"
++#define PRIuLEAST8  "u"
++#define PRIxLEAST8  "x"
++#define PRIXLEAST8  "X"
++#define PRIoFAST8   "o"
++#define PRIuFAST8   "u"
++#define PRIxFAST8   "x"
++#define PRIXFAST8   "X"
++
++#define PRIo16       "ho"
++#define PRIu16       "hu"
++#define PRIx16       "hx"
++#define PRIX16       "hX"
++#define PRIoLEAST16  "ho"
++#define PRIuLEAST16  "hu"
++#define PRIxLEAST16  "hx"
++#define PRIXLEAST16  "hX"
++#define PRIoFAST16   "ho"
++#define PRIuFAST16   "hu"
++#define PRIxFAST16   "hx"
++#define PRIXFAST16   "hX"
++
++#define PRIo32       "I32o"
++#define PRIu32       "I32u"
++#define PRIx32       "I32x"
++#define PRIX32       "I32X"
++#define PRIoLEAST32  "I32o"
++#define PRIuLEAST32  "I32u"
++#define PRIxLEAST32  "I32x"
++#define PRIXLEAST32  "I32X"
++#define PRIoFAST32   "I32o"
++#define PRIuFAST32   "I32u"
++#define PRIxFAST32   "I32x"
++#define PRIXFAST32   "I32X"
++
++#define PRIo64       "I64o"
++#define PRIu64       "I64u"
++#define PRIx64       "I64x"
++#define PRIX64       "I64X"
++#define PRIoLEAST64  "I64o"
++#define PRIuLEAST64  "I64u"
++#define PRIxLEAST64  "I64x"
++#define PRIXLEAST64  "I64X"
++#define PRIoFAST64   "I64o"
++#define PRIuFAST64   "I64u"
++#define PRIxFAST64   "I64x"
++#define PRIXFAST64   "I64X"
++
++#define PRIoMAX     "I64o"
++#define PRIuMAX     "I64u"
++#define PRIxMAX     "I64x"
++#define PRIXMAX     "I64X"
++
++#define PRIoPTR     "Io"
++#define PRIuPTR     "Iu"
++#define PRIxPTR     "Ix"
++#define PRIXPTR     "IX"
++
++// The fscanf macros for signed integers are:
++#define SCNd8       "d"
++#define SCNi8       "i"
++#define SCNdLEAST8  "d"
++#define SCNiLEAST8  "i"
++#define SCNdFAST8   "d"
++#define SCNiFAST8   "i"
++
++#define SCNd16       "hd"
++#define SCNi16       "hi"
++#define SCNdLEAST16  "hd"
++#define SCNiLEAST16  "hi"
++#define SCNdFAST16   "hd"
++#define SCNiFAST16   "hi"
++
++#define SCNd32       "ld"
++#define SCNi32       "li"
++#define SCNdLEAST32  "ld"
++#define SCNiLEAST32  "li"
++#define SCNdFAST32   "ld"
++#define SCNiFAST32   "li"
++
++#define SCNd64       "I64d"
++#define SCNi64       "I64i"
++#define SCNdLEAST64  "I64d"
++#define SCNiLEAST64  "I64i"
++#define SCNdFAST64   "I64d"
++#define SCNiFAST64   "I64i"
++
++#define SCNdMAX     "I64d"
++#define SCNiMAX     "I64i"
++
++#ifdef _WIN64 // [
++#  define SCNdPTR     "I64d"
++#  define SCNiPTR     "I64i"
++#else  // _WIN64 ][
++#  define SCNdPTR     "ld"
++#  define SCNiPTR     "li"
++#endif  // _WIN64 ]
++
++// The fscanf macros for unsigned integers are:
++#define SCNo8       "o"
++#define SCNu8       "u"
++#define SCNx8       "x"
++#define SCNX8       "X"
++#define SCNoLEAST8  "o"
++#define SCNuLEAST8  "u"
++#define SCNxLEAST8  "x"
++#define SCNXLEAST8  "X"
++#define SCNoFAST8   "o"
++#define SCNuFAST8   "u"
++#define SCNxFAST8   "x"
++#define SCNXFAST8   "X"
++
++#define SCNo16       "ho"
++#define SCNu16       "hu"
++#define SCNx16       "hx"
++#define SCNX16       "hX"
++#define SCNoLEAST16  "ho"
++#define SCNuLEAST16  "hu"
++#define SCNxLEAST16  "hx"
++#define SCNXLEAST16  "hX"
++#define SCNoFAST16   "ho"
++#define SCNuFAST16   "hu"
++#define SCNxFAST16   "hx"
++#define SCNXFAST16   "hX"
++
++#define SCNo32       "lo"
++#define SCNu32       "lu"
++#define SCNx32       "lx"
++#define SCNX32       "lX"
++#define SCNoLEAST32  "lo"
++#define SCNuLEAST32  "lu"
++#define SCNxLEAST32  "lx"
++#define SCNXLEAST32  "lX"
++#define SCNoFAST32   "lo"
++#define SCNuFAST32   "lu"
++#define SCNxFAST32   "lx"
++#define SCNXFAST32   "lX"
++
++#define SCNo64       "I64o"
++#define SCNu64       "I64u"
++#define SCNx64       "I64x"
++#define SCNX64       "I64X"
++#define SCNoLEAST64  "I64o"
++#define SCNuLEAST64  "I64u"
++#define SCNxLEAST64  "I64x"
++#define SCNXLEAST64  "I64X"
++#define SCNoFAST64   "I64o"
++#define SCNuFAST64   "I64u"
++#define SCNxFAST64   "I64x"
++#define SCNXFAST64   "I64X"
++
++#define SCNoMAX     "I64o"
++#define SCNuMAX     "I64u"
++#define SCNxMAX     "I64x"
++#define SCNXMAX     "I64X"
++
++#ifdef _WIN64 // [
++#  define SCNoPTR     "I64o"
++#  define SCNuPTR     "I64u"
++#  define SCNxPTR     "I64x"
++#  define SCNXPTR     "I64X"
++#else  // _WIN64 ][
++#  define SCNoPTR     "lo"
++#  define SCNuPTR     "lu"
++#  define SCNxPTR     "lx"
++#  define SCNXPTR     "lX"
++#endif  // _WIN64 ]
++
++#endif // __STDC_FORMAT_MACROS ]
++
++// 7.8.2 Functions for greatest-width integer types
++
++// 7.8.2.1 The imaxabs function
++#define imaxabs _abs64
++
++// 7.8.2.2 The imaxdiv function
++
++// This is modified version of div() function from Microsoft's div.c found
++// in %MSVC.NET%\crt\src\div.c
++#ifdef STATIC_IMAXDIV // [
++static
++#else // STATIC_IMAXDIV ][
++_inline
++#endif // STATIC_IMAXDIV ]
++imaxdiv_t __cdecl imaxdiv(intmax_t numer, intmax_t denom)
++{
++   imaxdiv_t result;
++
++   result.quot = numer / denom;
++   result.rem = numer % denom;
++
++   if (numer < 0 && result.rem > 0) {
++      // did division wrong; must fix up
++      ++result.quot;
++      result.rem -= denom;
++   }
++
++   return result;
++}
++
++// 7.8.2.3 The strtoimax and strtoumax functions
++#define strtoimax _strtoi64
++#define strtoumax _strtoui64
++
++// 7.8.2.4 The wcstoimax and wcstoumax functions
++#define wcstoimax _wcstoi64
++#define wcstoumax _wcstoui64
++
++
++#endif // _MSC_INTTYPES_H_ ]
+diff -Naur minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/Makefile minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/Makefile
+--- minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/Makefile	2013-09-25 14:16:18.000000000 +0200
++++ minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/Makefile	2015-07-10 15:37:48.719358633 +0200
+@@ -1,9 +1,29 @@
+ ###################################################################################################
+ 
+ .PHONY:	r d p sh cr cd cp csh lr ld lp lsh config all install install-headers install-lib\
+-        install-bin clean distclean
++        install-bin clean distclean \
++	lib origclean
+ all:	r lr lsh
+ 
++### NuSMV ###################################################################
++LN ?= ln -s
++NUSMV_LIBNAME = libMiniSat.a
++NUSMV_HEADER = Solver_C.h
++lib: $(NUSMV_LIBNAME) $(NUSMV_HEADER)
++	@echo Done
++
++$(NUSMV_LIBNAME): lr
++	$(LN) $(BUILD_DIR)/release/lib/$(MINISAT_SLIB) $(NUSMV_LIBNAME)
++
++$(NUSMV_HEADER): lr
++	$(LN) minisat/simp/$(NUSMV_HEADER) $(NUSMV_HEADER)
++
++clean: origclean
++	rm -f $(NUSMV_LIBNAME)
++	rm -f $(NUSMV_HEADER)
++#############################################################################
++
++
+ ## Load Previous Configuration ####################################################################
+ 
+ -include config.mk
+@@ -69,8 +89,8 @@
+ VERB=
+ endif
+ 
+-SRCS = $(wildcard minisat/core/*.cc) $(wildcard minisat/simp/*.cc) $(wildcard minisat/utils/*.cc)
+-HDRS = $(wildcard minisat/mtl/*.h) $(wildcard minisat/core/*.h) $(wildcard minisat/simp/*.h) $(wildcard minisat/utils/*.h)
++SRCS = $(wildcard minisat/core/*.cc) $(wildcard minisat/simp/*.cc) $(wildcard minisat/utils/*.cc) $(wildcard minisat/proof/*.cc)
++HDRS = $(wildcard minisat/mtl/*.h) $(wildcard minisat/core/*.h) $(wildcard minisat/simp/*.h) $(wildcard minisat/utils/*.h) $(wildcard minisat/proof/*.h)
+ OBJS = $(filter-out %Main.o, $(SRCS:.cc=.o))
+ 
+ r:	$(BUILD_DIR)/release/bin/$(MINISAT)
+@@ -89,7 +109,7 @@
+ lsh:	$(BUILD_DIR)/dynamic/lib/$(MINISAT_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE)
+ 
+ ## Build-type Compile-flags:
+-$(BUILD_DIR)/release/%.o:			MINISAT_CXXFLAGS +=$(MINISAT_REL) $(MINISAT_RELSYM)
++$(BUILD_DIR)/release/%.o:			MINISAT_CXXFLAGS +=$(MINISAT_REL) $(MINISAT_RELSYM) $(MINISAT_FPIC)
+ $(BUILD_DIR)/debug/%.o:				MINISAT_CXXFLAGS +=$(MINISAT_DEB) -g
+ $(BUILD_DIR)/profile/%.o:			MINISAT_CXXFLAGS +=$(MINISAT_PRF) -pg
+ $(BUILD_DIR)/dynamic/%.o:			MINISAT_CXXFLAGS +=$(MINISAT_REL) $(MINISAT_FPIC)
+@@ -195,7 +215,7 @@
+ 	$(INSTALL) -d $(DESTDIR)$(bindir)
+ 	$(INSTALL) -m 755 $(BUILD_DIR)/dynamic/bin/$(MINISAT) $(DESTDIR)$(bindir)
+ 
+-clean:
++origclean:
+ 	rm -f $(foreach t, release debug profile dynamic, $(foreach o, $(SRCS:.cc=.o), $(BUILD_DIR)/$t/$o)) \
+           $(foreach t, release debug profile dynamic, $(foreach d, $(SRCS:.cc=.d), $(BUILD_DIR)/$t/$d)) \
+ 	  $(foreach t, release debug profile dynamic, $(BUILD_DIR)/$t/bin/$(MINISAT_CORE) $(BUILD_DIR)/$t/bin/$(MINISAT)) \
+@@ -203,6 +223,7 @@
+ 	  $(BUILD_DIR)/dynamic/lib/$(MINISAT_DLIB).$(SOMAJOR).$(SOMINOR)$(SORELEASE)\
+ 	  $(BUILD_DIR)/dynamic/lib/$(MINISAT_DLIB).$(SOMAJOR)\
+ 	  $(BUILD_DIR)/dynamic/lib/$(MINISAT_DLIB)
++	rm -f $(NUSMV_LIBNAME)
+ 
+ distclean:	clean
+ 	rm -f config.mk
+diff -Naur minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/core/Solver.cc minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/core/Solver.cc
+--- minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/core/Solver.cc	2013-09-25 14:16:18.000000000 +0200
++++ minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/core/Solver.cc	2015-07-10 15:37:48.720358650 +0200
+@@ -101,7 +101,16 @@
+   , conflict_budget    (-1)
+   , propagation_budget (-1)
+   , asynch_interrupt   (false)
+-{}
++{
++    // NuSMV: MOD BEGIN
++    /* Disables "progress saving" which relies on last polarity
++       assigned to a var when branching. Polarity for us is forced to
++       be false. See http://reasoning.cs.ucla.edu/fetch.php?id=69&type=pdf
++    */
++    phase_saving = 0;
++    default_polarity = l_Undef;
++    // NuSMV: MOD END
++}   
+ 
+ 
+ Solver::~Solver()
+@@ -250,8 +259,19 @@
+ {
+     Var next = var_Undef;
+ 
++    // NuSMV: PREF MOD
++    // Selection from preferred list
++    for (int i = 0; i < preferred.size(); i++) {
++      if (value(preferred[i]) == l_Undef) {
++        next = preferred[i];
++        break;
++      }
++    }
++    // NuSMV: PREF MOD END
++
+     // Random decision:
+-    if (drand(random_seed) < random_var_freq && !order_heap.empty()){
++    if (next == var_Undef && // NuSMV: PREF MOD
++        drand(random_seed) < random_var_freq && !order_heap.empty()){
+         next = order_heap[irand(random_seed,order_heap.size())];
+         if (value(next) == l_Undef && decision[next])
+             rnd_decisions++; }
+@@ -269,6 +289,8 @@
+         return lit_Undef;
+     else if (user_pol[next] != l_Undef)
+         return mkLit(next, user_pol[next] == l_True);
++    else if (default_polarity != l_Undef) // NuSMV
++        return mkLit(next, default_polarity == l_True);
+     else if (rnd_pol)
+         return mkLit(next, drand(random_seed) < 0.5);
+     else
+@@ -620,6 +642,19 @@
+ }
+ 
+ 
++// NuSMV: PREF MOD
++void Solver::addPreferred(Var v)
++{
++    preferred.push(v);
++}
++
++void Solver::clearPreferred()
++{
++    preferred.clear(0);
++}
++// NuSMV: PREF MOD END
++
++
+ void Solver::rebuildOrderHeap()
+ {
+     vec<Var> vs;
+diff -Naur minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/core/Solver.h minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/core/Solver.h
+--- minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/core/Solver.h	2013-09-25 14:16:18.000000000 +0200
++++ minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/core/Solver.h	2015-07-10 15:37:48.720358650 +0200
+@@ -90,6 +90,19 @@
+     void    setPolarity    (Var v, lbool b); // Declare which polarity the decision heuristic should use for a variable. Requires mode 'polarity_user'.
+     void    setDecisionVar (Var v, bool b);  // Declare if a variable should be eligible for selection in the decision heuristic.
+ 
++    // NuSMV: PREF MOD
++    /*
++     * Add a variable at the end of the list of preferred variables
++     * Does not remove the variable from the standard ordering.
++     */
++    void addPreferred(Var v);
++    
++    /*
++     * Clear vector of preferred variables.
++     */
++    void clearPreferred();
++    // NuSMV: PREF MOD END
++    
+     // Read state:
+     //
+     lbool   value      (Var x) const;       // The current value of a variable.
+@@ -134,6 +147,8 @@
+     int       ccmin_mode;         // Controls conflict clause minimization (0=none, 1=basic, 2=deep).
+     int       phase_saving;       // Controls the level of phase saving (0=none, 1=limited, 2=full).
+     bool      rnd_pol;            // Use random polarities for branching heuristics.
++    lbool     default_polarity; // NuSMV: default polarity for vars
++    
+     bool      rnd_init_act;       // Initialize variable activities with a small random value.
+     double    garbage_frac;       // The fraction of wasted memory allowed before a garbage collection is triggered.
+     int       min_learnts_lim;    // Minimum number to set the learnts limit to.
+@@ -215,6 +230,10 @@
+     Var                 next_var;         // Next variable to be created.
+     ClauseAllocator     ca;
+ 
++    // NuSMV: PREF MOD
++    vec<Var>            preferred;
++    // NuSMV: PREF MOD END
++
+     vec<Var>            released_vars;
+     vec<Var>            free_vars;
+ 
+diff -Naur minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/core/SolverTypes.h minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/core/SolverTypes.h
+--- minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/core/SolverTypes.h	2013-09-25 14:16:18.000000000 +0200
++++ minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/core/SolverTypes.h	2015-07-10 15:37:48.720358650 +0200
+@@ -52,7 +52,7 @@
+     int     x;
+ 
+     // Use this as a constructor:
+-    friend Lit mkLit(Var var, bool sign = false);
++    friend Lit mkLit(Var var, bool sign);
+ 
+     bool operator == (Lit p) const { return x == p.x; }
+     bool operator != (Lit p) const { return x != p.x; }
+@@ -61,6 +61,7 @@
+ 
+ 
+ inline  Lit  mkLit     (Var var, bool sign) { Lit p; p.x = var + var + (int)sign; return p; }
++inline  Lit  mkLit     (Var var)            { return mkLit(var, false); }
+ inline  Lit  operator ~(Lit p)              { Lit q; q.x = p.x ^ 1; return q; }
+ inline  Lit  operator ^(Lit p, bool b)      { Lit q; q.x = p.x ^ (unsigned int)b; return q; }
+ inline  bool sign      (Lit p)              { return p.x & 1; }
+@@ -120,6 +121,7 @@
+ inline int   toInt  (lbool l) { return l.value; }
+ inline lbool toLbool(int   v) { return lbool((uint8_t)v);  }
+ 
++#define MINISAT_CONSTANTS_AS_MACROS
+ #if defined(MINISAT_CONSTANTS_AS_MACROS)
+   #define l_True  (lbool((uint8_t)0)) // gcc does not do constant propagation if these are real constants.
+   #define l_False (lbool((uint8_t)1))
+diff -Naur minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/simp/Solver_C.cc minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/simp/Solver_C.cc
+--- minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/simp/Solver_C.cc	1970-01-01 01:00:00.000000000 +0100
++++ minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/simp/Solver_C.cc	2015-07-10 15:37:48.721358667 +0200
+@@ -0,0 +1,246 @@
++
++/**************************************************************************************************
++
++Solver_C.C
++
++C-wrapper for Solver.C
++
++  This file is part of NuSMV version 2. 
++  Copyright (C) 2007 by FBK-irst. 
++  Author: Roberto Cavada <cavada@fbk.eu>
++
++  NuSMV version 2 is free software; you can redistribute it and/or 
++  modify it under the terms of the GNU Lesser General Public 
++  License as published by the Free Software Foundation; either 
++  version 2 of the License, or (at your option) any later version.
++
++  NuSMV version 2 is distributed in the hope that it will be useful, 
++  but WITHOUT ANY WARRANTY; without even the implied warranty of 
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
++  Lesser General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public 
++  License along with this library; if not, write to the Free Software 
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
++
++  For more information on NuSMV see <http://nusmv.fbk.eu>
++  or email to <nusmv-users@fbk.eu>.
++  Please report bugs to <nusmv-users@fbk.eu>.
++
++  To contact the NuSMV development board, email to <nusmv@fbk.eu>. ]
++
++**************************************************************************************************/
++
++
++#include "SimpSolver.h"
++extern "C" {
++#include "Solver_C.h"
++}
++
++namespace {
++using Minisat::lbool;
++} // namespace
++
++extern "C" MiniSat_ptr MiniSat_Create()
++{
++  Minisat::SimpSolver *s = new Minisat::SimpSolver();
++  s->default_polarity = l_True;
++  return (MiniSat_ptr)s;
++}
++
++extern "C"void MiniSat_Delete(MiniSat_ptr ms)
++{
++  delete (Minisat::SimpSolver *)ms;
++}
++
++extern "C" int MiniSat_Nof_Variables(MiniSat_ptr ms)
++{
++  return ((Minisat::SimpSolver *)ms)->nVars();
++}
++
++extern "C" int MiniSat_Nof_Clauses(MiniSat_ptr ms)
++{
++  return ((Minisat::SimpSolver *)ms)->nClauses();
++}
++
++/* variables are in the range 1...N */
++extern "C" int MiniSat_New_Variable(MiniSat_ptr ms)
++{
++  /* Actually, minisat used variable range 0 .. N-1,
++     so in all function below there is a convertion between
++     input variable (1..N) and internal variables (0..N-1)
++  */	
++  Minisat::Var var = ((Minisat::SimpSolver *)ms)->newVar();
++  ((Minisat::SimpSolver *)ms)->setFrozen(var, true);
++  return var+1;
++}
++
++
++/*
++ * Here clauses are in dimacs form, variable indexing is 1...N
++ */
++extern "C" int MiniSat_Add_Clause(MiniSat_ptr ms,
++                                  int *clause_lits, int num_lits)
++{
++  int i;
++  Minisat::vec<Minisat::Lit> cl;
++  for(i = 0; i < num_lits; ++i) {
++    const int lit = clause_lits[i];
++    assert(abs(lit) > 0);
++    assert(abs(lit) <= MiniSat_Nof_Variables((Minisat::SimpSolver*)ms));
++    int var = abs(lit) - 1;
++    cl.push((lit > 0) ? Minisat::mkLit(var) : ~ Minisat::mkLit(var));
++  }
++  ((Minisat::SimpSolver *)ms)->addClause(cl);
++
++  if(((Minisat::SimpSolver *)ms)->okay()) return 1;
++  return 0;
++}
++
++extern "C" int MiniSat_Solve(MiniSat_ptr ms)
++{
++  bool ret = ((Minisat::SimpSolver *)ms)->solve();
++  if(ret) return 1;
++  return 0;
++}
++
++/*
++ * Here the assumption is in "dimacs form", variable indexing is 1...N
++ */
++extern "C" int MiniSat_Solve_Assume(MiniSat_ptr ms,
++				    int nof_assumed_lits,
++				    int *assumed_lits)
++{
++  int i;
++  Minisat::vec<Minisat::Lit> cl;
++  assert(((Minisat::SimpSolver*)0) != ((Minisat::SimpSolver*)ms)); 
++  Minisat::SimpSolver& solver = *((Minisat::SimpSolver*)ms);
++
++  solver.simplify();
++  if(solver.okay() == false) return 0;
++
++  assert(nof_assumed_lits >= 0);
++  for(i = 0; i < nof_assumed_lits; ++i) {
++    const int lit = assumed_lits[i];
++    assert(abs(lit) > 0);
++    assert(abs(lit) <= MiniSat_Nof_Variables((Minisat::SimpSolver*)ms));
++    int var = abs(lit) - 1;
++    cl.push((lit > 0) ? Minisat::mkLit(var) : ~Minisat::mkLit(var));
++  }
++
++  if (solver.solve(cl)) return 1;
++  return 0;
++}
++
++extern "C" int MiniSat_simplifyDB(MiniSat_ptr ms)
++{
++  ((Minisat::SimpSolver *)ms)->simplify();
++  if(((Minisat::SimpSolver *)ms)->okay()) return 1;
++  return 0;
++}
++
++/*
++ * Here variables are numbered 1...N
++ */
++extern "C" int MiniSat_Get_Value(MiniSat_ptr ms, int var_num)
++{
++  assert(var_num > 0);
++  if(var_num > MiniSat_Nof_Variables(ms)) return -1;
++  /* minisat assigns all variables. just check */
++  assert(((Minisat::SimpSolver *)ms)->model[var_num-1] != l_Undef); 
++  
++  if(((Minisat::SimpSolver *)ms)->model[var_num-1] == l_True) return 1;
++  return 0;
++}
++
++extern "C" int MiniSat_Get_Nof_Conflict_Lits(MiniSat_ptr ms)
++{
++  assert(((Minisat::SimpSolver*)0) != ((Minisat::SimpSolver*)ms)); 
++  Minisat::SimpSolver& solver = *((Minisat::SimpSolver*)ms);
++
++  return solver.conflict.size();
++}
++
++extern "C" void MiniSat_Get_Conflict_Lits(MiniSat_ptr ms, int* conflict_lits)
++{
++  assert(((Minisat::SimpSolver*)0) != ((Minisat::SimpSolver*)ms)); 
++  Minisat::SimpSolver& solver = *((Minisat::SimpSolver*)ms);
++
++  Minisat::LSet& cf = solver.conflict;
++
++  for (int i = 0; i < cf.size(); ++i) {
++    int v = Minisat::var(~cf[i]);
++    int s = Minisat::sign(~cf[i]);
++    assert(v != Minisat::var_Undef);
++    conflict_lits[i] = (s == 0) ? (v+1) : -(v+1);
++  }
++}
++
++/** mode can be  polarity_user, polarity_rnd */
++extern "C" void MiniSat_Set_Polarity_Mode(MiniSat_ptr ms, int mode)
++{
++  assert(((Minisat::SimpSolver*)0) != ((Minisat::SimpSolver*)ms)); 
++  assert(__polarity_unsupported != mode); 
++  Minisat::SimpSolver& solver = *((Minisat::SimpSolver*)ms);  
++  if (polarity_rnd == mode) {
++    solver.rnd_pol = true;
++    solver.default_polarity = l_Undef;
++  }
++  else {
++    // assert(polarity_user == mode);
++    solver.rnd_pol = false;
++    switch (mode) {
++    case polarity_false:
++      solver.default_polarity = l_True;
++      break;
++    case polarity_true:
++      solver.default_polarity = l_False;
++      break;
++    default: // polarity_user
++      solver.default_polarity = l_Undef;
++      break;
++    }
++  }
++}
++
++extern "C" int MiniSat_Get_Polarity_Mode(MiniSat_ptr ms)
++{
++  assert(((Minisat::SimpSolver*)0) != ((Minisat::SimpSolver*)ms)); 
++  Minisat::SimpSolver& solver = *((Minisat::SimpSolver*)ms);  
++  //return solver.rnd_pol ? polarity_rnd : polarity_user;
++  if (solver.rnd_pol) {
++    return polarity_rnd;
++  } else if (solver.default_polarity == l_True) {
++    return polarity_false;
++  } else if (solver.default_polarity == l_False) {
++    return polarity_true;
++  } else {
++    return polarity_user;
++  }
++}
++
++extern "C" void MiniSat_Set_Random_Seed(MiniSat_ptr ms, double seed)
++{
++  assert(((Minisat::SimpSolver*)0) != ((Minisat::SimpSolver*)ms)); 
++  Minisat::SimpSolver& solver = *((Minisat::SimpSolver*)ms);
++  solver.random_seed = seed;
++}
++
++
++// NuSMV: PREF MOD
++/* variables are in the range 1...N */
++extern "C" void MiniSat_Set_Preferred_Variable(MiniSat_ptr ms, int x)
++{
++  /* Actually, minisat used variable range 0 .. N-1,
++     so in all function below there is a convertion between
++     input variable (1..N) and internal variables (0..N-1)
++  */
++  ((Minisat::SimpSolver *)ms)->addPreferred((Minisat::Var) x);
++}
++
++extern "C" void MiniSat_Clear_Preferred_Variables(MiniSat_ptr ms)
++{
++
++  ((Minisat::SimpSolver *)ms)->clearPreferred();
++}
++// NuSMV: PREF MOD END
+diff -Naur minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/simp/Solver_C.h minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/simp/Solver_C.h
+--- minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/simp/Solver_C.h	1970-01-01 01:00:00.000000000 +0100
++++ minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/simp/Solver_C.h	2015-07-10 15:37:48.721358667 +0200
+@@ -0,0 +1,72 @@
++/**************************************************************************************************
++
++Solver_C.h
++
++C-wrapper for Solver.h
++
++  This file is part of NuSMV version 2. 
++  Copyright (C) 2007 by FBK-irst. 
++  Author: Roberto Cavada <cavada@fbk.eu>
++
++  NuSMV version 2 is free software; you can redistribute it and/or 
++  modify it under the terms of the GNU Lesser General Public 
++  License as published by the Free Software Foundation; either 
++  version 2 of the License, or (at your option) any later version.
++
++  NuSMV version 2 is distributed in the hope that it will be useful, 
++  but WITHOUT ANY WARRANTY; without even the implied warranty of 
++  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
++  Lesser General Public License for more details.
++
++  You should have received a copy of the GNU Lesser General Public 
++  License along with this library; if not, write to the Free Software 
++  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
++
++  For more information on NuSMV see <http://nusmv.fbk.eu>
++  or email to <nusmv-users@fbk.eu>.
++  Please report bugs to <nusmv-users@fbk.eu>.
++
++  To contact the NuSMV development board, email to <nusmv@fbk.eu>. ]
++
++**************************************************************************************************/
++
++#ifndef SOLVER_C_h
++#define SOLVER_C_h
++
++//=================================================================================================
++// Solver -- the main class:
++
++#define MiniSat_ptr void *
++
++enum {
++  __polarity_unsupported = -1,
++  polarity_true = 0, 
++  polarity_false = 1, 
++  polarity_user = 2,  
++  polarity_rnd = 3,
++};
++
++MiniSat_ptr MiniSat_Create();
++void MiniSat_Delete(MiniSat_ptr);
++int MiniSat_Nof_Variables(MiniSat_ptr);
++int MiniSat_Nof_Clauses(MiniSat_ptr);
++int MiniSat_New_Variable(MiniSat_ptr);
++int MiniSat_Add_Clause(MiniSat_ptr, int *clause_lits, int num_lits);
++int MiniSat_Solve(MiniSat_ptr);
++int MiniSat_Solve_Assume(MiniSat_ptr, int nof_assumed_lits, int *assumed_lits);
++int MiniSat_simplifyDB(MiniSat_ptr);
++int MiniSat_Get_Value(MiniSat_ptr, int var_num);
++int MiniSat_Get_Nof_Conflict_Lits(MiniSat_ptr ms);
++void MiniSat_Get_Conflict_Lits(MiniSat_ptr ms, int* conflict_lits);
++
++void MiniSat_Set_Polarity_Mode(MiniSat_ptr ms, int mode);
++int MiniSat_Get_Polarity_Mode(MiniSat_ptr ms);
++void MiniSat_Set_Random_Seed(MiniSat_ptr ms, double seed);
++
++// NuSMV: PREF MOD
++void MiniSat_Set_Preferred_Variable(MiniSat_ptr, int);
++void MiniSat_Clear_Preferred_Variables(MiniSat_ptr);
++// NuSMV: PREF MOD END
++
++//=================================================================================================
++#endif
+diff -Naur minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/utils/ParseUtils.h minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/utils/ParseUtils.h
+--- minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/utils/ParseUtils.h	2013-09-25 14:16:18.000000000 +0200
++++ minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/utils/ParseUtils.h	2015-07-10 15:37:48.721358667 +0200
+@@ -24,7 +24,15 @@
+ #include <stdlib.h>
+ #include <stdio.h>
+ 
+-#include <zlib.h>
++#ifdef MINISAT_USE_ZLIB
++#  include <zlib.h>
++#else
++   typedef FILE *gzFile;
++#  define gzopen(in, m) fopen(in, m)
++#  define gzdopen(fd, m) fdopen(fd, m)
++#  define gzread(in, buf, sz) fread(buf, 1, sz, in)
++#  define gzclose(in) fclose(in)
++#endif // MINISAT_USE_ZLIB
+ 
+ #include "minisat/mtl/XAlloc.h"
+ 
+diff -Naur minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/utils/System.cc minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/utils/System.cc
+--- minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543_ORIG/minisat/utils/System.cc	2013-09-25 14:16:18.000000000 +0200
++++ minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/utils/System.cc	2015-07-10 15:37:48.722358683 +0200
+@@ -77,7 +77,7 @@
+     struct rusage ru;
+     getrusage(RUSAGE_SELF, &ru);
+     return (double)ru.ru_maxrss / 1024; }
+-double Minisat::memUsedPeak() { return memUsed(); }
++double Minisat::memUsedPeak(bool strictlyPeak) { return memUsed(); }
+ 
+ 
+ #elif defined(__APPLE__)
+@@ -87,11 +87,11 @@
+     malloc_statistics_t t;
+     malloc_zone_statistics(NULL, &t);
+     return (double)t.max_size_in_use / (1024*1024); }
+-double Minisat::memUsedPeak() { return memUsed(); }
++double Minisat::memUsedPeak(bool strictlyPeak) { return memUsed(); }
+ 
+ #else
+ double Minisat::memUsed()     { return 0; }
+-double Minisat::memUsedPeak() { return 0; }
++double Minisat::memUsedPeak(bool strictlyPeak) { return 0; }
+ #endif
+ 
+ 

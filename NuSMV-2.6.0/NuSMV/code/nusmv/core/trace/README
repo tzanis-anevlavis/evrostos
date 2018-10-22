@@ -1,0 +1,55 @@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+FILES
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+plugins/counter-example.xsd
+  the schema of the smv trace.
+  It has a namespace, so it can be imported in another schema.
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+HOW TO CONTROL WHICH SYMBOLS ARE PRINTED
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+trace is quite a rich package, providing many ways to control how a trace is
+printed. I try to collect here the different implemented filters.
+I think that the preferred way should be to use the layers, either using the
+ARTIFICT class, or using TraceMgr_register_layer.
+
+===============================================================================
+PROGRAMMING LEVEL
+===============================================================================
+1. parameter symbols passed to Trace_create()
+  In the first place, you can filter the symbols yourself, using the methods
+  provided by the SymbTable. This is exploited in the core, in ltl, when only
+  the symbols of the scalar SexpFsm are passed.
+  This might be a problem if you have a define referring to a missing symbol.
+
+2. Automatic filtering during trace creation
+  static function trace_set_language exclude from the trace language all the
+  symbols that are:
+  a. encoding bits (nodetype BIT)
+  b. symbols with array type (should be only array defines)
+  c. symbols belonging to layer in the class ARTIFACTS_LAYERS_CLASS
+
+3. TraceMgr_register_layer
+  Only the symbols belonging to registered layer are printed.
+  WARNING: this functionality is now broken (see issue 3423)
+
+4. passing an object TraceOpt when calling TraceMgr_execute_plugin()
+  It allows you to filter the symbols setting these fields:
+  boolean show_defines;
+  boolean show_defines_with_next;
+  char* hiding_prefix;
+  regex_t* regexp;
+
+
+===============================================================================
+USER LEVEL
+===============================================================================
+5. Environmental variables:
+  traces_hiding_prefix                     "__"
+  traces_regexp                            NULL
+  traces_show_defines                      "1"
+  traces_show_defines_with_next            "1"
+
+6. Command options

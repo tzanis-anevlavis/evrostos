@@ -1,0 +1,8 @@
+---------------------- Report for corresponding LTL specifications ----------------------
+
+Model used: ./examples/mot_example.smv
+
+----------------------------------------------------------------------
+LTL Formula No1:
+(F(G (ta12non & ta13non))) -> (G(F (!tsctr1) ))
+Model Checking of the LTL formula took 4.098227 seconds, and returns truth value 1.

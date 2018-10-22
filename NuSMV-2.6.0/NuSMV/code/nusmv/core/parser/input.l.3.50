@@ -1,0 +1,18 @@
+/***************************************************************  -*-C-*-  ***/
+static int nusmv_skip_comment()
+{
+#ifdef __cplusplus
+  return Parser_skip_one_line_comment(yyinput);
+#else
+  return Parser_skip_one_line_comment(input);
+#endif
+}
+
+static int nusmv_skip_multiline_comment()
+{
+#ifdef __cplusplus
+  return Parser_skip_multiline_comment(yyinput);
+#else
+  return Parser_skip_multiline_comment(input);
+#endif 
+}

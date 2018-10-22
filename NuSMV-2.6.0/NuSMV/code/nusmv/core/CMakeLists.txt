@@ -1,0 +1,30 @@
+set(SUBDIRS
+  parser
+  be
+  dag
+  enc
+  ltl
+  mc
+  opt
+  prop
+  sat
+  set
+  simulate
+  trans
+  trace
+  bmc
+  compile
+  dd
+  fsm
+  node
+  rbc
+  cinit
+  utils
+  sexp
+  hrc
+  wff
+  )
+
+foreach(_d ${SUBDIRS})
+    add_subdirectory(${_d})
+endforeach()

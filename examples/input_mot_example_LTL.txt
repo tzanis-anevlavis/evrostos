@@ -1,0 +1,1 @@
+(F(G (ta12non & ta13non))) -> (G(F (!tsctr1) ))

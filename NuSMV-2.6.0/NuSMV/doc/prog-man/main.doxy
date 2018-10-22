@@ -1,0 +1,30 @@
+/*!
+  \mainpage NuSMV Developers Manual
+
+  \section intro_sec Introduction
+
+  NuSMV Developers Documentation, main page
+
+  Try to go in the subpages:
+
+  - \subpage intro
+  - \subpage advanced
+
+  \section install_sec Installation
+
+  \subsection install_step1 Step 1: The NuSMV code base
+
+*/
+
+/*!
+  \page intro Introduction
+
+  This is the intro page.
+*/
+
+/*!
+  \page advanced Advanced
+
+  This is the advanced page.
+
+*/

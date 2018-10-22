@@ -1,0 +1,71 @@
+<project name="rLTL-to-LTL translator" default="compile">
+
+	<!-- Sets the home for JavaCC -->
+	<property environment="env"/>
+	<condition property="JAVACC_HOME" value="${env.JAVACC_HOME}" else="/usr/share/java/">
+    	<isset property="env.JAVACC_HOME" />
+	</condition>
+
+	<!-- Sets paths -->
+	<property name="PARSER_PATH" value="src/org/mpi_sws/rltl/parser"/>
+	<property name="BUILD_PATH" value="build"/>
+
+
+	<!-- Generates sources for parser and compiles all source files -->
+    <target name="compile" depends="generate_parser">
+        <mkdir dir="${BUILD_PATH}"/>
+        <javac srcdir="src" destdir="${BUILD_PATH}" includeantruntime="false"/>
+    </target>
+
+
+	<!-- Runs JavaCC to build the parser sources -->
+    <target name="generate_parser">
+		<echo message="Looking for JavaCC in ${JAVACC_HOME}"/>
+		<javacc target="${PARSER_PATH}/LTLParser.jj" javacchome="${JAVACC_HOME}"/>
+    </target>
+
+
+	<!-- Generates Javadoc of the sources -->
+	<target name="generate_javadoc">
+		<javadoc packagenames="org.mpi_sws.rltl.*"
+			sourcepath="src"
+			defaultexcludes="yes"
+			destdir="docs/api"
+			author="no"
+			version="no"
+			use="true">
+			<link href="http://docs.oracle.com/javase/7/docs/api/"/>
+		</javadoc>
+	</target>
+
+
+	<!-- Generates a jar file of sources and binary files -->
+	<target name="jar" depends="compile">
+		<jar destfile="rltl2ltl.jar">
+			<fileset dir="${BUILD_PATH}" />
+			<fileset dir="src" />
+			<manifest>
+				<attribute name="Main-Class" value="org.mpi_sws.rltl.main.RLTL2LTL"/>
+			</manifest>
+		</jar>
+	</target>
+
+
+	<!-- Cleans all generated files -->
+    <target name="clean" depends="clean_parser">
+        <delete dir="${BUILD_PATH}" includeEmptyDirs="true"/>
+		<delete dir="docs" includeEmptyDirs="true"/>
+		<delete file="rltl2ltl.jar" />
+    </target>
+
+
+	<!-- Cleans the sources produced by JavaCC -->
+    <target name="clean_parser">
+		<delete>
+			<fileset dir="${PARSER_PATH}">
+				<include name="*.java"/>
+			</fileset>
+		</delete>
+    </target>
+
+</project>

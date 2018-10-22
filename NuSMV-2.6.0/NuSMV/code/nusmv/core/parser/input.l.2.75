@@ -1,0 +1,122 @@
+  /* **************************************************************  -*-C-*-  ***/
+
+ /* word constants */
+"0"([us])?[bBoOdDhH][0-9]*"_"[0-9a-fA-F][0-9a-fA-F_]* {
+                 const WordNumberMgr_ptr words =
+                   WORD_NUMBER_MGR(NuSMVEnv_get_value(__nusmv_parser_env__,
+                                                      ENV_WORD_NUMBER_MGR));
+                 const ErrorMgr_ptr errmgr =
+                   ERROR_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_ERROR_MANAGER));
+
+                 const NodeMgr_ptr nodemgr =
+                   NODE_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_NODE_MGR));
+
+                 char* errorString;
+                 WordNumber_ptr wordConstant
+                   = WordNumberMgr_parsed_string_to_word_number(words, yytext, &errorString);
+
+                 /* check for errors */
+                 if (WORD_NUMBER(NULL) == wordConstant) ErrorMgr_rpterr(errmgr, "%s", errorString);
+                 nusmv_yylval.node = new_node(nodemgr, 's' == yytext[1]
+                                        ? NUMBER_SIGNED_WORD : NUMBER_UNSIGNED_WORD,
+                                        (node_ptr)wordConstant,Nil);
+                 return(TOK_NUMBER_WORD);
+               }
+
+ /* real, fractional and exponential constants */
+[fF]"'"[0-9]+"/"[0-9]+  {
+                  const UStringMgr_ptr strings =
+                    USTRING_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_STRING_MGR));
+                  const NodeMgr_ptr nodemgr =
+                    NODE_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_NODE_MGR));
+
+                  yytext[0] = 'f';
+                  nusmv_yylval.node = new_node(nodemgr, NUMBER_FRAC,
+                                         (node_ptr)UStringMgr_find_string(strings, yytext),Nil);
+                  return(TOK_NUMBER_FRAC);
+                 }
+
+[0-9]+("."[0-9]+)?[eE][+-]?[0-9]+ {
+                 const NodeMgr_ptr nodemgr =
+                   NODE_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_NODE_MGR));
+                 const UStringMgr_ptr strings =
+                   USTRING_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_STRING_MGR));
+
+                 nusmv_yylval.node = new_node(nodemgr, NUMBER_EXP,
+                                        (node_ptr)UStringMgr_find_string(strings, yytext),Nil);
+                 return(TOK_NUMBER_EXP);
+                 }
+
+[0-9]+"."[0-9]+  {
+                  const UStringMgr_ptr strings =
+                    USTRING_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_STRING_MGR));
+                  const NodeMgr_ptr nodemgr =
+                    NODE_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_NODE_MGR));
+
+                  nusmv_yylval.node = new_node(nodemgr, NUMBER_REAL,
+                                         (node_ptr)UStringMgr_find_string(strings, yytext),Nil);
+                  return(TOK_NUMBER_REAL);
+                 }
+
+ /* integer number */
+[0-9]+           {
+                 const ErrorMgr_ptr errmgr =
+                   ERROR_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_ERROR_MANAGER));
+                 const NodeMgr_ptr nodemgr =
+                   NODE_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_NODE_MGR));
+
+                  long tmp;
+                  char* endptr;
+
+                  errno = 0;
+                  tmp = strtol(yytext, &endptr, 10);
+
+                  /* range errors */
+                  if ((errno == ERANGE && (tmp == LONG_MAX || tmp == LONG_MIN))
+                      || (errno != 0 && tmp == 0)
+
+                      /* no digits found */
+                      || (endptr == yytext)
+
+                      /* garbage after digits */
+                      || (*endptr != '\0')
+
+                      /* as an additional check, verify that the value can
+                         fit into an ordinary int. tmp can not be negative */
+                      || (tmp < 0) || (INT_MAX < tmp)) {
+
+                    ErrorMgr_rpterr(errmgr, "illegal integer: \"%s\"", yytext);
+                  }
+
+                  /* here tmp can be safely cast to int */
+                  nusmv_yylval.node = new_node(nodemgr, NUMBER, NODE_FROM_INT((int)(tmp)), Nil);
+                  return(TOK_NUMBER);
+                 }
+
+ /* identifier */
+[A-Za-z_][A-Za-z0-9_\$#-]*  {
+                  const UStringMgr_ptr strings =
+                    USTRING_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_STRING_MGR));
+                  const NodeMgr_ptr nodemgr =
+                    NODE_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_NODE_MGR));
+
+                  nusmv_yylval.node = new_node(nodemgr, ATOM,
+                                         (node_ptr)UStringMgr_find_string(strings, yytext),Nil);
+                  return(TOK_ATOM);
+                 }
+\"[^\"]*\"       {
+                  const UStringMgr_ptr strings =
+                    USTRING_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_STRING_MGR));
+                  const NodeMgr_ptr nodemgr =
+                    NODE_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_NODE_MGR));
+
+                  nusmv_yylval.node = new_node(nodemgr, ATOM,(node_ptr)UStringMgr_find_string(strings, yytext),Nil);
+                  return(TOK_ATOM);
+                 } /* Unused token */
+
+.                {
+                  const ErrorMgr_ptr errmgr =
+                    ERROR_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_ERROR_MANAGER));
+
+                  ErrorMgr_rpterr(errmgr, "illegal character : \"%s\"", yytext);
+                 }

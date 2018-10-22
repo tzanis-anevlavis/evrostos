@@ -1,0 +1,31 @@
+set(SRCS
+  sbmcBmc.c
+  sbmcBmcInc.c
+  sbmcGen.c
+  sbmcHash.c
+  sbmcNodeStack.c
+  sbmcPkg.c
+  sbmcStructs.c
+  sbmcTableau.c
+  sbmcTableauInc.c
+  sbmcTableauIncLTLformula.c
+  sbmcTableauLTLformula.c
+  sbmcUtils.c
+  )
+
+nusmv_add_pkg_lib(${SRCS})
+
+nusmv_add_pkg_headers(
+  sbmcBmc.h
+  sbmcGen.h
+  sbmcHash.h
+  sbmcNodeStack.h
+  sbmcPkg.h
+  sbmcTableau.h
+  sbmcTableauLTLformula.h
+  sbmcStructs.h
+  sbmcUtils.h
+  sbmcTableauInc.h
+  sbmcBmcInc.h
+  sbmcTableauIncLTLformula.h
+  )
