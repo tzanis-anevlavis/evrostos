@@ -179,8 +179,8 @@ int checkMCres(){
 }
 
 void startupRoutine(int argc, char **argv, char *modelName, char *inputName, char *reportName, int *lines){
-    // printf("\nThis is Evrostos: the rLTL Verifier! -- version 1.0 . \nAuthors: Tzanis Anevlavis, Daniel Neider, Matthew Phillipe, Paulo Tabuada. \nCopyright (C) 2018, UCLA. \n\nFor any issue contact Tzanis Anevlavis @ janis10@ucla.edu . \n\n");
-    printf("\nThis is Evrostos: the rLTL Verifier! -- version 1.0 . \nAuthors: Tzanis Anevlavis, Daniel Neider, Matthew Phillipe, Paulo Tabuada. \n\nFor any issue contact Tzanis Anevlavis @ janis10@ucla.edu . \n\n");
+    // printf("\nThis is Evrostos: the rLTL Verifier! -- version 1.0 . \nAuthors: Tzanis Anevlavis, Daniel Neider, Matthew Philippe, Paulo Tabuada. \nCopyright (C) 2018, UCLA. \n\nFor any issue contact Tzanis Anevlavis @ janis10@ucla.edu . \n\n");
+    printf("\nThis is Evrostos: the rLTL Verifier! -- version 1.0 . \nAuthors: Tzanis Anevlavis, Daniel Neider, Matthew Philippe, Paulo Tabuada. \n\nFor any issue contact Tzanis Anevlavis @ janis10@ucla.edu . \n\n");
     // Interface and input options
     if (argc==1)
     {
