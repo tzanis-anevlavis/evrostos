@@ -8,10 +8,8 @@
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful;
+ *  See the GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -181,7 +179,8 @@ int checkMCres(){
 }
 
 void startupRoutine(int argc, char **argv, char *modelName, char *inputName, char *reportName, int *lines){
-    printf("\nThis is Evrostos: the rLTL Verifier! -- version 1.0 . \nAuthors: Tzanis Anevlavis, Daniel Neider, Matthew Phillipe, Paulo Tabuada. \nCopyright (C) 2018, UCLA. \n\nFor any issue contact Tzanis Anevlavis @ janis10@ucla.edu . \n\n");
+    // printf("\nThis is Evrostos: the rLTL Verifier! -- version 1.0 . \nAuthors: Tzanis Anevlavis, Daniel Neider, Matthew Phillipe, Paulo Tabuada. \nCopyright (C) 2018, UCLA. \n\nFor any issue contact Tzanis Anevlavis @ janis10@ucla.edu . \n\n");
+    printf("\nThis is Evrostos: the rLTL Verifier! -- version 1.0 . \nAuthors: Tzanis Anevlavis, Daniel Neider, Matthew Phillipe, Paulo Tabuada. \n\nFor any issue contact Tzanis Anevlavis @ janis10@ucla.edu . \n\n");
     // Interface and input options
     if (argc==1)
     {
