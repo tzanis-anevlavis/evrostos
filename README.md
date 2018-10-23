@@ -54,7 +54,8 @@ For the makefile option just invoke `make` while on the main folder where the Ma
 The instructions to install the components manually are as follows.
 
 ### 1. NuSMV Installation Instructions:
-1. Create a folder named `build` inside `./NuSMV-2.6.0/NuSMV/`. Then change your directory to:
+1. Create a folder named `build` inside `./NuSMV-2.6.0/NuSMV/`.  
+Then change your directory to:
 `./NuSMV-2.6.0/NuSMV/build`
 2. Configure by invoking “cmake”: 
 `cmake ..`
