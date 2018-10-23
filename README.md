@@ -36,7 +36,7 @@ Evrostos is publicly available online at this [github repository](https://github
 
 
 ### Folder Contents
-The Evrostos-1.0.zip file includes the following folders and files.
+The evrostos-1.0-master folder includes the following folders and files.
 
 1. NuSMV-2.6.0
 2. rltl2ltl-master
@@ -79,10 +79,10 @@ Note: when Evrostos is calling NuSMV the following options are used by default:
 For performance and aesthetic reasons all the original initialization messages of NuSMV 2.6.0
 have been suppressed. These small modifications are found in the following files with the comment “J-Edit”:
 
-1. File: NuSMV-2.6.0/NuSMV/code/nusmv/core/ltl/ltl.c:
+1. File: ./NuSMV-2.6.0/NuSMV/code/nusmv/core/ltl/ltl.c:
     * Includes at line 79;
     * Lines 413-458.
-2. File: NuSMV-2.6.0/NuSMV/code/nusmv/core/cinit/cinitVers.c:
+2. File: ./NuSMV-2.6.0/NuSMV/code/nusmv/core/cinit/cinitVers.c:
     * Lines 160 to 265: Commented-out “fprintf”s to suppress output when initializing NuSMV.
 
 Hereby, we **do not claim as of our own** any of the code or functionality of NuSMV and use it only as a component of our tool by the rights of open source distributed software.
@@ -93,14 +93,14 @@ You will need to have installed Java™ Platform, Standard Edition Development K
 rLTL2LTL translator comes precompiled and no further action is needed.
 
 ### 3. Evrostos: The rLTL Verifier:
-In the Evrostos-1.0 directory, compile Evrostos using the following command:  
+In the `evrostos-1.0-master` directory, compile Evrostos using the following command:  
 `gcc -w evrostosSource.c -o evrostos`  
 this will create the executable file “evrostos”.
 
 ### Calling Evrostos
 Running Evrostos from the terminal is care-free and straightforward.  
 While in the directory
-`./Evrostos-1.0/`
+`./evrostos-1.0-master/`
 where the executable file “evrostos” can be found, just type on the terminal:  
 `./evrostos -options`  
 where -options can be:
@@ -114,11 +114,11 @@ After running the command
 `./evrostos -I`,
 the terminal looks as follows:  
 `Enter the rLTL specification input file name (.txt):`  
-_Enter filename (if it is in the Evrostos-1.0 folder) or path to filename of the .txt file used as input._  
+_Enter filename (if it is in the evrostos-1.0-master folder) or path to filename of the .txt file used as input._  
 `Enter the model file name (.smv):`  
-_Enter filename (if it is in the Evrostos-1.0 folder) or path to filename of the .smv file used as input._  
+_Enter filename (if it is in the evrostos-1.0-master folder) or path to filename of the .smv file used as input._  
 `Enter file name (.txt) for the report:`  
-_Enter filename of the .txt report to be created (it will be created in the Evrostos-1.0 folder)._
+_Enter filename of the .txt report to be created (it will be created in the evrostos-1.0-master folder)._
 
 ### The right variables for a specification with Evrostos:
 Evrostos uses NuSMV 2.6.0 to perform in a bitwise manner the rLTL verification.
