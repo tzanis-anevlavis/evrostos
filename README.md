@@ -136,10 +136,6 @@ Then the rLTL formula to be model checked is “rG q”.
 To see how to define new variables refer to NuSMV user manual or tutorial at [http://nusmv.fbk.eu](http://nusmv.fbk.eu).
 
 ### References:
-T.Anevlavis, D.Neider, M.Philippe and P.Tabuada.
-"Evrostos: The rLTL Verifier".
-*Submitted to* the 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC 2019). 
-
 A. Cimatti, E. Clarke, E. Giunchiglia, F. Giunchiglia, M. Pistore, M. Roveri, R. Sebastiani, and A. Tacchella.
 "NuSMV 2: An OpenSource Tool for Symbolic Model Checking".
 In Proc. CAV'02, LNCS. Springer Verlag, 2002.
