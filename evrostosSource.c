@@ -1,7 +1,7 @@
 /*
  *  Evrostos: The rLTL Verifier
  *  Authors: Tzanis Anevlavis, Daniel Neider, Matthew Philippe, Paulo Tabuada
- *  Copyright (C) 2018  UCLA
+ *  Copyright (C) 2018, Tzanis Anevlavis, Daniel Neider, Matthew Philippe, Paulo Tabuada
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
