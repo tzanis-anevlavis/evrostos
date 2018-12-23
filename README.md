@@ -50,12 +50,12 @@ The evrostos-master folder includes the following folders and files.
 
 ### Installation Guide
 To install Evrostos one can either use the Makefile included or install it manually. 
-*We suggest to use the Makefile option to install Evrostos.*
+**We suggest to use the Makefile option to install Evrostos.**
 To do this, just invoke `make` while on the main folder where the Makefile is located.
 
-Alternatively, to install each component manually follow the instructions below:
+*Alternatively*, to install each component manually follow the instructions below:
 
-### 1. NuSMV Installation Instructions:
+#### 1. NuSMV Installation Instructions:
 1. Create a folder named `build` inside `./NuSMV-2.6.0/NuSMV/`.  
 Then change your directory to:
 `./NuSMV-2.6.0/NuSMV/build`
@@ -91,11 +91,11 @@ have been suppressed. These small modifications are found in the following files
 Hereby, we **do not claim as of our own** any of the code or functionality of NuSMV and use it only as a component of our tool by the rights of open source distributed software.
 For more information on NuSMV please visit [http://nusmv.fbk.eu](nusmv.fbk.eu).
 
-### 2. rLTL2LTL Instructions:
+#### 2. rLTL2LTL Instructions:
 You will need to have installed Java™ Platform, Standard Edition Development Kit (JDK™) (version 10 or later).
 rLTL2LTL translator comes precompiled and no further action is needed.
 
-### 3. Evrostos: The rLTL Verifier:
+#### 3. Evrostos: The rLTL Verifier:
 In the `evrostos-master` directory, compile Evrostos using the following command:  
 `gcc -w evrostosSource.c -o evrostos`  
 this will create the executable file “evrostos”.
