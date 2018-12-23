@@ -4,7 +4,7 @@ This file contains instructions on how to install and call _Evrostos: The rLTL V
 
 All instructions and folders are relative to the folder you have extracted this archive to.
 
-Evrostos is publicly available online at this [github repository](https://github.com/janis10/evrostos-1.0).
+Evrostos is publicly available online at this [github repository](https://github.com/janis10/evrostos).
 
 ### Contents
 * System Requirements
