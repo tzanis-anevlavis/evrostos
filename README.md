@@ -137,7 +137,7 @@ To see how to define new variables refer to NuSMV user manual or tutorial at [ht
 
 ### References:
 Tzanis Anevlavis, Daniel Neider, Matthew Philippe and Paulo Tabuada.
-"Evrostos: The rLTL Verifier"
+"Evrostos: The rLTL Verifier".
 To appear in the 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC 2019). 
 
 
