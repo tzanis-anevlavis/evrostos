@@ -50,8 +50,8 @@ The evrostos-master folder includes the following folders and files.
 
 ### Installation Guide
 To install Evrostos one can either use the Makefile included or install it manually. 
-**We suggest to use the Makefile option to install Evrostos.**
-To do this, just invoke `make` while on the main folder where the Makefile is located.
+**We suggest to use the Makefile option to install Evrostos.
+To do this, just invoke `make` while on the main folder where the Makefile is located.**
 
 *Alternatively*, to install each component manually follow the instructions below:
 
@@ -136,6 +136,9 @@ where p is an integer variable of the model used,
 define inside the .smv file a new boolean variable, e.g., “q := p = 5”.
 Then the rLTL formula to be model checked is “rG q”.
 To see how to define new variables refer to NuSMV user manual or tutorial at [http://nusmv.fbk.eu](http://nusmv.fbk.eu).
+
+### Examples:
+You can find all the necessary files to replicate the simulations in the Experimental Results section of the paper introducing Evrostos, *"Evrostos: The rLTL Verifier", HSCC 2019* in the folder `./examples`. Additional instructions on how to replicate each of these examples are also provided in that folder. 
 
 ### References:
 Tzanis Anevlavis, Daniel Neider, Matthew Philippe and Paulo Tabuada.
