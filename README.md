@@ -50,8 +50,10 @@ The evrostos-master folder includes the following folders and files.
 
 ### Installation Guide
 To install Evrostos one can either use the Makefile included or install it manually. 
-For the makefile option just invoke `make` while on the main folder where the Makefile is located. We suggest this option.
-The instructions to install the components manually are as follows.
+*We suggest to use the Makefile option to install Evrostos.*
+To do this, just invoke `make` while on the main folder where the Makefile is located.
+
+Alternatively, to install each component manually follow the instructions below:
 
 ### 1. NuSMV Installation Instructions:
 1. Create a folder named `build` inside `./NuSMV-2.6.0/NuSMV/`.  
