@@ -36,7 +36,7 @@ Evrostos is publicly available online at this [github repository](https://github
 
 
 ### Folder Contents
-The evrostos-1.0-master folder includes the following folders and files.
+The evrostos-master folder includes the following folders and files.
 
 1. NuSMV-2.6.0
 2. rltl2ltl-master
@@ -94,14 +94,14 @@ You will need to have installed Java™ Platform, Standard Edition Development K
 rLTL2LTL translator comes precompiled and no further action is needed.
 
 ### 3. Evrostos: The rLTL Verifier:
-In the `evrostos-1.0-master` directory, compile Evrostos using the following command:  
+In the `evrostos-master` directory, compile Evrostos using the following command:  
 `gcc -w evrostosSource.c -o evrostos`  
 this will create the executable file “evrostos”.
 
 ### Calling Evrostos
 Running Evrostos from the terminal is care-free and straightforward.  
 While in the directory
-`./evrostos-1.0-master/`
+`./evrostos-master/`
 where the executable file “evrostos” can be found, just type on the terminal:  
 `./evrostos -options`  
 where -options can be:
@@ -115,11 +115,11 @@ After running the command
 `./evrostos -I`,
 the terminal looks as follows:  
 `Enter the rLTL specification input file name (.txt):`  
-_Enter filename (if it is in the evrostos-1.0-master folder) or path to filename of the .txt file used as input._  
+_Enter filename (if it is in the evrostos-master folder) or path to filename of the .txt file used as input._  
 `Enter the model file name (.smv):`  
-_Enter filename (if it is in the evrostos-1.0-master folder) or path to filename of the .smv file used as input._  
+_Enter filename (if it is in the evrostos-master folder) or path to filename of the .smv file used as input._  
 `Enter file name (.txt) for the report:`  
-_Enter filename of the .txt report to be created (it will be created in the evrostos-1.0-master folder)._
+_Enter filename of the .txt report to be created (it will be created in the evrostos-master folder)._
 
 ### The right variables for a specification with Evrostos:
 Evrostos uses NuSMV 2.6.0 to perform in a bitwise manner the rLTL verification.
@@ -136,6 +136,11 @@ Then the rLTL formula to be model checked is “rG q”.
 To see how to define new variables refer to NuSMV user manual or tutorial at [http://nusmv.fbk.eu](http://nusmv.fbk.eu).
 
 ### References:
+Tzanis Anevlavis, Daniel Neider, Matthew Philippe and Paulo Tabuada.
+"Evrostos: The rLTL Verifier"
+To appear in the 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC 2019). 
+
+
 A. Cimatti, E. Clarke, E. Giunchiglia, F. Giunchiglia, M. Pistore, M. Roveri, R. Sebastiani, and A. Tacchella.
 "NuSMV 2: An OpenSource Tool for Symbolic Model Checking".
 In Proc. CAV'02, LNCS. Springer Verlag, 2002.
