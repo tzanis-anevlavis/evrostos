@@ -161,6 +161,4 @@ You can find all the necessary files to replicate the simulations in the Experim
 ### References:
 Tzanis Anevlavis, Daniel Neider, Matthew Phillipe, and Paulo Tabuada. 2019. Evrostos: the rLTL verifier. In Proceedings of the 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC '19). ACM, New York, NY, USA, 218-223. DOI: https://doi.org/10.1145/3302504.3311812
 
-A. Cimatti, E. Clarke, E. Giunchiglia, F. Giunchiglia, M. Pistore, M. Roveri, R. Sebastiani, and A. Tacchella.
-"NuSMV 2: An OpenSource Tool for Symbolic Model Checking".
-In Proc. CAV'02, LNCS. Springer Verlag, 2002.
+Alessandro Cimatti, Edmund M. Clarke, Enrico Giunchiglia, Fausto Giunchiglia, Marco Pistore, Marco Roveri, Roberto Sebastiani, and Armando Tacchella. 2002. NuSMV 2: An OpenSource Tool for Symbolic Model Checking. In Proceedings of the 14th International Conference on Computer Aided Verification (CAV ’02). Springer-Verlag, London, UK, UK, 359–364.
