@@ -1,6 +1,24 @@
 # Evrostos: The rLTL Verifier
+This is _Evrostos_, a tool that Efficiently Verifies RObuSTness Of Specifications! Evrostos is a model-checking tool for Robust Linear-time Temporal Logic (rLTL). The logic rLTL was crafted to embed the notion of _robustness_ into LTL. The main advantages of rLTL are: 
+
+    1) it can express the notion of robustness in _reactive specifications_, whereas LTL cannot.
+    2) rLTL is a 5-valued logic, that provides more fine-grained information when a specification is violated, and not just false.
+    
+#### Citations:
+If you used this tool for efficiently verifying your robust specifications please cite as:
+
+Tzanis Anevlavis, Daniel Neider, Matthew Phillipe, and Paulo Tabuada. 2019. Evrostos: the rLTL verifier. In Proceedings of the 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC '19). ACM, New York, NY, USA, 218-223. DOI: https://doi.org/10.1145/3302504.3311812
+
+#### For more rLTL reading..
+##### Genesis of Robust Linear-time Temporal Logic (rLTL):
+P. Tabuada and D. Neider. Robust linear temporal logic. In Proceedings of the 25th Conference on Computer Science Logic, pages 10:1–10:21, Marseille, France, 2016.
+ArXiv version (for more details!): https://arxiv.org/abs/1510.08970
+
+##### About an efficient fragment of rLTL and a gentler first contact:
+T. Anevlavis, M. Philippe, D. Neider, and P. Tabuada. 2018. Verifying rLTL formulas: now faster than ever before!. In 2018 IEEE Conference on Decision and Control (CDC). 1556–1561. https://doi.org/10.1109/CDC.2018.8619014
+
 ## Installation and instructions guide.
-This file contains instructions on how to install and call _Evrostos: The rLTL Verifier_. Instructions on how to replicate the case studies of the paper can be found at replicationInstructions-rLTL.pdf (for the rLTL specifications) and at replicationInstructions-LTL.pdf (for the LTL specifications). The reports of the simulations of the paper are found in the ./examples/results_paper folder.
+This page contains instructions on how to install and call _Evrostos: The rLTL Verifier_. Instructions on how to replicate the case studies of the paper can be found at replicationInstructions-rLTL.pdf (for the rLTL specifications) and at replicationInstructions-LTL.pdf (for the LTL specifications). The reports of the simulations of the paper are found in the ./examples/results_paper folder.
 
 All instructions and folders are relative to the folder you have extracted this archive to.
 
@@ -141,10 +159,7 @@ To see how to define new variables refer to NuSMV user manual or tutorial at [ht
 You can find all the necessary files to replicate the simulations in the Experimental Results section of the paper introducing Evrostos, *"Evrostos: The rLTL Verifier", HSCC 2019* in the folder `./examples`. Additional instructions on how to replicate each of these examples are also provided in that folder. 
 
 ### References:
-Tzanis Anevlavis, Daniel Neider, Matthew Philippe and Paulo Tabuada.
-"Evrostos: The rLTL Verifier".
-To appear in the 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC 2019). 
-
+Tzanis Anevlavis, Daniel Neider, Matthew Phillipe, and Paulo Tabuada. 2019. Evrostos: the rLTL verifier. In Proceedings of the 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC '19). ACM, New York, NY, USA, 218-223. DOI: https://doi.org/10.1145/3302504.3311812
 
 A. Cimatti, E. Clarke, E. Giunchiglia, F. Giunchiglia, M. Pistore, M. Roveri, R. Sebastiani, and A. Tacchella.
 "NuSMV 2: An OpenSource Tool for Symbolic Model Checking".
