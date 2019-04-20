@@ -1,8 +1,7 @@
 # Evrostos: The rLTL Verifier
 This is _Evrostos_, a tool that Efficiently Verifies RObuSTness Of Specifications! Evrostos is a model-checking tool for Robust Linear-time Temporal Logic (rLTL). The logic rLTL was crafted to embed the notion of _robustness_ into LTL. The main advantages of rLTL are: 
-
-    1) it can express the notion of robustness in _reactive specifications_, whereas LTL cannot.
-    2) rLTL is a 5-valued logic, that provides more fine-grained information when a specification is violated, and not just false.
+1. it can express the notion of robustness in _reactive specifications_, whereas LTL cannot.
+2. rLTL is a 5-valued logic, that provides more fine-grained information when a specification is violated, and not just false.
     
 #### Citations:
 If you used this tool for efficiently verifying your robust specifications please cite as:
@@ -70,6 +69,7 @@ The evrostos-master folder includes the following folders and files.
 To install Evrostos one can either use the Makefile included or install it manually. 
 **We suggest to use the Makefile option to install Evrostos.
 To do this, just invoke `make` while on the main folder where the Makefile is located.**
+You can now skip ahead to the "Calling Evrostos" section.
 
 *Alternatively*, to install each component manually follow the instructions below:
 
