@@ -2,6 +2,8 @@
 This is _Evrostos_, a tool that Efficiently Verifies RObuSTness Of Specifications! Evrostos is a model-checking tool for Robust Linear-time Temporal Logic (rLTL). The logic rLTL was crafted to embed the notion of _robustness_ into LTL. The main advantages of rLTL are: 
 1. it can express the notion of robustness in _reactive specifications_, whereas LTL cannot.
 2. rLTL is a 5-valued logic, that provides more fine-grained information when a specification is violated, and not just false.
+
+Therefore, rLTL verification provides much more insight than classical LTL verification. For more details on this, see our paper _Evrostos: The rLTL Verifier_ https://doi.org/10.1145/3302504.3311812 .
     
 #### Citations:
 If you used this tool for efficiently verifying your robust specifications please cite as:
