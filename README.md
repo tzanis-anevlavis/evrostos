@@ -6,9 +6,26 @@ This is _Evrostos_, a tool that Efficiently Verifies RObuSTness Of Specification
 Therefore, rLTL verification provides much more insight than classical LTL verification. For more details on this, see our paper _Evrostos: The rLTL Verifier_ https://doi.org/10.1145/3302504.3311812 .
     
 #### Citations:
-If you used this tool for efficiently verifying your robust specifications please cite as:
-
-Tzanis Anevlavis, Daniel Neider, Matthew Phillipe, and Paulo Tabuada. 2019. Evrostos: the rLTL verifier. In Proceedings of the 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC '19). ACM, New York, NY, USA, 218-223. DOI: https://doi.org/10.1145/3302504.3311812
+If you used this tool for efficiently verifying robustness of your specifications please cite as:
+```latex
+@inproceedings{AT2019Evrostos,
+ author = {Anevlavis, Tzanis and Neider, Daniel and Phillipe, Matthew and Tabuada, Paulo},
+ title = {Evrostos: The rLTL Verifier},
+ booktitle = {Proceedings of the 22Nd ACM International Conference on Hybrid Systems: Computation and Control},
+ series = {HSCC '19},
+ year = {2019},
+ isbn = {978-1-4503-6282-5},
+ location = {Montreal, Quebec, Canada},
+ pages = {218--223},
+ numpages = {6},
+ url = {http://doi.acm.org/10.1145/3302504.3311812},
+ doi = {10.1145/3302504.3311812},
+ acmid = {3311812},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {formal methods, model checking, robustness, temporal logic},
+} 
+```
 
 #### For more rLTL reading..
 ##### Genesis of Robust Linear-time Temporal Logic (rLTL):
