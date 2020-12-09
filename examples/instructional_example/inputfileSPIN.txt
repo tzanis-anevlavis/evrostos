@@ -1,0 +1,12 @@
+Model checker:
+SPIN
+
+Model name:
+train.pml
+
+rLTLspecs: 2
+rG p => rF q
+rG rF (q & r)
+
+flags:
+-search -bfs -N -ltl -m10000000

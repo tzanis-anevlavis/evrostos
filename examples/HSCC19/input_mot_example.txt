@@ -1,0 +1,11 @@
+Model checker:
+NuSMV
+
+Model name:
+mot_example.smv
+
+rLTLspecs: 1
+(rF(rG (ta12non & ta13non))) => (rG(rF (!tsctr1) ))
+
+flags:
+-coi -df -dcx -dynamic -n

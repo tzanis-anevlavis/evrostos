@@ -1,0 +1,11 @@
+Model checker:
+NuSMV
+
+Model name:
+pci.smv
+
+rLTLspecs: 1
+rG(p => rG !q)
+
+flags:
+-coi -df -dcx -dynamic -n

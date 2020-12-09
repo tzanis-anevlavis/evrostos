@@ -1,1 +1,0 @@
-(rF(rG (ta12non & ta13non))) => (rG(rF (!tsctr1) ))
