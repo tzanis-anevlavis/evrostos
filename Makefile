@@ -1,18 +1,21 @@
 .PHONY: all clean
 
-CC ?= gcc
+CXX ?= g++
 CFLAGS += -w
 
-all: NuSMV evrostos
+all: evrostos NuSMV SPIN
 
 evrostos:
-	$(CC) $(CFLAGS) evrostosSource.c -o evrostos
+	$(CXX) $(CFLAGS) ./helpers/evrostosSource.cpp -o evrostos
 
 NuSMV:
-	mkdir ./NuSMV-2.6.0/NuSMV/build
-	cd ./NuSMV-2.6.0/NuSMV/build && cmake ..
-	make -C ./NuSMV-2.6.0/NuSMV/build
+	mkdir ./helpers/NuSMV/NuSMV/build
+	cd ./helpers/NuSMV/NuSMV/build && cmake ..
+	make -C ./helpers/NuSMV/NuSMV/build
+
+SPIN:
+	cd ./helpers/Spin && make
 
 clean:
-	-rm -rf ./NuSMV-2.6.0/NuSMV/build
 	-rm -f evrostos
+	-rm -rf ./helpers/NuSMV/NuSMV/build
