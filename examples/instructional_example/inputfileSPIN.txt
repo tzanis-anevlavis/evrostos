@@ -9,4 +9,4 @@ rG p => rF q
 rG rF (q & r)
 
 flags:
--search -bfs -N -ltl -m10000000
+-search -bfs -N -m10000000 -ltl
