@@ -1,9 +1,23 @@
-//
-//  routines.cpp
-//  evrostos-cpp-test
-//
-//  Created by Tzanis Anevlavis on 4/6/20.
 //  Copyright © 2020 Tzanis Anevlavis. All rights reserved.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+//
+//
+// This code is part of the Evrostos: The rLTL Verifier repository, 
+// and is publicly available at: https://github.com/janis10/evrostos .
+//
+// For any comments contact Tzanis Anevlavis @ janis10@ucla.edu.
 //
 
 #include <iostream>
@@ -78,7 +92,6 @@ void startupRoutine(int argc, const char *argv[], string &modelName, vector<stri
     }
 
     transform(mcName.begin(),mcName.end(),mcName.begin(),::tolower);
-    // int pos = modelName.find(".");  
     string suf = modelName.substr(modelName.length()-4); 
     if (mcName.compare("spin")==0){
         select = 2;
@@ -235,7 +248,7 @@ string bitwise_modelcheck(int select, string flags){
     string command, tempmodel;
     string bits[4];
     if (select==1){
-        command = "./helpers/NuSMV/NuSMV/build/bin/NuSMV ";
+        command = "./helpers/NuSMV-2.6.0/NuSMV/build/bin/NuSMV ";
         command.append(flags);
         bits[0]=" 0", bits[1]=" 1", bits[2]=" 2", bits[3]=" 3";
         tempmodel = " tempmodel.smv";
