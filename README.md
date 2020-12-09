@@ -1,9 +1,14 @@
 # Evrostos: The rLTL Verifier
 This is _Evrostos_, a tool that Efficiently Verifies RObuSTness Of Specifications! Evrostos is a model-checking tool for Robust Linear-time Temporal Logic (rLTL). The logic rLTL was crafted to embed the notion of _robustness_ into LTL. The main advantages of rLTL are: 
-1. it can express the notion of robustness in _reactive specifications_, whereas LTL cannot.
-2. rLTL is a 5-valued logic, that provides more fine-grained information when a specification is violated, and not just false.
+1. it expresses a notion of robustness in _reactive specifications_ inspired by control theory ("small" violations of the assumption, should lead to, at most, "small" violations of the guarantee), whereas LTL cannot.
+2. rLTL is a 5-valued logic, which provides more fine-grained information whenever a specification is violated, which corresponds to different degrees of violation (e.g., violation finitely many times, infinitely many times, or at every step).
 
-Therefore, rLTL verification provides much more insight than classical LTL verification. For more details on this, see our paper _Evrostos: The rLTL Verifier_ https://doi.org/10.1145/3302504.3311812 .
+Therefore, rLTL verification provides much more insight to the designer than classical LTL verification. For more details, see _Evrostos: The rLTL Verifier_ https://doi.org/10.1145/3302504.3311812 .
+
+Evrostos is easy to use, and works with your favorite LTL model-checker, bridging the gap between classical LTL model-checking, and rLTL model-checking in an effortless way. That is, one has *to only refine the syntax of the LTL specification accordingly, to obtain the rLTL version* (for example replace the always operator `G` with the robust always operator `rG`). 
+Currently, as an underlying LTL model-checker, Evrostos is compatible with NuSMV 2.6.0 (14 October 2015), and SPIN Version 6.5.1 (31 July 2020).
+
+Evrostos is publicly available online at this [github repository](https://github.com/janis10/evrostos).
     
 #### Citations:
 If you used this tool for efficiently verifying robustness of your specifications please cite as:
@@ -36,19 +41,14 @@ ArXiv version (for more details!): https://arxiv.org/abs/1510.08970
 T. Anevlavis, M. Philippe, D. Neider, and P. Tabuada. 2018. Verifying rLTL formulas: now faster than ever before!. In 2018 IEEE Conference on Decision and Control (CDC). 1556–1561. https://doi.org/10.1109/CDC.2018.8619014
 
 ## Installation and instructions guide.
-This page contains instructions on how to install and call _Evrostos: The rLTL Verifier_. Instructions on how to replicate the case studies of the paper can be found at replicationInstructions-rLTL.pdf (for the rLTL specifications) and at replicationInstructions-LTL.pdf (for the LTL specifications). The reports of the simulations of the paper are found in the ./examples/results_paper folder.
+This section contains instructions on how to install and call _Evrostos: The rLTL Verifier_. 
 
 All instructions and folders are relative to the folder you have extracted this archive to.
 
-Evrostos is publicly available online at this [github repository](https://github.com/janis10/evrostos).
-
 ### Contents
 * System Requirements
-* Folder Contents
-* Installation Guide
-    1. NuSMV Installation Instructions
-    2. rLTL2LTL Instructions
-    3. Evrostos: The rLTL Verifier
+* Building Evrostos
+* rLTL syntax with Evrostos
 * Calling Evrostos
 * The right variables for a specification with Evrostos
 
@@ -71,113 +71,88 @@ Evrostos is publicly available online at this [github repository](https://github
 **NOTE:** There are known issues with compiling NuSMV/CUDD with with the GNU compiler collection version >= 6 that prevent NuSVM from compiling properly. We successfully ran simulations with compiler version 4.2.1 for macOS and 5.3.1 for Ubuntu.
 
 
-### Folder Contents
-The evrostos-master folder includes the following folders and files.
+### Building Evrostos
+To build Evrostos just invoke `make` while on the main folder where the Makefile is located. Our Makefile will conveniently build both NuSMV and SPIN from scratch, from their corresponding source code. 
 
-1. NuSMV-2.6.0
-2. rltl2ltl-master
-3. examples
-4. evrostosSource.c
-5. routines.c
-6. LTLmodelcheck.c
-7. routines4ltl.c
-8. README.md
-9. Makefile
+**It is important to use the NuSMV and SPIN source code as found in our repository.** This is since their respective source codes have been slightly modified to allow communication with Evrostos. Any changes have not influenced functionality of these tools and have been made possible under their corresponding licences (LGPL v2.1 for NuSMV 2.6.0, and 3-clause BSD License for SPIN 6.5.1). For both NuSMV and SPIN the modifications can be found with by looking for the key "J-Edit" in the comments of the modified source code files. 
 
-### Installation Guide
-To install Evrostos one can either use the Makefile included or install it manually. 
-**We suggest to use the Makefile option to install Evrostos.
-To do this, just invoke `make` while on the main folder where the Makefile is located.**
-You can now skip ahead to the "Calling Evrostos" section.
+Finally, the rltl2ltl translator comes pre-compiled, although its source code can be found in the corresponding folder. 
 
-*Alternatively*, to install each component manually follow the instructions below:
+For performance and aesthetic reasons all the original initialization messages of NuSMV 2.6.0 have been suppressed. These small modifications are found in the following files with the comment “J-Edit”:
 
-#### 1. NuSMV Installation Instructions:
-1. Create a folder named `build` inside `./NuSMV-2.6.0/NuSMV/`.  
-Then change your directory to:
-`./NuSMV-2.6.0/NuSMV/build`
-2. Configure by invoking “cmake”: 
-`cmake ..`
-This will configure NuSMV.
-NOTICE: now in all “Makefiles” the default directory will be:
-`./NuSMV-2.6.0/NuSMV/---`
-3. Compile NuSMV:
-While in the following directory,
-`./NuSMV-2.6.0/NuSMV/build` 
-compile by typing make.
-This will build an executable “NuSMV” in the 
-`./NuSMV-2.6.0/NuSMV/build/bin directory`!
+1. File: ./helpers/NuSMV/NuSMV/code/nusmv/core/ltl/ltl.c:
+    * Purpose: communicate with the cpp wrapper.
+2. File: ./helpers/NuSMV/NuSMV/code/nusmv/core/cinit/cinitVers.c:
+    * Purpose: commented-out “fprintf”s to suppress output when initializing NuSMV.
+3. File: ./helpers/Spin/Src/pangen1.h:
+    * Purpose: communicate with the cpp wrapper.
 
-Note: when Evrostos is calling NuSMV the following options are used by default:
+Hereby, we **do not claim as our own any of the code or functionality of NuSMV or SPIN**, and use it only as a component of our tool under their corresponding licenses as stated above. 
+For more information on NuSMV please visit [http://nusmv.fbk.eu](nusmv.fbk.eu), and on SPIN please visit [https://github.com/nimble-code/Spin](https://github.com/nimble-code/Spin).
 
-* -coi        : Cone of influence. Depending on the properties to check, this can be very effective.
-* -df     : Disable computation of reachable states.
-* -dcx        : Disable generation of counterexample traces.
-* -dynamic    : Enable the dynamic variable reordering
+### rLTL syntax with Evrostos and the efficient rLTL fragment
+The rLTL syntax when used with Evrostos is defined as follows:
 
-**DISCLAIMER**:
-For performance and aesthetic reasons all the original initialization messages of NuSMV 2.6.0
-have been suppressed. These small modifications are found in the following files with the comment “J-Edit”:
+* Grammar:
+	* rltl ::= opd | ( rltl ) | rltl binop rltl | unop rltl
 
-1. File: ./NuSMV-2.6.0/NuSMV/code/nusmv/core/ltl/ltl.c:
-    * Includes at line 79;
-    * Lines 413-458.
-2. File: ./NuSMV-2.6.0/NuSMV/code/nusmv/core/cinit/cinitVers.c:
-    * Lines 160 to 265: Commented-out “fprintf”s to suppress output when initializing NuSMV.
+* Operands (opd):
+	* 0000, 0001, 0011, 0111, 1111, user-defined names starting with a lower-case letter.
 
-Hereby, we **do not claim as of our own** any of the code or functionality of NuSMV and use it only as a component of our tool by the rights of open source distributed software.
-For more information on NuSMV please visit [http://nusmv.fbk.eu](nusmv.fbk.eu).
+* Unary Operators (unop):
+	* rG	(the temporal operator robust always)
+	* rF	(the temporal operator robust eventually)
+    * rX  (the temporal operator robust next)
+	* ! 	(the boolean operator for robust negation)
 
-#### 2. rLTL2LTL Instructions:
-You will need to have installed Java™ Platform, Standard Edition Development Kit (JDK™) (version 10 or later).
-rLTL2LTL translator comes precompiled and no further action is needed.
+* Binary Operators (binop):
+	* rU 	(the temporal operator robust until)
+	* rR 	(the temporal operator robust release) : notice that the LTL duality between until and release does not hold in rLTL.
+	* &	(the operator for logical and)
+	* |	(the operator for logical or)
+	* =>	(the operator for robust implication)
+   
+[add latex description of the efficient rLTL fragment].
 
-#### 3. Evrostos: The rLTL Verifier:
-In the `evrostos-master` directory, compile Evrostos using the following command:  
-`gcc -w evrostosSource.c -o evrostos`  
-this will create the executable file “evrostos”.
 
 ### Calling Evrostos
 Running Evrostos from the terminal is care-free and straightforward.  
 While in the directory
 `./evrostos-master/`
 where the executable file “evrostos” can be found, just type on the terminal:  
-`./evrostos -options`  
-where -options can be:
+`./evrostos`.
 
-* -h: help - displays help message
-* -i: rLTL specification input is given via keyboard
-* -I: rLTL specification input is given via .txt file
-
-We recommend using option -I which allows checking multiple rLTL formulas for the same model with only one run. Example of running Evrostos:  
-After running the command
-`./evrostos -I`,
-the terminal looks as follows:  
-`Enter the rLTL specification input file name (.txt):`  
+After running the above command the terminal looks as follows:  
+`Specify input file:`  
 _Enter filename (if it is in the evrostos-master folder) or path to filename of the .txt file used as input._  
-`Enter the model file name (.smv):`  
-_Enter filename (if it is in the evrostos-master folder) or path to filename of the .smv file used as input._  
-`Enter file name (.txt) for the report:`  
-_Enter filename of the .txt report to be created (it will be created in the evrostos-master folder)._
+
+The input file is the only input that Evrostos needs, and contains the following information:
+
+1. Modelchecker: select either SPIN or NuSMV in the next line.
+2. Model name: the model name appears in the next line. Depending on the above choice, the extension of this file is either `.smv` or `.pml`.
+3. rLTLspecs: N , where N is the number of rLTL specifications to be model-checked, and is followed in each next line by the exact rLTL formulae.
+4. Flags: any admissible flags the model-checker of your choice supports appear in the next line. 
+
+Two instructive examples of how the input file should look can be found in `examples/instructional_example`. 
+We **really recommend** to play with the supported input files to increase familiarity. 
 
 ### The right variables for a specification with Evrostos:
-Evrostos uses NuSMV 2.6.0 to perform in a bitwise manner the rLTL verification.
-
-In the same manner as when using NuSMV you will have to use the variables of the .smv model file at hand.
-You SHOULD NOT write the rLTL specifications directly to the .smv file.
+In the same manner as when using NuSMV or SPIN you will have to use the variables of the .smv or .pmv model file at hand.
+You **SHOULD NOT write the rLTL specifications directly to the model file (.smv or .pmv)**.
 Evrostos will handle this internally, just make sure the specification used as input adheres to the variables of your model !
 
-Evrostos handles ONLY boolean variables. 
-For example, to check an assignment of the form “rG (p = 5)”, 
-where p is an integer variable of the model used, 
-define inside the .smv file a new boolean variable, e.g., “q := p = 5”.
-Then the rLTL formula to be model checked is “rG q”.
-To see how to define new variables refer to NuSMV user manual or tutorial at [http://nusmv.fbk.eu](http://nusmv.fbk.eu).
+**Evrostos handles ONLY boolean variables.**
+For example, to check an assignment of the form “rG (p=5)”, where p is an integer variable of the model used, 
+define a new boolean variable, e.g., “q := (p=5)”, inside the .smv file, or “#define  q  p=5”, inside the .pml file.
+Then the rLTL formula to be model-checked is “rG q”.
+To see how to define new variables refer to respective manuals for NuSMV and SPIN. 
 
 ### Examples:
-You can find all the necessary files to replicate the simulations in the Experimental Results section of the paper introducing Evrostos, *"Evrostos: The rLTL Verifier", HSCC 2019* in the folder `./examples`. Additional instructions on how to replicate each of these examples are also provided in that folder. 
+You can find all the necessary files to replicate the simulations in the Experimental Results section of the paper introducing Evrostos, *"Evrostos: The rLTL Verifier", HSCC 2019* in the folder `./examples/HSCC19`. Additional instructions on how to replicate each of these examples are also provided in that folder. 
 
 ### References:
 Tzanis Anevlavis, Daniel Neider, Matthew Phillipe, and Paulo Tabuada. 2019. Evrostos: the rLTL verifier. In Proceedings of the 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC '19). ACM, New York, NY, USA, 218-223. DOI: https://doi.org/10.1145/3302504.3311812
 
 Alessandro Cimatti, Edmund M. Clarke, Enrico Giunchiglia, Fausto Giunchiglia, Marco Pistore, Marco Roveri, Roberto Sebastiani, and Armando Tacchella. 2002. NuSMV 2: An OpenSource Tool for Symbolic Model Checking. In Proceedings of the 14th International Conference on Computer Aided Verification (CAV ’02). Springer-Verlag, London, UK, UK, 359–364.
+
+Gerard Holzmann. 2003. Spin model checker, the: primer and reference manual (First. ed.). Addison-Wesley Professional.
