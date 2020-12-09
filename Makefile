@@ -3,10 +3,14 @@
 CXX ?= g++
 CFLAGS += -w
 
-all: evrostos NuSMV SPIN
+all: evrostos rLTL2LTL NuSMV SPIN
 
 evrostos:
 	$(CXX) $(CFLAGS) ./helpers/evrostosSource.cpp -o evrostos
+
+rLTL2LTL:
+	cd ./helpers/rltl2ltl && ant
+	cd ./helpers/rltl2ltl && ant jar
 
 NuSMV:
 	mkdir ./helpers/NuSMV-2.6.0/NuSMV/build
