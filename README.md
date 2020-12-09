@@ -1,5 +1,7 @@
 # Evrostos: The rLTL Verifier
-This is _Evrostos_, a tool that Efficiently Verifies RObuSTness Of Specifications! Evrostos is a model-checking tool for Robust Linear-time Temporal Logic (rLTL). The logic rLTL was crafted to embed the notion of _robustness_ into LTL. The main advantages of rLTL are: 
+This is **_Evrostos_**, a tool that **E**fficiently **V**erifies **RO**bu**ST**ness **O**f **S**pecifications!
+
+Evrostos is a model-checking tool for Robust Linear-time Temporal Logic (rLTL). The logic rLTL was crafted to embed the notion of _robustness_ into LTL. The main advantages of rLTL are: 
 1. it expresses a notion of robustness in _reactive specifications_ inspired by control theory ("small" violations of the assumption, should lead to, at most, "small" violations of the guarantee), whereas LTL cannot.
 2. rLTL is a 5-valued logic, which provides more fine-grained information whenever a specification is violated, which corresponds to different degrees of violation (e.g., violation finitely many times, infinitely many times, or at every step).
 
@@ -65,7 +67,6 @@ All instructions and folders are relative to the folder you have extracted this 
     * GNU Readline
     * GNU make utility version 3.74 or greater
     * GNU patch utility
-    * GNU tar and gzip utilities
     * Library libxml2
 
 **NOTE:** There are known issues with compiling NuSMV/CUDD with with the GNU compiler collection version >= 6 that prevent NuSVM from compiling properly. We successfully ran simulations with compiler version 4.2.1 for macOS and 5.3.1 for Ubuntu.
