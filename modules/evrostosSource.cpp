@@ -51,7 +51,7 @@ int main(int argc, const char * argv[]) {
         // Write the rLTL formula to pre-specified text file:
         write2file("./rLTLinput.txt", rLTLformulas[spec]);
         // rLTL to LTL translation:
-        system("java -jar ./helpers/rltl2ltl/rltl2ltl.jar ./rLTLinput.txt  -o ./LTLoutput.txt");
+        system("java -jar ./modules/rltl2ltl/rltl2ltl.jar ./rLTLinput.txt  -o ./LTLoutput.txt");
         //Delete the temporary rLTL input file
         remove("rLTLinput.txt");
 

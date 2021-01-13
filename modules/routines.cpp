@@ -248,13 +248,13 @@ string bitwise_modelcheck(int select, string flags){
     string command, tempmodel;
     string bits[4];
     if (select==1){
-        command = "./helpers/NuSMV-2.6.0/NuSMV/build/bin/NuSMV ";
+        command = "./modules/NuSMV-2.6.0/NuSMV/build/bin/NuSMV ";
         command.append(flags);
         bits[0]=" 0", bits[1]=" 1", bits[2]=" 2", bits[3]=" 3";
         tempmodel = " tempmodel.smv";
     }
     else if (select==2){
-        command = "./helpers/Spin/Src/spin ";
+        command = "./modules/Spin/Src/spin ";
         command.append(flags);
         bits[0]=" p4", bits[1]=" p3", bits[2]=" p2", bits[3]=" p1";
         tempmodel = " tempmodel.pml";

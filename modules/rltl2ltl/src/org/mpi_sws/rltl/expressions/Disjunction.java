@@ -96,17 +96,4 @@ public class Disjunction extends Expression
 		return new Disjunction(expr1, new Disjunction(expr2, new Disjunction(expr3, expr4)));
 	}
 
-	// J-edit: created to use in RLTL2LTLVisitor.java to translate Robust Implication
-	// remark: oops I needed conjuction -> refer to Conjunction.java
-	public static Expression makeDisjunction4(Implication expr1, Implication expr2, Implication expr3, Implication expr4)
-	{
-		return new Disjunction(expr1, new Disjunction(expr2, new Disjunction(expr3, expr4)));
-	}
-
-	public static Expression makeDisjunction3(Implication expr1, Implication expr2, Implication expr3)
-	{
-		return new Disjunction(expr1, new Disjunction(expr2, expr3));
-	}
-	// End of J-edit.
-
 }
