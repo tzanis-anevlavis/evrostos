@@ -134,7 +134,7 @@ The input file is the only input that Evrostos needs, and contains the following
 3. rLTLspecs: N , where N is the number of rLTL specifications to be model-checked, and is followed in each next line by the exact rLTL formulae.
 4. Flags: any admissible flags the model-checker of your choice supports appear in the next line. 
 
-Two instructive examples of how the input file should look can be found in `examples/instructional_example`. 
+Two instructive examples of how the input file should look can be found in `case_studies/instructional_example`. 
 We **really recommend** to play with the supported input files to increase familiarity. 
 
 ### The right variables for a specification with Evrostos:
@@ -149,7 +149,7 @@ Then the rLTL formula to be model-checked is “rG q”.
 To see how to define new variables refer to respective manuals for NuSMV and SPIN. 
 
 ### Examples:
-You can find all the necessary files to replicate the simulations in the Experimental Results section of the paper introducing Evrostos, *"Evrostos: The rLTL Verifier", HSCC 2019* in the folder `./examples/HSCC19`. Additional instructions on how to replicate each of these examples are also provided in that folder. 
+You can find all the necessary files to replicate the simulations in the Experimental Results section of the paper introducing Evrostos, *"Evrostos: The rLTL Verifier", HSCC 2019* in the folder `./case_studies/HSCC19`. Additional instructions on how to replicate each of these examples are also provided in that folder. 
 
 ### References:
 Tzanis Anevlavis, Daniel Neider, Matthew Phillipe, and Paulo Tabuada. 2019. Evrostos: the rLTL verifier. In Proceedings of the 22nd ACM International Conference on Hybrid Systems: Computation and Control (HSCC '19). ACM, New York, NY, USA, 218-223. DOI: https://doi.org/10.1145/3302504.3311812
