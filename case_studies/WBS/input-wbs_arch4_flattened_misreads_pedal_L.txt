@@ -2,9 +2,10 @@ Model checker:
 NuSMV
 
 Model name:
-wbs_arch4_flattened_misreads_pedal_L.smv
+./case_studies/WBS/wbs_arch4_flattened_misreads_pedal_L.smv
 
-rLTLspecs: 3
+rLTLspecs:
+3
 rG (p1 & p2 & u1 & u2 & h1 & h2)
 rG !(!mL & gs & wb1 & wr1)
 rG (p1 & p2 & u1 & u2 & h1 & h2) => rG !(!mL & gs & wb1 & wr1)

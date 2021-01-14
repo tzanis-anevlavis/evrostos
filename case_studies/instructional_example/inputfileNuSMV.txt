@@ -2,9 +2,10 @@ Model checker:
 NuSMV
 
 Model name:
-pci.smv
+./case_studies/instructional_example/pci.smv
 
-rLTLspecs: 1
+rLTLspecs:
+1
 rG(p => rG !q)
 
 flags:

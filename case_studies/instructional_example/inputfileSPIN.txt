@@ -2,9 +2,10 @@ Model checker:
 SPIN
 
 Model name:
-train.pml
+./case_studies/instructional_example/train.pml
 
-rLTLspecs: 2
+rLTLspecs:
+2
 rG p => rF q
 rG rF (q & r)
 

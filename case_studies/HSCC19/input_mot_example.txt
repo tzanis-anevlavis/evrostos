@@ -2,9 +2,10 @@ Model checker:
 NuSMV
 
 Model name:
-mot_example.smv
+./case_studies/HSCC19/mot_example.smv
 
-rLTLspecs: 1
+rLTLspecs:
+1
 (rF(rG (ta12non & ta13non))) => (rG(rF (!tsctr1) ))
 
 flags:

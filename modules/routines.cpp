@@ -59,7 +59,8 @@ void startupRoutine(int argc, const char *argv[], string &modelName, vector<stri
     // Model Name:
     // value..
     //
-    // rLTLspecs: number_of_specs
+    // rLTLspecs: 
+    // number_of_specs
     // value..
     // .
     // .
@@ -74,8 +75,13 @@ void startupRoutine(int argc, const char *argv[], string &modelName, vector<stri
             getline(inputFile,mcName);
         if (line.compare("modelname:")==0 || line.compare("model name:")==0)
             getline(inputFile,modelName);
-        if (line.substr(0,line.length()-1).compare("rltlspecs:")==0 || line.substr(0,line.length()-1).compare("rltlspecs: ")==0 || line.substr(0,line.length()-1).compare("rltl specs: ")==0 || line.substr(0,line.length()-1).compare("rltl specs:")==0){
-            int numSpecs = line.back()-'0';
+        if (line.compare("rltlspecs:")==0 || line.compare("rltlspecs: ")==0){
+        // if (line.substr(0,line.length()-1).compare("rltlspecs:")==0 || line.substr(0,line.length()-1).compare("rltlspecs: ")==0 || line.substr(0,line.length()-1).compare("rltl specs: ")==0 || line.substr(0,line.length()-1).compare("rltl specs:")==0){
+            // int numSpecs = line.back()-'0';
+            getline(inputFile,line);
+            stringstream s(line);
+            int numSpecs = 0;
+            s >> numSpecs;
             for (int i=0; i<numSpecs; i++){
                 string spec;
                 getline(inputFile,spec);
@@ -86,8 +92,16 @@ void startupRoutine(int argc, const char *argv[], string &modelName, vector<stri
             getline(inputFile,flags);
     }
     // If not all parameters found:
-    if (mcName.empty() || modelName.empty() || rLTLformulas.empty()){
-        cout << "Not all required parameters specified.." << endl;
+    if (mcName.empty()){
+        cout << "Model-checker not specified.." << endl;
+        exit (EXIT_FAILURE);
+    }
+    if (modelName.empty()){
+        cout << "Model name specified.." << endl;
+        exit (EXIT_FAILURE);
+    }
+    if (rLTLformulas.empty()){
+        cout << "rLTL formulas not specified.." << endl;
         exit (EXIT_FAILURE);
     }
 

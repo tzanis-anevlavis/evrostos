@@ -2,9 +2,10 @@ Model checker:
 NuSMV
 
 Model name:
-aac_original.smv
+./case_studies/HSCC19/aac_original.smv
 
-rLTLspecs: 9
+rLTLspecs:
+9
 rG( !(tt1 & d12) | td2 )
 rG( !(msg2) | ((d21 & tcs12) | (d24 & tcs42)) )
 rG( !(ph1forw0) | rG(!(ring1 |td1)) )
