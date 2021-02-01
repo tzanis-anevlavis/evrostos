@@ -315,11 +315,11 @@ string bitwise_modelcheck(int select, string flags){
         return "1111";
 }
 
-void compileReport(float clock_time, string reportName, string modelName, string rLTLformula, vector<string> LTLformulas, string rLTLresult, int inputNo, int select){
+void compileReport(string reportName, string modelName, string rLTLformula, vector<string> LTLformulas, string rLTLresult, int inputNo, int select){
     // Compile final report with:
     // Original rLTL formula
     // LTL translations
-    // rLTL model checking result and execution time
+    // rLTL model checking result
 
     ofstream myfile;
     myfile.open(reportName, ios::out | ios::app); // open file for writing, and append to the end.
@@ -365,8 +365,7 @@ void compileReport(float clock_time, string reportName, string modelName, string
     }
     myfile << endl;
     // rLTL model checking result:
-    myfile << "Model Checking of the original rLTL formula took " << clock_time<< " seconds, and" << endl;
-    myfile << "returned truth value " << rLTLresult << "." << endl;
+    myfile << "Model-checking the original rLTL formula returned truth value " << rLTLresult << "." << endl;
     myfile << "----------------------------------------------------------------------" << endl;
     
     myfile.close();

@@ -1,0 +1,253 @@
+----------------------------------------------------------------------
+-------------------- Evrostos: the rLTL Verifier! --------------------
+---------------------- rLTL Verification Report ----------------------
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Model-checker used: SPIN
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Model name: ./case_studies/RERS/rers19/problem101.pml
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Original rLTL Formula No1:
+(pa21 | pa25) rR (!pa20 | pa21 | pa25)
+
+Translated LTL formulas:
+((pa21 || pa25) V (((!pa20) || pa21) || pa25))
+((<> ([] (((!pa20) || pa21) || pa25))) || (<> (pa21 || pa25)))
+(([] (<> (((!pa20) || pa21) || pa25))) || (<> (pa21 || pa25)))
+((<> (((!pa20) || pa21) || pa25)) || (<> (pa21 || pa25)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No2:
+rG (!pa1 | (pa3 rR (pa3 | !pa6)))
+
+Translated LTL formulas:
+([] ((!pa1) || (pa3 V (pa3 || (!pa6)))))
+(<> ([] ((!pa1) || ((<> ([] (pa3 || (!pa6)))) || (<> pa3)))))
+([] (<> ((!pa1) || (([] (<> (pa3 || (!pa6)))) || (<> pa3)))))
+(<> ((!pa1) || ((<> (pa3 || (!pa6))) || (<> pa3))))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No3:
+(pa4 | pa6) rR (pa4 | !pa5 | pa6)
+
+Translated LTL formulas:
+((pa4 || pa6) V ((pa4 || (!pa5)) || pa6))
+((<> ([] ((pa4 || (!pa5)) || pa6))) || (<> (pa4 || pa6)))
+(([] (<> ((pa4 || (!pa5)) || pa6))) || (<> (pa4 || pa6)))
+((<> ((pa4 || (!pa5)) || pa6)) || (<> (pa4 || pa6)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No4:
+(pa3 | pa17) rR (pa3 | pa17 | !pa21)
+
+Translated LTL formulas:
+((pa3 || pa17) V ((pa3 || pa17) || (!pa21)))
+((<> ([] ((pa3 || pa17) || (!pa21)))) || (<> (pa3 || pa17)))
+(([] (<> ((pa3 || pa17) || (!pa21)))) || (<> (pa3 || pa17)))
+((<> ((pa3 || pa17) || (!pa21))) || (<> (pa3 || pa17)))
+
+Model-checking the original rLTL formula returned truth value 0011.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No5:
+!pa25 rU pa17
+
+Translated LTL formulas:
+((!pa25) U pa17)
+((!pa25) U pa17)
+((!pa25) U pa17)
+((!pa25) U pa17)
+
+Model-checking the original rLTL formula returned truth value 0000.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No6:
+pa25 rR (!pa4 | pa25 | (pa3 rR (pa3 | !pa16)))
+
+Translated LTL formulas:
+(pa25 V (((!pa4) || pa25) || (pa3 V (pa3 || (!pa16)))))
+((<> ([] (((!pa4) || pa25) || ((<> ([] (pa3 || (!pa16)))) || (<> pa3))))) || (<> pa25))
+(([] (<> (((!pa4) || pa25) || (([] (<> (pa3 || (!pa16)))) || (<> pa3))))) || (<> pa25))
+((<> (((!pa4) || pa25) || ((<> (pa3 || (!pa16))) || (<> pa3)))) || (<> pa25))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No7:
+(pa4 | pa17) rR (pa4 | !pa5 | pa17 | (!pa25 rU pa2))
+
+Translated LTL formulas:
+((pa4 || pa17) V (((pa4 || (!pa5)) || pa17) || ((!pa25) U pa2)))
+((<> ([] (((pa4 || (!pa5)) || pa17) || ((!pa25) U pa2)))) || (<> (pa4 || pa17)))
+(([] (<> (((pa4 || (!pa5)) || pa17) || ((!pa25) U pa2)))) || (<> (pa4 || pa17)))
+((<> (((pa4 || (!pa5)) || pa17) || ((!pa25) U pa2))) || (<> (pa4 || pa17)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No8:
+(pa16 | pa25) rR (!pa1 | pa16 | pa25 | (!pa19 rU pa4))
+
+Translated LTL formulas:
+((pa16 || pa25) V ((((!pa1) || pa16) || pa25) || ((!pa19) U pa4)))
+((<> ([] ((((!pa1) || pa16) || pa25) || ((!pa19) U pa4)))) || (<> (pa16 || pa25)))
+(([] (<> ((((!pa1) || pa16) || pa25) || ((!pa19) U pa4)))) || (<> (pa16 || pa25)))
+((<> ((((!pa1) || pa16) || pa25) || ((!pa19) U pa4))) || (<> (pa16 || pa25)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No9:
+rG (!pa25 | (!pa5 rU pa20))
+
+Translated LTL formulas:
+([] ((!pa25) || ((!pa5) U pa20)))
+(<> ([] ((!pa25) || ((!pa5) U pa20))))
+([] (<> ((!pa25) || ((!pa5) U pa20))))
+(<> ((!pa25) || ((!pa5) U pa20)))
+
+Model-checking the original rLTL formula returned truth value 0011.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No10:
+pa3 rR (pa3 | !pa4 | rF pa3)
+
+Translated LTL formulas:
+(pa3 V ((pa3 || (!pa4)) || (<> pa3)))
+((<> ([] ((pa3 || (!pa4)) || (<> pa3)))) || (<> pa3))
+(([] (<> ((pa3 || (!pa4)) || (<> pa3)))) || (<> pa3))
+((<> ((pa3 || (!pa4)) || (<> pa3))) || (<> pa3))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No11:
+pa22 rR (!pa16 | pa22 | (pa18 rR (pa18 | !pa24)))
+
+Translated LTL formulas:
+(pa22 V (((!pa16) || pa22) || (pa18 V (pa18 || (!pa24)))))
+((<> ([] (((!pa16) || pa22) || ((<> ([] (pa18 || (!pa24)))) || (<> pa18))))) || (<> pa22))
+(([] (<> (((!pa16) || pa22) || (([] (<> (pa18 || (!pa24)))) || (<> pa18))))) || (<> pa22))
+((<> (((!pa16) || pa22) || ((<> (pa18 || (!pa24))) || (<> pa18)))) || (<> pa22))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No12:
+(pa4 | pa20) rR (pa4 | !pa16 | pa20 | (pa24 rR (!pa19 | pa24)))
+
+Translated LTL formulas:
+((pa4 || pa20) V (((pa4 || (!pa16)) || pa20) || (pa24 V ((!pa19) || pa24))))
+((<> ([] (((pa4 || (!pa16)) || pa20) || ((<> ([] ((!pa19) || pa24))) || (<> pa24))))) || (<> (pa4 || pa20)))
+(([] (<> (((pa4 || (!pa16)) || pa20) || (([] (<> ((!pa19) || pa24))) || (<> pa24))))) || (<> (pa4 || pa20)))
+((<> (((pa4 || (!pa16)) || pa20) || ((<> ((!pa19) || pa24)) || (<> pa24)))) || (<> (pa4 || pa20)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No13:
+pa24 rR (!pa19 | pa24)
+
+Translated LTL formulas:
+(pa24 V ((!pa19) || pa24))
+((<> ([] ((!pa19) || pa24))) || (<> pa24))
+(([] (<> ((!pa19) || pa24))) || (<> pa24))
+((<> ((!pa19) || pa24)) || (<> pa24))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No14:
+pa16 rR (pa16 | !pa20)
+
+Translated LTL formulas:
+(pa16 V (pa16 || (!pa20)))
+((<> ([] (pa16 || (!pa20)))) || (<> pa16))
+(([] (<> (pa16 || (!pa20)))) || (<> pa16))
+((<> (pa16 || (!pa20))) || (<> pa16))
+
+Model-checking the original rLTL formula returned truth value 0011.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No15:
+pa16 rR (!pa6 | pa16 | rF pa5)
+
+Translated LTL formulas:
+(pa16 V (((!pa6) || pa16) || (<> pa5)))
+((<> ([] (((!pa6) || pa16) || (<> pa5)))) || (<> pa16))
+(([] (<> (((!pa6) || pa16) || (<> pa5)))) || (<> pa16))
+((<> (((!pa6) || pa16) || (<> pa5))) || (<> pa16))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No16:
+pa16 rR (pa16 | !pa19 | (pa23 rR (!pa21 | pa23)))
+
+Translated LTL formulas:
+(pa16 V ((pa16 || (!pa19)) || (pa23 V ((!pa21) || pa23))))
+((<> ([] ((pa16 || (!pa19)) || ((<> ([] ((!pa21) || pa23))) || (<> pa23))))) || (<> pa16))
+(([] (<> ((pa16 || (!pa19)) || (([] (<> ((!pa21) || pa23))) || (<> pa23))))) || (<> pa16))
+((<> ((pa16 || (!pa19)) || ((<> ((!pa21) || pa23)) || (<> pa23)))) || (<> pa16))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No17:
+pa17 rR (pa17 | !pa20 | (pa1 rR (pa1 | !pa3)))
+
+Translated LTL formulas:
+(pa17 V ((pa17 || (!pa20)) || (pa1 V (pa1 || (!pa3)))))
+((<> ([] ((pa17 || (!pa20)) || ((<> ([] (pa1 || (!pa3)))) || (<> pa1))))) || (<> pa17))
+(([] (<> ((pa17 || (!pa20)) || (([] (<> (pa1 || (!pa3)))) || (<> pa1))))) || (<> pa17))
+((<> ((pa17 || (!pa20)) || ((<> (pa1 || (!pa3))) || (<> pa1)))) || (<> pa17))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No18:
+!pa17 rU (pa1 | pa24)
+
+Translated LTL formulas:
+((!pa17) U (pa1 || pa24))
+((!pa17) U (pa1 || pa24))
+((!pa17) U (pa1 || pa24))
+((!pa17) U (pa1 || pa24))
+
+Model-checking the original rLTL formula returned truth value 0000.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No19:
+rF (pa20 & rF pa17)
+
+Translated LTL formulas:
+(<> (pa20 && (<> pa17)))
+(<> (pa20 && (<> pa17)))
+(<> (pa20 && (<> pa17)))
+(<> (pa20 && (<> pa17)))
+
+Model-checking the original rLTL formula returned truth value 0000.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No20:
+pa1 rR (pa1 | !pa4 | rG !pa20)
+
+Translated LTL formulas:
+(pa1 V ((pa1 || (!pa4)) || ([] (!pa20))))
+((<> ([] ((pa1 || (!pa4)) || (<> ([] (!pa20)))))) || (<> pa1))
+(([] (<> ((pa1 || (!pa4)) || ([] (<> (!pa20)))))) || (<> pa1))
+((<> ((pa1 || (!pa4)) || (<> (!pa20)))) || (<> pa1))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------

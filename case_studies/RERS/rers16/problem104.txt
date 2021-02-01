@@ -1,0 +1,31 @@
+Model checker:
+SPIN
+
+Model name:
+./case_studies/RERS/rers16/problem104.pml
+
+rLTLspecs:
+20
+rG!(pc1t9 | pc2t0c1t3)
+rG(!pc3t4c1t8 & !(pc2t1 | pc2t3))
+(pc0t2 | pc0t3) rR (pc0t2 | pc0t3 | !pc2t2 | rF pc3t8c2t6)
+pc1t9 rR (!pc0t7c1t2 | pc1t9 | (!pc3t8c2t6 rU pc3t7))
+(pc1t9 | pc3t11) rR (!pc0t7c1t2 | pc1t9 | pc3t11 | (pc3t9 rR (!pc1t4 | pc3t9)))
+(pc2t0c1t3 | pc3t11) rR (pc2t0c1t3 | !pc3t4c1t8 | pc3t11)
+rG(!pc3t2 | (!pc0t1 rU pc0t8))
+pc3t4c1t8 rR (!pc2t14 | pc3t4c1t8 | rG !pc0t7c1t2)
+pc1t9 rR (pc1t9 | !pc2t1)
+pc0t9 rR (pc0t9 | !pc2t13)
+(pc0t6c1t7 | pc2t0c1t3) rR (pc0t6c1t7 | !pc0t7c1t2 | pc2t0c1t3 | (!pc2t12 rU pc3t4c1t8))
+rG((!pc3t8c2t6 | (!pc3t9 rU pc0t6c1t7)) & (!pc3t4c1t8 | (!pc0t7c1t2 rU pc0t9)))
+pc3t5 rR (!pc3t3 | pc3t5)
+pc3t8c2t6 rR (!pc0t3 | pc3t8c2t6 | (pc0t8 rR (pc0t8 | !pc0t9)))
+rG((!pc0t2 | (!pc0t7c1t2 rU pc0t0)) & (!pc0t9 | (!pc0t6c1t7 rU pc3t11)))
+rG((!pc2t1 | (pc2t10 rR (!pc2t9 | pc2t10))) & (!pc3t10c0t4 | (pc2t10 rR (pc2t10 | !pc3t7))))
+(pc1t6 | pc3t4c1t8) rR (pc1t6 | !pc2t10 | pc3t4c1t8)
+(pc0t2 | pc2t13) rR (pc0t2 | !pc2t2 | pc2t13 | rG!pc3t10c0t4)
+rF(pc3t1 rR (!pc2t0c1t3 | pc3t1))
+(pc0t6c1t7 | pc1t5) rR (pc0t6c1t7 | pc1t5 | !pc2t9 | (pc2t0c1t3 rR (!pc1t6 | pc2t0c1t3)))
+
+flags:
+-search -N -m10000000 -ltl

@@ -27,7 +27,6 @@
 #include <stdbool.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
-#include <ctime>
 #include <vector>
 #include <fstream>
 #include "routines.cpp"
@@ -43,10 +42,7 @@ int main(int argc, const char * argv[]) {
 
     string rLTLresult;
     // For EACH rLTL specification in the input file:
-    for (int spec=0; spec<rLTLformulas.size(); spec++){
-        // Start recording time:
-        const clock_t begin_time = clock();
-        
+    for (int spec=0; spec<rLTLformulas.size(); spec++){        
         // STEP 1: rLTL to LTL translation
         // Write the rLTL formula to pre-specified text file:
         write2file("./rLTLinput.txt", rLTLformulas[spec]);
@@ -86,13 +82,9 @@ int main(int argc, const char * argv[]) {
             strcpy(char_array2, modspecs.c_str());
             remove(char_array2);
         }
-        
-        // Stop time counting:
-        float end_time = static_cast<double>( clock() - begin_time ) /  CLOCKS_PER_SEC;
-        cout << "Time: " << end_time << " sec." << endl;
 
         // STEP 4: Compile report
-        compileReport(end_time, reportName, modelName, rLTLformulas[spec], LTLformulas, rLTLresult, spec, select);
+        compileReport(reportName, modelName, rLTLformulas[spec], LTLformulas, rLTLresult, spec, select);
     }
     // Remove "pan" exec leftover from SPIN execution. 
     remove("pan");
