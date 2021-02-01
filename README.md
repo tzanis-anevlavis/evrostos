@@ -70,6 +70,12 @@ All instructions and folders are relative to the folder you have extracted this 
     * Library libxml2
 
 **NOTE:** There are known issues with compiling NuSMV/CUDD with with the GNU compiler collection version >= 6 that prevent NuSVM from compiling properly. We successfully ran simulations with compiler version 4.2.1 for macOS and 5.3.1 for Ubuntu.
+* Some issues we faced on Ubuntu: *
+1. CUDD compilation error with `<path>/NuSMV-2.6.0/cudd-2.4.1.1/util/pipefork.c`. 
+[Fix here](https://git8.cs.fau.de/software/nusmvf/-/commit/e4bc65e1eb98b1157f02c60414137cd4fb3ba7cd).
+2. MiniSat compilation error: 
+`<path>/NuSMV-2.6.0/NuSMV/build/build-MiniSat/minisat-37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/simp/Solver_C.cc:51:8: error: expected unqualified-id before user-defined string literal extern "C"void MiniSat_Delete(MiniSat_ptr ms)`. 
+[Fix here](https://gitlab-ci.lrde.epita.fr/akheireddine/bmctool/-/commit/343a8f812673d11562555790e8bb8ba68dda2d52).
 
 
 ### Building Evrostos
