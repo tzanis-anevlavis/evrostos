@@ -1,0 +1,123 @@
+MODULE philosopher(lfork, rfork)
+VAR
+    state: {ready, rwait, lwait, eat};
+ASSIGN
+   init(state) := ready;
+   next(lfork) := case
+        state != eat & lfork = usable  : unusable;   -- pick up left fork
+        state = eat  & lfork = unusable : usable;     -- put down left fork
+        TRUE: lfork;
+   esac;
+   next(rfork) := case
+        state != eat & rfork = usable  : unusable;   -- pick up right fork
+        state = eat  & rfork = unusable : usable;    -- put down right fork
+        TRUE : rfork;
+   esac;
+   next(state) := case
+     (state = ready & lfork = usable & rfork = usable)            -- two forks are usable, pick up two forks
+     | (state = rwait & rfork = usable & lfork = unusable)        -- wait for right fork and pick right fork
+     | (state = lwait & lfork = usable & rfork = unusable) : eat; -- wait for left fork and pick left fork
+     state = ready & lfork = unusable & rfork = usable   : lwait; -- after pick up right fork, wait for left fork
+     state = ready & lfork = usable & rfork = unusable   : rwait; -- after pick up left fork, wait for right fork
+     state = eat                                         : ready; -- finish eating     
+     TRUE                                               : state;
+   esac;
+
+MODULE main()
+VAR
+  fork0: {usable, unusable};
+  fork1: {usable, unusable};
+  fork2: {usable, unusable};
+  fork3: {usable, unusable};
+  fork4: {usable, unusable};
+  fork5: {usable, unusable};
+  fork6: {usable, unusable};
+  fork7: {usable, unusable};
+  fork8: {usable, unusable};
+  fork9: {usable, unusable};
+
+
+  phil0: process philosopher(fork0, fork1);
+  phil1: process philosopher(fork1, fork2);
+  phil2: process philosopher(fork2, fork3);
+  phil3: process philosopher(fork3, fork4);
+  phil4: process philosopher(fork4, fork5);
+  phil5: process philosopher(fork5, fork6);
+  phil6: process philosopher(fork6, fork7);
+  phil7: process philosopher(fork7, fork8);
+  phil8: process philosopher(fork8, fork9);
+  phil9: process philosopher(fork9, fork0);
+
+
+
+ASSIGN
+  init(fork0) := usable;
+  init(fork1) := usable;
+  init(fork2) := usable;
+  init(fork3) := usable;
+  init(fork4) := usable;
+  init(fork5) := usable;
+  init(fork6) := usable;
+  init(fork7) := usable;
+  init(fork8) := usable;
+  init(fork9) := usable;
+
+
+DEFINE 
+   a0:= (phil0.state = ready); 
+   b0:= (phil0.state = lwait);
+   c0:= (phil0.state = rwait); 
+   d0:= (phil0.state = eat);
+   a1:= (phil1.state = ready); 
+   b1:= (phil1.state = lwait);
+   c1:= (phil1.state = rwait); 
+   d1:= (phil1.state = eat);
+   a2:= (phil2.state = ready); 
+   b2:= (phil2.state = lwait);
+   c2:= (phil2.state = rwait); 
+   d2:= (phil2.state = eat);
+   a3:= (phil3.state = ready); 
+   b3:= (phil3.state = lwait);
+   c3:= (phil3.state = rwait); 
+   d3:= (phil3.state = eat);
+   a4:= (phil4.state = ready); 
+   b4:= (phil4.state = lwait);
+   c4:= (phil4.state = rwait); 
+   d4:= (phil4.state = eat);
+   a5:= (phil5.state = ready); 
+   b5:= (phil5.state = lwait);
+   c5:= (phil5.state = rwait); 
+   d5:= (phil5.state = eat);
+   a6:= (phil6.state = ready); 
+   b6:= (phil6.state = lwait);
+   c6:= (phil6.state = rwait); 
+   d6:= (phil6.state = eat);
+   a7:= (phil7.state = ready); 
+   b7:= (phil7.state = lwait);
+   c7:= (phil7.state = rwait); 
+   d7:= (phil7.state = eat);
+   a8:= (phil8.state = ready); 
+   b8:= (phil8.state = lwait);
+   c8:= (phil8.state = rwait); 
+   d8:= (phil8.state = eat);
+   a9:= (phil9.state = ready); 
+   b9:= (phil9.state = lwait);
+   c9:= (phil9.state = rwait); 
+   d9:= (phil9.state = eat);
+
+LTLSPEC
+    -- ( ( !(G F a0) | (G F d0) ) ) -> F a0
+    -- ( ( !(G F a0) | (G F d0) ) & ( !(G F a1) | (G F d1) ) ) -> F a0
+    -- ( ( !(G F a0) | (G F d0) ) & ( !(G F a1) | (G F d1) ) & ( !(G F a2) | (G F d2)) ) -> F a0
+    -- ( ( !(G F a0) | (G F d0) ) & ( !(G F a1) | (G F d1) ) & ( !(G F a2) | (G F d2)) & ( !(G F a3) | (G F d3)) ) -> F a0
+    -- ( ( !(G F a0) | (G F d0) ) & ( !(G F a1) | (G F d1) ) & ( !(G F a2) | (G F d2)) & ( !(G F a3) | (G F d3)) & ( !(G F a4) | (G F d4)) ) -> F a0
+    -- ( ( !(G F a0) | (G F d0) ) & ( !(G F a1) | (G F d1) ) & ( !(G F a2) | (G F d2)) & ( !(G F a3) | (G F d3)) & ( !(G F a4) | (G F d4)) & ( !(G F a5) | (G F d5)) ) -> F a0
+    -- ( ( !(G F a0) | (G F d0) ) & ( !(G F a1) | (G F d1) ) & ( !(G F a2) | (G F d2)) & ( !(G F a3) | (G F d3)) & ( !(G F a4) | (G F d4)) & ( !(G F a5) | (G F d5)) & ( !(G F a6) | (G F d6)) ) -> F a0
+    -- ( ( !(G F a0) | (G F d0) ) & ( !(G F a1) | (G F d1) ) & ( !(G F a2) | (G F d2)) & ( !(G F a3) | (G F d3)) & ( !(G F a4) | (G F d4)) & ( !(G F a5) | (G F d5)) & ( !(G F a6) | (G F d6)) & ( !(G F a7) | (G F d7)) ) -> F a0
+    -- ( ( !(G F a0) | (G F d0) ) & ( !(G F a1) | (G F d1) ) & ( !(G F a2) | (G F d2)) & ( !(G F a3) | (G F d3)) & ( !(G F a4) | (G F d4)) & ( !(G F a5) | (G F d5)) & ( !(G F a6) | (G F d6)) & ( !(G F a7) | (G F d7)) & ( !(G F a8) | (G F d8)) ) -> F a0
+    -- ( ( !(G F a0) | (G F d0) ) & ( !(G F a1) | (G F d1) ) & ( !(G F a2) | (G F d2)) & ( !(G F a3) | (G F d3)) & ( !(G F a4) | (G F d4)) & ( !(G F a5) | (G F d5)) & ( !(G F a6) | (G F d6)) & ( !(G F a7) | (G F d7)) & ( !(G F a8) | (G F d8)) & ( !(G F a9) | (G F d9)) ) -> F a0
+    ( ( !(G F a0) | (F F d0) ) & ( !(G F a1) | (F F d1) ) & ( !(G F a2) | (F F d2)) & ( !(G F a3) | (F F d3)) & ( !(G F a4) | (F F d4)) & ( !(G F a5) | (F F d5)) & ( !(G F a6) | (F F d6)) & ( !(G F a7) | (F F d7)) & ( !(G F a8) | (F F d8)) ) -> F a0
+    -- & ( !(G F a{}) | (G F d{}))
+
+FAIRNESS
+   a0

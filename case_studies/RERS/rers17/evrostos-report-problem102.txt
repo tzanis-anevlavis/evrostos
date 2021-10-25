@@ -129,8 +129,7 @@ Translated LTL formulas:
 ([] (<> ((!pc5t7) || ([] (<> (!pc3t12c4t7))))))
 (<> ((!pc5t7) || (<> (!pc3t12c4t7))))
 
-Model-checking the original rLTL formula took 0.002092 seconds, and
-returned truth value 0011.
+Model-checking the original rLTL formula returned truth value 0011.
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 Original rLTL Formula No11:

@@ -1,0 +1,74 @@
+MODULE philosopher(lfork, rfork)
+VAR
+    state: {ready, rwait, lwait, eat};
+ASSIGN
+   init(state) := ready;
+   next(lfork) := case
+        state != eat & lfork = usable  : unusable;   -- pick up left fork
+        state = eat  & lfork = unusable : usable;     -- put down left fork
+        TRUE: lfork;
+   esac;
+   next(rfork) := case
+        state != eat & rfork = usable  : unusable;   -- pick up right fork
+        state = eat  & rfork = unusable : usable;    -- put down right fork
+        TRUE : rfork;
+   esac;
+   next(state) := case
+     (state = ready & lfork = usable & rfork = usable)            -- two forks are usable, pick up two forks
+     | (state = rwait & rfork = usable & lfork = unusable)        -- wait for right fork and pick right fork
+     | (state = lwait & lfork = usable & rfork = unusable) : eat; -- wait for left fork and pick left fork
+     state = ready & lfork = unusable & rfork = usable   : lwait; -- after pick up right fork, wait for left fork
+     state = ready & lfork = usable & rfork = unusable   : rwait; -- after pick up left fork, wait for right fork
+     state = eat                                         : ready; -- finish eating     
+     TRUE                                               : state;
+   esac;
+FAIRNESS
+ running
+
+MODULE main()
+VAR
+  fork0: {usable, unusable};
+  fork1: {usable, unusable};
+  fork2: {usable, unusable};
+  fork3: {usable, unusable};
+  fork4: {usable, unusable};
+  fork5: {usable, unusable};
+  phil0: process philosopher(fork0, fork1);
+  phil1: process philosopher(fork1, fork2);
+  phil2: process philosopher(fork2, fork3);
+  phil3: process philosopher(fork3, fork4);
+  phil4: process philosopher(fork4, fork5);
+  phil5: process philosopher(fork5, fork0);
+
+ASSIGN
+  init(fork0) := usable;
+  init(fork1) := usable;
+  init(fork2) := usable;
+  init(fork3) := usable;
+  init(fork4) := usable;
+  init(fork5) := usable;
+DEFINE 
+   p0:= (phil0.state = ready); 
+   l0:= (phil0.state = lwait);
+   r0:= (phil0.state = rwait); 
+   e0:= (phil0.state = eat);
+   p1:= (phil1.state = ready); 
+   l1:= (phil1.state = lwait);
+   r1:= (phil1.state = rwait); 
+   e1:= (phil1.state = eat);
+   p2:= (phil2.state = ready); 
+   l2:= (phil2.state = lwait);
+   r2:= (phil2.state = rwait); 
+   e2:= (phil2.state = eat);
+   p3:= (phil3.state = ready); 
+   l3:= (phil3.state = lwait);
+   r3:= (phil3.state = rwait); 
+   e3:= (phil3.state = eat);
+   p4:= (phil4.state = ready); 
+   l4:= (phil4.state = lwait);
+   r4:= (phil4.state = rwait); 
+   e4:= (phil4.state = eat);
+   p5:= (phil5.state = ready); 
+   l5:= (phil5.state = lwait);
+   r5:= (phil5.state = rwait); 
+   e5:= (phil5.state = eat);

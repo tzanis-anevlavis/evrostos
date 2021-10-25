@@ -1,0 +1,11 @@
+Model checker:
+NuSMV
+
+Model name:
+/Users/j10/GitRepos/evrostos/din_phil_temp.smv
+
+rLTLspecs:
+1
+( ( !(rG rF a0) | (rG rF d0)) & ( !(rG rF a1) | (rG rF d1)) & ( !(rG rF a2) | (rG rF d2)) & ( !(rG rF a3) | (rG rF d3)) & ( !(rG rF a4) | (rG rF d4)) & ( !(rG rF a5) | (rG rF d5)) & ( !(rG rF a6) | (rG rF d6)) & ( !(rG rF a7) | (rG rF d7)) & ( !(rG rF a8) | (rG rF d8))) => rF d0
+flags:
+ -coi -df -dcx -dynamic -disable_sexp2bdd_caching -n
