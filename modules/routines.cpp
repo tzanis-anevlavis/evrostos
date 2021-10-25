@@ -17,7 +17,7 @@
 // This code is part of the Evrostos: The rLTL Verifier repository, 
 // and is publicly available at: https://github.com/janis10/evrostos .
 //
-// For any comments contact Tzanis Anevlavis @ janis10@ucla.edu.
+// For any comments contact Tzanis Anevlavis @ t.anevlavis@ucla.edu.
 //
 
 #include <iostream>
@@ -41,10 +41,11 @@ inline bool nameExists (const string& name) {
 
 void startupRoutine(int argc, const char *argv[], string &modelName, vector<string> &rLTLformulas, string &reportName, int &select, string &flags){
     // Welcome message:
-    cout << "\nThis is Evrostos: the rLTL Verifier! -- version 1.0 . \nAuthors: Tzanis Anevlavis, Daniel Neider, Matthew Philippe, Paulo Tabuada. \nCopyright (C) 2018, Tzanis Anevlavis, Daniel Neider, Matthew Philippe, Paulo Tabuada. \n\nFor any issue contact Tzanis Anevlavis @ janis10@ucla.edu . \n\n";
-    cout << "Specify input file:" << endl;
+    // cout << "\nThis is Evrostos: the rLTL Verifier! -- version 1.0 . \nAuthors: Tzanis Anevlavis, Daniel Neider, Matthew Philippe, Paulo Tabuada. \nCopyright (C) 2018, Tzanis Anevlavis, Daniel Neider, Matthew Philippe, Paulo Tabuada. \n\nFor any issue contact Tzanis Anevlavis @ t.anevlavis@ucla.edu . \n\n";
+    // cout << "Specify input file:" << endl;
     string fileName, mcName;
-    getline (cin,fileName);
+    // getline (cin,fileName);
+    fileName = argv[1];
     ifstream inputFile(fileName);
     if(!inputFile){
       cout << "Input file not fount, check input file name.." << endl;

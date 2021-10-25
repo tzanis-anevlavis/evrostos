@@ -17,7 +17,7 @@
 // This code is part of the Evrostos: The rLTL Verifier repository, 
 // and is publicly available at: https://github.com/janis10/evrostos .
 //
-// For any comments contact Tzanis Anevlavis @ janis10@ucla.edu.
+// For any comments contact Tzanis Anevlavis @ t.anevlavis@ucla.edu.
 //
 
 #include <iostream>
