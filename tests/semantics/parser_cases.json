@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "profile": "legacy-compatible",
+  "status": "Expectations from LTLParser.jj; executed against C++ by cpp_integration.py and against both Java and C++ by the optional java_differential.py suite.",
+  "accept": [
+    {"source": "p", "ast": "p"},
+    {"source": "GFReady2", "ast": "GFReady2"},
+    {"source": "rGp", "ast": "rGp"},
+    {"source": "rG p", "ast": ["rG", "p"]},
+    {"source": "p & q => r", "ast": ["&", "p", ["=>", "q", "r"]]},
+    {"source": "p => q => r", "ast": ["=>", ["=>", "p", "q"], "r"]},
+    {"source": "p | q & r", "ast": ["|", "p", ["&", "q", "r"]]},
+    {"source": "p rU q rR r", "ast": ["rR", ["rU", "p", "q"], "r"]},
+    {"source": "p => q rU r", "ast": ["=>", "p", ["rU", "q", "r"]]},
+    {"source": "!rX rF rG p", "ast": ["!", ["rX", ["rF", ["rG", "p"]]]]},
+    {"source": " ( p & q ) => r\r\n\t", "ast": ["=>", ["&", "p", "q"], "r"]}
+  ],
+  "reject": ["", " ", "0000", "0001", "0011", "0111", "1111", "p_q", "m.p", "p[0]", "p=5", "p q", "p && q", "p || q", "p -> q", "p <=> q", "rG", "p =>", "(p", "p)", "()", "p;", "p # comment"]
+}
