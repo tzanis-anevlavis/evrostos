@@ -1,0 +1,11 @@
+  /* **************************************************************  -*-C-*-  ***/
+
+[ \n\t\r\f]             ;
+"--"                    nusmv_skip_comment();
+"/--"                   nusmv_skip_multiline_comment();
+^"#"" "[0-9]+.*\n       sscanf(nusmv_yytext,"# %d",&nusmv_yylineno);
+^"#".*\n                {
+  const ErrorMgr_ptr errmgr =
+    ERROR_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_ERROR_MANAGER));
+  ErrorMgr_rpterr(errmgr, "Unexpected preprocessor directive:\n %s\n",nusmv_yytext);
+}

@@ -1,0 +1,821 @@
+/***************************************************************  -*-C-*-  ***/
+
+/* --------------------------------------------------------------------- */
+/* ---------------------------- EXPRESSION ----------------------------- */
+/* --------------------------------------------------------------------- */
+/* Later on unary plus must be implemented as a usual unary operator
+   (as unary minus now)
+*/
+number        : TOK_NUMBER
+              | TOK_PLUS TOK_NUMBER { $$ = $2; }
+              ;
+
+integer       : TOK_NUMBER
+              | TOK_PLUS TOK_NUMBER { $$ = $2; }
+              | TOK_MINUS TOK_NUMBER
+                {node_int_setcar($2, -(node_get_int($2))); $$ = $2;}
+              ;
+
+number_word   : TOK_NUMBER_WORD
+              ;
+number_frac   : TOK_NUMBER_FRAC
+              ;
+number_real   : TOK_NUMBER_REAL
+              ;
+number_exp    : TOK_NUMBER_EXP
+              ;
+
+subrange      : integer TOK_TWODOTS integer
+                  {$$ = new_lined_node(NODEMGR, TWODOTS, $1, $3, $2);}
+              ;
+
+subrangetype  : shift_expr_type TOK_TWODOTS shift_expr_type
+                {$$ = new_lined_node(NODEMGR, TWODOTS, $1, $3, $2);}
+              ;
+
+constant     : TOK_FALSEEXP
+             | TOK_TRUEEXP
+             | TOK_UWCONST TOK_LP simple_expression TOK_COMMA shift_expr TOK_RP
+               {$$ = new_lined_node(NODEMGR, UWCONST, $3, $5, $1); }
+             | TOK_SWCONST TOK_LP simple_expression TOK_COMMA shift_expr TOK_RP
+               {$$ = new_lined_node(NODEMGR, SWCONST, $3, $5, $1); }
+             | TOK_WSIZEOF TOK_LP next_expression TOK_RP
+               {$$ = new_lined_node(NODEMGR, WSIZEOF, $3, Nil, $1); }
+             | TOK_WTOINT TOK_LP next_expression TOK_RP
+               {$$ = new_lined_node(NODEMGR, CAST_TOINT, $3, Nil, $1); }
+             | number
+             | number_word
+             | number_frac
+               {
+                 nusmv_yyerror("fractional constants are not supported.");
+                 YYABORT;
+               }
+             | number_exp
+               {
+                 nusmv_yyerror("exponential constants are not supported.");
+                 YYABORT;
+               }
+             | number_real
+               {
+                 nusmv_yyerror("real constants are not supported.");
+                 YYABORT;
+               }
+             ;
+
+
+primary_expr :
+               primary_expr_type
+             | nfunc_expr  {
+                 nusmv_yyerror("functions are not supported.");
+                 YYABORT;
+               }
+
+             ;
+
+nfunc_expr   : primary_expr TOK_LP next_list_expression TOK_RP {
+                    int ntype = node_get_type($1);
+                    if (ATOM != ntype && DOT != ntype && SELF != ntype) {
+                      nusmv_yyerror_lined("incorrect DOT expression", $2);
+                      YYABORT;
+                    }
+                $$ = new_lined_node(NODEMGR, NFUNCTION, $1, $3, $2);
+               }
+
+             ;
+
+/* expression has to have "var_identifier", but it is ambiguous with
+   bit-selection (the problem is with "left-bracket" (TOK_LB)).
+   So they are put in one place and "var_idenitifier" alternatives have
+   additional assertions to check that array's and
+   dot's rules are applied to var_idintifier only.
+*/
+
+primary_expr_type :
+               constant
+             | TOK_MINUS primary_expr_type { $$ = new_lined_node(NODEMGR, UMINUS, $2, Nil, $1); }
+             | TOK_ATOM
+             | TOK_SELF         {$$ = new_node(NODEMGR, SELF,Nil,Nil);}
+             | primary_expr_type TOK_DOT TOK_ATOM
+                  {
+                    int ntype = node_get_type($1);
+                    if (ATOM != ntype && DOT != ntype && ARRAY != ntype && SELF != ntype) {
+                      nusmv_yyerror_lined("incorrect DOT expression", $2);
+                      YYABORT;
+                    }
+                    $$ = new_lined_node(NODEMGR, DOT, $1, $3, $2) ;
+                  }
+             | primary_expr_type TOK_DOT TOK_NUMBER
+                  {
+                   int ntype = node_get_type($1);
+                   if (ATOM != ntype && DOT != ntype && ARRAY != ntype && SELF != ntype) {
+                     nusmv_yyerror_lined("incorrect DOT expression", $2);
+                     YYABORT;
+                   }
+                   $$ = new_lined_node(NODEMGR, DOT, $1, $3, $2) ;
+                  }
+             | primary_expr_type TOK_LB next_expression TOK_RB
+                  {
+                   /* array may have any expression on the left.
+                      The type check will detect any problems */
+                   $$ = new_lined_node(NODEMGR, ARRAY, $1, $3, $2);
+                  }
+             | primary_expr_type TOK_LB simple_expression TOK_COLON simple_expression TOK_RB
+                  {
+                    $$ = new_lined_node(NODEMGR, BIT_SELECTION, $1,
+                                        new_lined_node(NODEMGR, COLON, $3, $5, $4), $2);
+                  }
+             | TOK_LP basic_expr TOK_RP             { $$ = $2; }
+             | TOK_ABS TOK_LP basic_expr TOK_RP     { /* abs(a) := (a >= 0) ? a : - a */
+                                                      node_ptr zero = new_lined_node(NODEMGR, NUMBER, NODE_FROM_INT((int)(0)), Nil, $1);
+                                                      node_ptr cond = new_lined_node(NODEMGR, GE, $3, zero, $1);
+                                                      node_ptr minus_a = new_lined_node(NODEMGR, UMINUS, $3, Nil, $1);
+                                                      $$ = new_lined_node(NODEMGR, IFTHENELSE, new_lined_node(NODEMGR, COLON, cond, $3, $1), minus_a, $1); ; }
+             | TOK_MIN TOK_LP basic_expr TOK_COMMA basic_expr TOK_RP     { /* MIN(a,b) := a < b ? a : b */
+                                                                           node_ptr cond = new_lined_node(NODEMGR, LT, $3, $5, $1);
+                                                                           $$ = new_lined_node(NODEMGR, IFTHENELSE, new_lined_node(NODEMGR, COLON, cond, $3, $1), $5, $1); ; }
+             | TOK_MAX TOK_LP basic_expr TOK_COMMA basic_expr TOK_RP     { /* MAX(a,b) := a < b ? b : a */
+                                                                           node_ptr cond = new_lined_node(NODEMGR, LT, $3, $5, $1);
+                                                                           $$ = new_lined_node(NODEMGR, IFTHENELSE, new_lined_node(NODEMGR, COLON, cond, $5, $1), $3, $1); ;}
+             | TOK_NOT primary_expr_type                 { $$ = new_lined_node(NODEMGR, NOT, $2, Nil, $1); }
+             | TOK_BOOL  TOK_LP basic_expr TOK_RP   { $$ = new_lined_node(NODEMGR, CAST_BOOL, $3, Nil, $1); }
+             | TOK_WORD1 TOK_LP basic_expr TOK_RP   { $$ = new_lined_node(NODEMGR, CAST_WORD1, $3, Nil, $1); }
+             | TOK_NEXT  TOK_LP basic_expr TOK_RP   { $$ = new_lined_node(NODEMGR, NEXT, $3, Nil, $1); }
+             | TOK_SIGNED   TOK_LP basic_expr TOK_RP   { $$ = new_lined_node(NODEMGR, CAST_SIGNED, $3, Nil, $1); }
+             | TOK_UNSIGNED TOK_LP basic_expr TOK_RP   { $$ = new_lined_node(NODEMGR, CAST_UNSIGNED, $3, Nil, $1); }
+             | TOK_EXTEND   TOK_LP basic_expr TOK_COMMA basic_expr TOK_RP   { $$ = new_lined_node(NODEMGR, EXTEND, $3, $5, $1); }
+             | TOK_WRESIZE TOK_LP basic_expr TOK_COMMA  basic_expr TOK_RP   { $$ = new_lined_node(NODEMGR, WRESIZE, $3, $5, $1); }
+             | TOK_CASE case_element_list_expr TOK_ESAC { $$ = $2; }
+
+             | TOK_WAREAD TOK_LP
+                   basic_expr TOK_COMMA basic_expr TOK_RP
+                { $$ = new_lined_node(NODEMGR, WAREAD, $3, $5, $1); }
+             | TOK_WAWRITE TOK_LP
+                   basic_expr TOK_COMMA basic_expr TOK_COMMA basic_expr TOK_RP
+                { $$ = new_lined_node(NODEMGR, WAWRITE, $3, new_node(NODEMGR, WAWRITE, $5, $7), $2); }
+             | TOK_CONST_ARRAY TOK_LP TOK_TYPEOF TOK_LP var_id TOK_RP TOK_COMMA basic_expr TOK_RP 
+                { $$ = new_lined_node(NODEMGR, CONST_ARRAY, new_node(NODEMGR, TYPEOF, $5, Nil), $8, $1); }
+             | TOK_COUNT TOK_LP count_param_list TOK_RP 
+                { $$ = new_lined_node(NODEMGR, COUNT, $3, Nil, $2);}
+             ;
+
+count_param_list:
+               basic_expr { $$ = cons(NODEMGR, $1, Nil); }
+             | basic_expr TOK_COMMA count_param_list { $$ = cons(NODEMGR, $1, $3); }
+             ;
+
+case_element_list_expr
+             : case_element_expr /* last element in the list. Add FAILURE node */
+             {
+               const ErrorMgr_ptr errmgr =
+                 ERROR_MGR(NuSMVEnv_get_value(__nusmv_parser_env__, ENV_ERROR_MANAGER));
+               node_ptr fail =
+                 ErrorMgr_failure_make(errmgr,
+                                       "case conditions are not exhaustive",
+                                       FAILURE_CASE_NOT_EXHAUSTIVE,
+                                       nusmv_yylineno);
+               $$ = new_node(NODEMGR, CASE, $1, fail);
+             }
+             | case_element_expr case_element_list_expr { $$ = new_node(NODEMGR, CASE, $1, $2); }
+             ;
+
+case_element_expr
+             : basic_expr TOK_COLON basic_expr TOK_SEMI
+                 { $$ = build_case_colon_node($1, $3, $2); }
+             ;
+
+
+concatination_expr_type :
+               primary_expr_type
+             | concatination_expr_type TOK_CONCATENATION primary_expr_type { $$ = new_lined_node(NODEMGR, CONCATENATION, $1, $3, $2); }
+             ;
+
+
+concatination_expr :
+               primary_expr
+             | concatination_expr TOK_CONCATENATION primary_expr { $$ = new_lined_node(NODEMGR, CONCATENATION, $1, $3, $2); }
+             ;
+
+
+multiplicative_expr_type :
+               concatination_expr_type
+             | multiplicative_expr_type TOK_TIMES concatination_expr_type  { $$ = new_lined_node(NODEMGR, TIMES, $1, $3, $2); }
+             | multiplicative_expr_type TOK_DIVIDE concatination_expr_type { $$ = new_lined_node(NODEMGR, DIVIDE, $1, $3, $2); }
+             | multiplicative_expr_type TOK_MOD concatination_expr_type    { $$ = new_lined_node(NODEMGR, MOD, $1, $3, $2); }
+             ;
+
+multiplicative_expr :
+               concatination_expr
+             | multiplicative_expr TOK_TIMES concatination_expr  { $$ = new_lined_node(NODEMGR, TIMES, $1, $3, $2); }
+             | multiplicative_expr TOK_DIVIDE concatination_expr { $$ = new_lined_node(NODEMGR, DIVIDE, $1, $3, $2); }
+             | multiplicative_expr TOK_MOD concatination_expr    { $$ = new_lined_node(NODEMGR, MOD, $1, $3, $2); }
+             ;
+
+
+additive_expr_type :
+               multiplicative_expr_type
+             | additive_expr_type TOK_PLUS multiplicative_expr_type  { $$ = new_lined_node(NODEMGR, PLUS, $1, $3, $2); }
+             | additive_expr_type TOK_MINUS multiplicative_expr_type { $$ = new_lined_node(NODEMGR, MINUS, $1, $3, $2); }
+             ;
+
+
+additive_expr :
+               multiplicative_expr
+             | additive_expr TOK_PLUS multiplicative_expr  { $$ = new_lined_node(NODEMGR, PLUS, $1, $3, $2); }
+             | additive_expr TOK_MINUS multiplicative_expr { $$ = new_lined_node(NODEMGR, MINUS, $1, $3, $2); }
+             ;
+
+shift_expr_type :   additive_expr_type
+                | shift_expr_type TOK_LSHIFT additive_expr_type   { $$ = new_lined_node(NODEMGR, LSHIFT, $1, $3, $2); }
+                | shift_expr_type TOK_RSHIFT additive_expr_type   { $$ = new_lined_node(NODEMGR, RSHIFT, $1, $3, $2); }
+
+
+shift_expr :   additive_expr
+             | shift_expr TOK_LSHIFT additive_expr   { $$ = new_lined_node(NODEMGR, LSHIFT, $1, $3, $2); }
+             | shift_expr TOK_RSHIFT additive_expr   { $$ = new_lined_node(NODEMGR, RSHIFT, $1, $3, $2); }
+/*
+             | shift_expr TOK_LROTATE additive_expr  { $$ = new_lined_node(NODEMGR, LROTATE, $1, $3, $2); }
+             | shift_expr TOK_RROTATE additive_expr  { $$ = new_lined_node(NODEMGR, RROTATE, $1, $3, $2); } */
+             ;
+
+set_expr     : shift_expr
+             | subrange
+             | TOK_LCB set_list_expr TOK_RCB   { $$ = $2; }
+             ;
+
+set_list_expr: basic_expr
+             | set_list_expr TOK_COMMA basic_expr {$$ = new_lined_node(NODEMGR, UNION, $1, $3, $2);}
+             ;
+
+
+union_expr   : set_expr
+             | union_expr TOK_UNION set_expr { $$ = new_lined_node(NODEMGR, UNION, $1, $3, $2); }
+             ;
+
+in_expr :      union_expr
+             | in_expr TOK_SETIN union_expr { $$ = new_lined_node(NODEMGR, SETIN, $1, $3, $2); }
+             ;
+
+relational_expr :
+               in_expr
+             | relational_expr TOK_EQUAL in_expr { $$ = new_lined_node(NODEMGR, EQUAL, $1, $3, $2); }
+             | relational_expr TOK_NOTEQUAL in_expr { $$ = new_lined_node(NODEMGR, NOTEQUAL, $1, $3, $2); }
+             | relational_expr TOK_LT in_expr { $$ = new_lined_node(NODEMGR, LT, $1, $3, $2); }
+             | relational_expr TOK_GT in_expr { $$ = new_lined_node(NODEMGR, GT, $1, $3, $2); }
+             | relational_expr TOK_LE in_expr { $$ = new_lined_node(NODEMGR, LE, $1, $3, $2); }
+             | relational_expr TOK_GE in_expr { $$ = new_lined_node(NODEMGR, GE, $1, $3, $2); }
+             ;
+
+ctl_expr     : relational_expr
+             | pure_ctl_expr /* all CTL operators */
+             ;
+/* pure ctl_expr is introduced to allow NOT before the ctl expressions */
+pure_ctl_expr
+             : TOK_EX ctl_expr       { $$ = new_lined_node(NODEMGR, EX, $2, Nil, $1); }
+             | TOK_AX ctl_expr       { $$ = new_lined_node(NODEMGR, AX, $2, Nil, $1); }
+             | TOK_EF ctl_expr       { $$ = new_lined_node(NODEMGR, EF, $2, Nil, $1); }
+             | TOK_AF ctl_expr       { $$ = new_lined_node(NODEMGR, AF, $2, Nil, $1); }
+             | TOK_EG ctl_expr       { $$ = new_lined_node(NODEMGR, EG, $2, Nil, $1); }
+             | TOK_AG ctl_expr       { $$ = new_lined_node(NODEMGR, AG, $2, Nil, $1); }
+             | TOK_AA TOK_LB ctl_basic_expr TOK_UNTIL ctl_basic_expr TOK_RB
+                                     { $$ = new_lined_node(NODEMGR, AU, $3, $5, $1); }
+             | TOK_EE TOK_LB ctl_basic_expr TOK_UNTIL ctl_basic_expr TOK_RB
+                                     { $$ = new_lined_node(NODEMGR, EU, $3, $5, $1); }
+             | TOK_AA TOK_LB ctl_basic_expr TOK_BUNTIL subrange ctl_basic_expr TOK_RB
+                                     { $$ = new_lined_node(NODEMGR, ABU, new_lined_node(NODEMGR, AU, $3, $6, $1), $5, $1); }
+             | TOK_EE TOK_LB ctl_basic_expr TOK_BUNTIL subrange ctl_basic_expr TOK_RB
+                                     { $$ = new_lined_node(NODEMGR, EBU, new_lined_node(NODEMGR, EU, $3, $6, $1), $5, $1); }
+             | TOK_EBF subrange ctl_expr { $$ = new_lined_node(NODEMGR, EBF, $3, $2, $1); }
+             | TOK_ABF subrange ctl_expr { $$ = new_lined_node(NODEMGR, ABF, $3, $2, $1); }
+             | TOK_EBG subrange ctl_expr { $$ = new_lined_node(NODEMGR, EBG, $3, $2, $1); }
+             | TOK_ABG subrange ctl_expr { $$ = new_lined_node(NODEMGR, ABG, $3, $2, $1); }
+
+             /* NOT is required here to allow such expr as "! EX a" */
+             | TOK_NOT pure_ctl_expr { $$ = new_lined_node(NODEMGR, NOT, $2, Nil, $1); }
+             ;
+/* there are separate CTL rules for propositional expressions
+   to avoid ambiguity related to TOK_UNTIL token in LTL and CTL.
+*/
+ctl_and_expr :
+               ctl_expr
+             | ctl_and_expr TOK_AND ctl_expr  { $$ = new_lined_node(NODEMGR, AND, $1, $3, $2); }
+             ;
+ctl_or_expr :
+               ctl_and_expr
+             | ctl_or_expr TOK_OR ctl_and_expr    { $$ = new_lined_node(NODEMGR, OR,$1, $3, $2); }
+             | ctl_or_expr TOK_XOR ctl_and_expr   { $$ = new_lined_node(NODEMGR, XOR,$1, $3, $2); }
+             | ctl_or_expr TOK_XNOR ctl_and_expr  { $$ = new_lined_node(NODEMGR, XNOR,$1, $3, $2); }
+             ;
+ctl_iff_expr :
+               ctl_or_expr
+             | ctl_iff_expr TOK_IFF ctl_or_expr   { $$ = new_lined_node(NODEMGR, IFF, $1, $3, $2); }
+             ;
+
+ctl_implies_expr : /* right association */
+               ctl_iff_expr
+             | ctl_iff_expr TOK_IMPLIES ctl_implies_expr { $$ = new_lined_node(NODEMGR, IMPLIES, $1, $3, $2); }
+             ;
+
+ctl_basic_expr : ctl_implies_expr;
+
+/* LTL has to include CTL to allow paranthesis around CTL (and everything) */
+ltl_unary_expr
+             : ctl_expr
+             | pure_ltl_unary_expr /* all unary LTL operators */
+             ;
+
+/* pure ltl_unary_expr is introduced to allow NOT before the ltl expressions */
+pure_ltl_unary_expr
+             : TOK_OP_NEXT ltl_unary_expr  {$$ = new_lined_node(NODEMGR, OP_NEXT, $2, Nil, $1);}
+             | TOK_OP_PREC ltl_unary_expr  {$$ = new_lined_node(NODEMGR, OP_PREC, $2, Nil, $1);}
+             | TOK_OP_NOTPRECNOT ltl_unary_expr {$$ = new_lined_node(NODEMGR, OP_NOTPRECNOT, $2, Nil, $1);}
+             | TOK_OP_GLOBAL ltl_unary_expr {$$ = new_lined_node(NODEMGR, OP_GLOBAL, $2, Nil, $1);}
+             | TOK_OP_GLOBAL TOK_LB TOK_NUMBER TOK_COMMA TOK_NUMBER TOK_RB ltl_unary_expr 
+               {$$ = new_lined_node(NODEMGR, OP_GLOBAL, $7, new_lined_node(NODEMGR, TWODOTS, $3, $5, $1), $1);}
+             | TOK_OP_HISTORICAL ltl_unary_expr {$$ = new_lined_node(NODEMGR, OP_HISTORICAL, $2, Nil, $1);}
+             | TOK_OP_HISTORICAL TOK_LB TOK_NUMBER TOK_COMMA TOK_NUMBER TOK_RB ltl_unary_expr 
+               {$$ = new_lined_node(NODEMGR, OP_HISTORICAL, $7, new_lined_node(NODEMGR, TWODOTS, $3, $5, $1), $1);}
+             | TOK_OP_FUTURE ltl_unary_expr {$$ = new_lined_node(NODEMGR, OP_FUTURE, $2, Nil, $1);}
+             | TOK_OP_FUTURE TOK_LB TOK_NUMBER TOK_COMMA TOK_NUMBER TOK_RB ltl_unary_expr 
+               {$$ = new_lined_node(NODEMGR, OP_FUTURE, $7, new_lined_node(NODEMGR, TWODOTS, $3, $5, $1), $1);}
+             | TOK_OP_ONCE ltl_unary_expr {$$ = new_lined_node(NODEMGR, OP_ONCE, $2, Nil, $1);}
+             | TOK_OP_ONCE TOK_LB TOK_NUMBER TOK_COMMA TOK_NUMBER TOK_RB ltl_unary_expr 
+               {$$ = new_lined_node(NODEMGR, OP_ONCE, $7, new_lined_node(NODEMGR, TWODOTS, $3, $5, $1), $1);}
+             /* NOT is required here to allow such expr as "! X a" */
+             | TOK_NOT pure_ltl_unary_expr { $$ = new_lined_node(NODEMGR, NOT, $2, Nil, $1); }
+             ;
+
+/*  a & b U c & d */
+
+/* all LTL binary operators */
+ltl_binary_expr :
+                ltl_unary_expr
+              | ltl_binary_expr TOK_UNTIL ltl_unary_expr
+                                {$$ = new_lined_node(NODEMGR, UNTIL, $1, $3, $2);}
+              | ltl_binary_expr TOK_SINCE ltl_unary_expr
+                                {$$ = new_lined_node(NODEMGR, SINCE, $1, $3, $2);}
+              | ltl_binary_expr TOK_RELEASES ltl_unary_expr
+                  {$$ = new_lined_node(NODEMGR, NOT,
+                           new_lined_node(NODEMGR, UNTIL,
+                             new_lined_node(NODEMGR, NOT, $1, Nil, node_get_lineno($1)),
+                             new_lined_node(NODEMGR, NOT, $3, Nil, node_get_lineno($3)),
+                             $2), Nil, $2);
+                  }
+              | ltl_binary_expr TOK_TRIGGERED ltl_unary_expr
+                  {$$ = new_lined_node(NODEMGR, NOT,
+                          new_lined_node(NODEMGR, SINCE,
+                              new_lined_node(NODEMGR, NOT, $1, Nil, node_get_lineno($1)),
+                              new_lined_node(NODEMGR, NOT, $3, Nil, node_get_lineno($3)),
+                              $2), Nil, $2);
+                  }
+              ;
+
+and_expr :
+               ltl_binary_expr
+             | and_expr TOK_AND ltl_binary_expr  { $$ = new_lined_node(NODEMGR, AND, $1, $3, $2); }
+             ;
+
+or_expr :
+               and_expr
+             | or_expr TOK_OR and_expr    { $$ = new_lined_node(NODEMGR, OR,$1, $3, $2); }
+             | or_expr TOK_XOR and_expr   { $$ = new_lined_node(NODEMGR, XOR,$1, $3, $2); }
+             | or_expr TOK_XNOR and_expr  { $$ = new_lined_node(NODEMGR, XNOR,$1, $3, $2); }
+             ;
+
+ite_expr :
+               or_expr
+             | or_expr TOK_QUESTIONMARK basic_expr TOK_COLON ite_expr { $$ = new_lined_node(NODEMGR, IFTHENELSE, new_lined_node(NODEMGR, COLON, $1, $3, $2), $5, $2); }
+
+
+iff_expr :
+               ite_expr
+             | iff_expr TOK_IFF ite_expr   { $$ = new_lined_node(NODEMGR, IFF, $1, $3, $2); }
+             ;
+
+implies_expr : /* right association */
+               iff_expr
+             | iff_expr TOK_IMPLIES implies_expr { $$ = new_lined_node(NODEMGR, IMPLIES, $1, $3, $2); }
+             ;
+
+basic_expr :
+             implies_expr
+           ;
+
+/* every expression below, at first, remembers the current kind of
+   the parsed expression and then sets its own kind.
+   After parsing the kind of expression is restoreed
+*/
+simple_expression : basic_expr   {if (!isCorrectExp($$, EXP_SIMPLE)) YYABORT;}
+                  ;
+
+next_expression   : basic_expr   {if (!isCorrectExp($$, EXP_NEXT)) YYABORT;}
+                  ;
+
+ctl_expression    : basic_expr   {if (!isCorrectExp($$, EXP_CTL)) YYABORT;}
+                  ;
+
+ltl_expression    : basic_expr   {if (!isCorrectExp($$, EXP_LTL)) YYABORT;}
+                  ;
+
+
+compute_expression : TOK_MMIN TOK_LB ctl_expression TOK_COMMA ctl_expression TOK_RB
+                  { $$ = new_lined_node(NODEMGR, MINU, $3, $5, $1); }
+              | TOK_MMAX TOK_LB ctl_expression TOK_COMMA ctl_expression TOK_RB
+                  { $$ = new_lined_node(NODEMGR, MAXU, $3, $5, $1); }
+              ;
+
+
+/* ------------------------------------------------------------------------ */
+/* ----------------------------  TYPES ------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+itype         : TOK_BOOLEAN {$$ = new_node(NODEMGR, BOOLEAN, Nil, Nil);}
+              | TOK_WORD TOK_LB simple_expression TOK_RB
+                  {$$ = new_lined_node(NODEMGR, UNSIGNED_WORD, $3, Nil, $1);}
+              | TOK_UNSIGNED TOK_WORD TOK_LB simple_expression TOK_RB
+                  {$$ = new_lined_node(NODEMGR, UNSIGNED_WORD, $4, Nil, $1);}
+              | TOK_SIGNED TOK_WORD TOK_LB simple_expression TOK_RB
+                  {$$ = new_lined_node(NODEMGR, SIGNED_WORD, $4, Nil, $1);}
+              | subrangetype 
+              | TOK_LCB type_value_list TOK_RCB
+                  {$$ = new_lined_node(NODEMGR, SCALAR, $2, Nil, $1);}
+              | TOK_ARRAY TOK_WORD TOK_LB simple_expression TOK_RB TOK_OF itype
+                  {$$ = new_lined_node(NODEMGR, WORDARRAY_TYPE, $4, $7, $1);}
+              | TOK_ARRAY subrangetype TOK_OF itype
+                  {$$ = new_lined_node(NODEMGR, ARRAY_TYPE, $2, $4, $1);}
+              | TOK_ARRAY TOK_OF itype
+                  {nusmv_yyerror("unbounded arrays are not supported.");
+                   YYABORT;
+                  }
+              ;
+
+type          : itype 
+              | module_type 
+              | TOK_PROCESS module_type
+                  {$$ = new_lined_node(NODEMGR, PROCESS, $2, Nil, $1);}
+              ;
+
+type_value_list : type_value {$$ = cons(NODEMGR, find_atom(NODEMGR, $1), Nil); free_node(NODEMGR, $1);}
+                | type_value_list TOK_COMMA type_value {$$ = cons(NODEMGR, find_atom(NODEMGR, $3), $1); free_node(NODEMGR, $3);}
+                ;
+
+type_value    : complex_atom /* actually only process_selector can be declared with complex constants */
+              | integer
+              | TOK_FALSEEXP
+              | TOK_TRUEEXP
+              ;
+
+complex_atom  : TOK_ATOM
+              | complex_atom TOK_DOT TOK_ATOM {$$ = new_lined_node(NODEMGR, DOT, $1, $3, $2);}
+              ;
+
+module_type   : TOK_ATOM {$$ = new_node(NODEMGR, MODTYPE, $1, Nil);}
+              | TOK_ATOM TOK_LP TOK_RP {$$ = new_node(NODEMGR, MODTYPE, $1, Nil);}
+              | TOK_ATOM TOK_LP next_list_expression TOK_RP
+                {$$ = new_lined_node(NODEMGR, MODTYPE, $1, $3, node_get_lineno($1));}
+              | TOK_ARRAY subrangetype TOK_OF module_type
+                  {
+                    /* $$ = new_lined_node(NODEMGR, ARRAY, $2, $4, $1); */
+                    /* array of modules is not supported any more.
+                       NOTE: In future if there are some syntact conflicts
+                       this case can be removed */
+                    nusmv_yyerror_lined("array of modules is no supported", $1);
+                    YYABORT;
+                  }
+              ;
+
+next_list_expression
+              : next_expression {$$ = cons(NODEMGR, $1,Nil);}
+              | next_list_expression TOK_COMMA next_expression {$$ = cons(NODEMGR, $3, $1);}
+              ;
+
+/* ------------------------------------------------------------------------ */
+/* ---------------------------- DECLARATIONS  ----------------------------- */
+/* ------------------------------------------------------------------------ */
+
+
+/*
+ An NuSMV program is a repetition of modules. Each module has a
+ signature and a body.
+*/
+module_list  : module {$$ = cons(NODEMGR, $1, Nil);}
+             | module_list module {$$ = cons(NODEMGR, $2, $1);}
+             ;
+
+module       : TOK_MODULE module_sign declarations
+                    {$$ = new_lined_node(NODEMGR, MODULE, $2, $3, $1);}
+             ;
+module_sign  : TOK_ATOM {$$ = new_node(NODEMGR, MODTYPE, $1, Nil);}
+             | TOK_ATOM TOK_LP TOK_RP {$$ = new_node(NODEMGR, MODTYPE, $1, Nil);}
+             | TOK_ATOM TOK_LP atom_list TOK_RP
+                    {$$ = new_node(NODEMGR, MODTYPE, $1, $3);}
+             ;
+atom_list    : TOK_ATOM {$$ = cons(NODEMGR, find_atom(NODEMGR, $1), Nil); free_node(NODEMGR, $1);}
+             | atom_list TOK_COMMA TOK_ATOM {$$ = cons(NODEMGR, find_atom(NODEMGR, $3), $1); free_node(NODEMGR, $3);}
+             ;
+
+
+/* The body of a module */
+declarations : {$$ = Nil;}
+             | declarations declaration {$$ = cons(NODEMGR, $2, $1);}
+             | declarations error     { SYNTAX_ERROR_HANDLING($$, $1); }
+             ;
+
+declaration  : isa
+             | var
+             | frozen_var
+             | input_var
+             | fun_def
+             | assign
+             | init
+             | invar
+             | trans
+             | define_decls
+             | array_define
+             | fairness
+             | justice
+             | compassion
+             | invarspec
+             | ctlspec
+             | ltlspec
+             | pslspec
+             | compute
+             | constants
+             ;
+
+/*
+ Variable declarations:
+ This includes also the instantiation of module
+ (in synchronous and asynchronous product).
+*/
+/* Do we realy want to have empty VAR declarations? */
+var           : TOK_VAR {$$ = new_lined_node(NODEMGR, VAR, Nil, Nil, $1);}
+              | TOK_VAR var_decl_list {$$ = new_lined_node(NODEMGR, VAR, $2, Nil, $1);}
+              ;
+
+frozen_var    : TOK_FROZENVAR {$$ = new_lined_node(NODEMGR, FROZENVAR, Nil, Nil, $1);}
+              | TOK_FROZENVAR fvar_decl_list {$$ = new_lined_node(NODEMGR, FROZENVAR, $2, Nil, $1);}
+              ;
+
+input_var     : TOK_IVAR {$$ = new_lined_node(NODEMGR, IVAR, Nil, Nil, $1);}
+              | TOK_IVAR ivar_decl_list {$$ = new_lined_node(NODEMGR, IVAR, $2, Nil, $1);}
+              ;
+fun_def       : TOK_FUN {
+                 nusmv_yyerror("functions definitions are not supported.");
+                 YYABORT;
+               }
+              | TOK_FUN fun_decl_list {
+                 nusmv_yyerror("functions definitions are not supported.");
+                 YYABORT;
+               }
+              ;
+
+var_decl_list : var_decl                {$$ = cons(NODEMGR, $1, Nil);}
+              | var_decl_list var_decl  {$$ = cons(NODEMGR, $2, $1);} /* oppositive direction chosen for some reason */
+              | var_decl_list error     { SYNTAX_ERROR_HANDLING($$, $1); }
+              ;
+fvar_decl_list: fvar_decl                 {$$ = cons(NODEMGR, $1, Nil);}
+              | fvar_decl_list fvar_decl  {$$ = cons(NODEMGR, $2, $1);} /* oppositive direction chosen for some reason */
+              | fvar_decl_list error     { SYNTAX_ERROR_HANDLING($$, $1); }
+              ;
+ivar_decl_list: ivar_decl                 {$$ = cons(NODEMGR, $1, Nil);}
+              | ivar_decl_list ivar_decl  {$$ = cons(NODEMGR, $2, $1);} /* oppositive direction chosen for some reason */
+              | ivar_decl_list error     { SYNTAX_ERROR_HANDLING($$, $1); }
+              ;
+fun_decl_list : fun_decl                {$$ = cons(NODEMGR, $1, Nil);}
+              | fun_decl_list fun_decl  {$$ = cons(NODEMGR, $2, $1);} /* oppositive direction chosen for some reason */
+              | fun_decl_list error     { SYNTAX_ERROR_HANDLING($$, $1); }
+              ;
+
+var_decl      : decl_var_id TOK_COLON type TOK_SEMI {$$ = new_lined_node(NODEMGR, COLON, $1, $3, $2);}
+              ;
+fvar_decl     : decl_var_id TOK_COLON itype TOK_SEMI {$$ = new_lined_node(NODEMGR, COLON, $1, $3, $2);}
+              ;
+ivar_decl     : decl_var_id TOK_COLON itype TOK_SEMI {$$ = new_lined_node(NODEMGR, COLON, $1, $3, $2);}
+              ;
+fun_decl      : decl_var_id TOK_COLON nfun_type TOK_SEMI {$$ = new_lined_node(NODEMGR, COLON, $1, $3, $2);}
+              ;
+
+nfun_type     : nfun_ftype TOK_IMPLIES itype {$$ = new_node(NODEMGR, NFUNCTION_TYPE, $1, $3);}
+              ;
+
+
+nfun_ftype   : itype { $$ = cons(NODEMGR, $1, Nil); }
+             | nfun_ftype TOK_TIMES itype { $$ = cons(NODEMGR, $3, $1); }
+             ;
+
+/* Definitions */
+define_decls  : TOK_DEFINE define_list
+                                  {$$ = new_lined_node(NODEMGR, DEFINE, $2, Nil, $1);}
+              ;
+define_list   : {$$ = Nil;}
+              | define_list define {$$ = cons(NODEMGR, $2, $1);}
+              | define_list error     { SYNTAX_ERROR_HANDLING($$, $1); }
+              ;
+
+define        : decl_var_id TOK_EQDEF next_expression TOK_SEMI
+                                 {$$ = new_lined_node(NODEMGR, EQDEF, $1, $3, $2);}
+              | decl_var_id TOK_EQDEF array_expression TOK_SEMI
+                                 {$$ = new_lined_node(NODEMGR, EQDEF, $1, $3, $2);
+                                 /* Note that array-define is declared
+                                    as normal define.
+                                    Then compile_instantiate in compileFlatten.c
+                                    distinguish them by detecting
+                                    ARRAY_DEF on right hand side.
+                                   */
+                                 }
+              ;
+
+/* Array Definitions : Deprecated feature as DEFINE is enough.
+   Remove array_define and array_define_list later.*/
+array_define : TOK_ARRAY_DEFINE array_define_list     {$$ = new_lined_node(NODEMGR, DEFINE, $2, Nil, $1);}
+              ;
+
+array_define_list
+              : {$$ = Nil;}
+              | array_define_list decl_var_id TOK_EQDEF array_expression TOK_SEMI  {$$ = cons(NODEMGR, new_lined_node(NODEMGR, EQDEF, $2, $4, $3), $1);}
+              | array_define_list error     { SYNTAX_ERROR_HANDLING($$, $1); }
+              ;
+
+array_expression
+              : TOK_LB array_contents TOK_RB {$$ =  new_lined_node(NODEMGR, ARRAY_DEF, $2, Nil, $1);}
+              | TOK_LB array_expression_list TOK_RB {$$ =  new_lined_node(NODEMGR, ARRAY_DEF, $2, Nil, $1);}
+              ;
+
+array_expression_list
+              : array_expression {$$ = cons(NODEMGR, $1, Nil);}
+              | array_expression TOK_COMMA array_expression_list {$$ = cons(NODEMGR, $1, $3);}
+              ;
+
+array_contents
+              : next_expression TOK_COMMA array_contents {$$ = cons(NODEMGR, $1, $3);}
+              | next_expression {$$ = cons(NODEMGR, $1,Nil);}
+              ;
+
+/* Assignments of initial, current or next value of variables */
+assign        : TOK_ASSIGN assign_list {$$ = new_lined_node(NODEMGR, ASSIGN, $2, Nil, $1);}
+              ;
+assign_list   : {$$ = Nil;}
+              | assign_list one_assign {$$ = new_node(NODEMGR, AND, $1, $2);}
+              | assign_list error     { SYNTAX_ERROR_HANDLING($$, $1); }
+              ;
+one_assign   : var_id TOK_EQDEF simple_expression TOK_SEMI
+                  {$$ = new_lined_node(NODEMGR, EQDEF, $1, $3, $2);}
+              | TOK_SMALLINIT TOK_LP var_id TOK_RP TOK_EQDEF simple_expression TOK_SEMI
+                  { $$ = new_lined_node(NODEMGR, EQDEF,
+                                        new_lined_node(NODEMGR, SMALLINIT, $3, Nil, $1),
+                                        $6, $5);
+                  }
+              | TOK_NEXT TOK_LP var_id TOK_RP TOK_EQDEF next_expression TOK_SEMI
+                  { $$ = new_lined_node(NODEMGR, EQDEF,
+                                        new_lined_node(NODEMGR, NEXT, $3, Nil, $1),
+                                        $6, $5);
+                  }
+              ;
+
+/* Direct finite state machine definition (init, invar, trans) */
+init          : TOK_INIT simple_expression optsemi   {$$ = new_lined_node(NODEMGR, INIT, $2, Nil, $1);}
+              ;
+invar         : TOK_INVAR simple_expression optsemi {$$ = new_lined_node(NODEMGR, INVAR, $2, Nil, $1);}
+              ;
+trans         : TOK_TRANS next_expression optsemi {$$ = new_lined_node(NODEMGR, TRANS, $2, Nil, $1);}
+              ;
+
+/* Fairness declarations */
+fairness      : TOK_FAIRNESS simple_expression optsemi  {$$ = new_lined_node(NODEMGR, JUSTICE, $2, Nil, $1);}
+              ;
+
+justice       : TOK_JUSTICE simple_expression optsemi  {$$ = new_lined_node(NODEMGR, JUSTICE, $2, Nil, $1);}
+              ;
+
+compassion    : TOK_COMPASSION
+                TOK_LP simple_expression TOK_COMMA simple_expression TOK_RP
+                optsemi  {$$ = new_lined_node(NODEMGR, COMPASSION, cons(NODEMGR, $3,$5), Nil, $1);}
+              ;
+
+/* Specifications and computation of min and max distance */
+_invarspec    : next_expression optsemi { $$ = $1; }
+              | next_expression TOK_INCONTEXT context optsemi {$$ = new_node(NODEMGR, CONTEXT, $3, $1);}
+;
+invarspec     : TOK_INVARSPEC _invarspec {$$ = new_lined_node(NODEMGR, INVARSPEC, $2, Nil, $1);}
+              | TOK_INVARSPEC TOK_NAME var_id TOK_EQDEF _invarspec {$$ = new_lined_node(NODEMGR, INVARSPEC, $5, $3, $1);}
+;
+
+_ctlspec      : ctl_expression optsemi { $$ = $1; }
+              | ctl_expression TOK_INCONTEXT context optsemi {$$ = new_node(NODEMGR, CONTEXT, $3, $1);}
+;
+ctlspec       : TOK_SPEC _ctlspec {$$ = new_lined_node(NODEMGR, SPEC, $2, Nil, $1);}
+              | TOK_CTLSPEC _ctlspec {$$ = new_lined_node(NODEMGR, SPEC, $2, Nil, $1);}
+              | TOK_SPEC TOK_NAME var_id TOK_EQDEF  _ctlspec {$$ = new_lined_node(NODEMGR, SPEC, $5, $3, $1);}
+              | TOK_CTLSPEC TOK_NAME var_id TOK_EQDEF _ctlspec {$$ = new_lined_node(NODEMGR, SPEC, $5, $3, $1);}
+;
+
+_ltlspec      : ltl_expression optsemi { $$ = $1; }
+              | ltl_expression TOK_INCONTEXT context optsemi {$$ = new_node(NODEMGR, CONTEXT, $3, $1);}
+;
+
+ltlspec       : TOK_LTLSPEC _ltlspec {$$ = new_lined_node(NODEMGR, LTLSPEC, $2, Nil, $1);}
+              | TOK_LTLSPEC TOK_NAME var_id TOK_EQDEF _ltlspec {$$ = new_lined_node(NODEMGR, LTLSPEC, $5, $3, $1);}
+;
+
+_compute      : compute_expression optsemi { $$ = $1; }
+              | compute_expression TOK_INCONTEXT context optsemi {$$ = new_node(NODEMGR, CONTEXT, $3, $1);}
+;
+compute       : TOK_COMPUTE _compute {$$ = new_lined_node(NODEMGR, COMPUTE, $2, Nil, $1);}
+              | TOK_COMPUTE TOK_NAME var_id TOK_EQDEF _compute {$$ = new_lined_node(NODEMGR, COMPUTE, $5, $3, $1);}
+;
+
+
+pslspec       : TOK_PSLSPEC
+{
+  if (nusmv_parse_psl() != 0) {
+    YYABORT;
+  }
+  $$ = new_lined_node(NODEMGR, PSLSPEC, psl_parsed_tree, psl_property_name, $1);
+  psl_property_name = Nil;
+}
+              ;
+
+constants     : TOK_CONSTANTS constants_expression TOK_SEMI
+                  {$$ = new_lined_node(NODEMGR, CONSTANTS, $2, Nil, $1);}
+              ;
+
+constants_expression
+             : {$$ = Nil;}
+             | complex_atom { $$ = cons(NODEMGR, $1, Nil);}
+             | constants_expression TOK_COMMA complex_atom {$$ = cons(NODEMGR, $3, $1);}
+
+             ;
+
+
+
+/* Module macro-expansion */
+isa           : TOK_ISA TOK_ATOM {$$ = new_node(NODEMGR, ISA, $2, Nil);}
+              ;
+
+/* parse an optional semicolon */
+optsemi      : | TOK_SEMI {};
+
+
+/* Variable identifiers.
+   decl_var_id is used for declarations; self not allowed.
+   var_id is used to reference variables in assignment, includes self.
+ */
+
+decl_var_id   : TOK_ATOM
+              | decl_var_id TOK_DOT TOK_ATOM {$$ = new_node(NODEMGR, DOT, $1, $3);}
+              | decl_var_id TOK_DOT TOK_NUMBER {$$ = new_node(NODEMGR, DOT, $1, $3);}
+              | decl_var_id TOK_LB TOK_NUMBER TOK_RB  {$$ = new_node(NODEMGR, ARRAY, $1, $3);}
+              | decl_var_id TOK_LB TOK_MINUS TOK_NUMBER TOK_RB
+                      { node_ptr tmp = new_lined_node(NODEMGR, NUMBER,
+                                                      PTR_FROM_INT(node_ptr, -node_get_int($4)),
+                                                      Nil,
+                                                      $3);
+                        $$ = new_node(NODEMGR, ARRAY, $1, tmp);
+                      }
+              ;
+
+var_id        : TOK_ATOM
+              | TOK_SELF {$$ = new_node(NODEMGR, SELF,Nil,Nil);}
+              | var_id TOK_DOT TOK_ATOM {$$ = new_node(NODEMGR, DOT, $1, $3);}
+              | var_id TOK_DOT TOK_NUMBER {$$ = new_node(NODEMGR, DOT, $1, $3);}
+              | var_id TOK_LB simple_expression TOK_RB {$$ = new_node(NODEMGR, ARRAY, $1, $3);}
+              ;
+
+/* ------------------------------------------------------------------------ */
+/* ----------------------------  COMMANDS  -------------------------------- */
+/* ------------------------------------------------------------------------ */
+
+command       : command_case {$$ = $1;}
+              | error TOK_SEMI {return(1);}
+              | error {return(1);}
+              ;
+
+command_case  : TOK_INIT simple_expression TOK_SEMI
+                 {$$ = new_lined_node(NODEMGR, INIT, $2, Nil, $1);}
+              | TOK_FAIRNESS simple_expression TOK_SEMI
+                 {$$ = new_lined_node(NODEMGR, JUSTICE, $2, Nil, $1);}
+              | TOK_TRANS next_expression TOK_SEMI
+                 {$$ = new_lined_node(NODEMGR, TRANS, $2, Nil, $1);}
+              | TOK_CONSTRAINT simple_expression TOK_SEMI
+              {$$ = new_lined_node(NODEMGR, CONSTRAINT, $2, Nil, $1);}
+              | TOK_ITYPE itype TOK_SEMI
+                 {$$ = new_lined_node(NODEMGR, ITYPE, $2, Nil, $1);}
+
+/* properties */
+              | TOK_SIMPWFF _simpwff {$$ = new_lined_node(NODEMGR, SIMPWFF, node2maincontext($2), Nil, $1);}
+              | TOK_NEXTWFF _invarspec {$$ = new_lined_node(NODEMGR, NEXTWFF, node2maincontext($2), Nil, $1);}
+              | TOK_CTLWFF _ctlspec {$$ = new_lined_node(NODEMGR, CTLWFF, node2maincontext($2), Nil, $1);}
+              | TOK_LTLWFF _ltlspec {$$ = new_lined_node(NODEMGR, LTLWFF, node2maincontext($2), Nil, $1);}
+              | TOK_COMPWFF _compute {$$ = new_lined_node(NODEMGR, COMPWFF, node2maincontext($2), Nil, $1);}
+              | TOK_COMPID var_id TOK_SEMI  {$$ = new_lined_node(NODEMGR, COMPID, $2, Nil, $1);}
+              ;
+
+
+context       : TOK_ATOM                          {$$ = find_atom(NODEMGR, $1); free_node(NODEMGR, $1); }
+              | context TOK_DOT TOK_ATOM          {$$ = find_node(NODEMGR, DOT, $1, $3);}
+              | context TOK_LB simple_expression TOK_RB {$$ = find_node(NODEMGR, ARRAY, $1, $3);}
+              ;
+
+_simpwff      : simple_expression optsemi { $$ = $1; }
+              | simple_expression TOK_INCONTEXT context optsemi {$$ = new_node(NODEMGR, CONTEXT, $3, $1);}
+

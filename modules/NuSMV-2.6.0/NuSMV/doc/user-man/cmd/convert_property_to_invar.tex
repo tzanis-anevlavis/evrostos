@@ -1,0 +1,24 @@
+% -*-latex-*-
+\newcommand{\convertPropertyToInvar}{convert\_property\_to\_invar}
+%
+\begin{nusmvCommand}{\convertPropertyToInvar}{Convert, when possible, properties
+  to invariant properties}
+
+\cmdLine{\convertPropertyToInvar [-n number | -P "name" | -p (G~next-expr | AG~next-expr)]}
+
+Convert CTL and LTL properties to invariant ones. Only properties of the form
+``AG next-expr'' and ``G next-expr'' are processed. The conversion is performed
+over the specification selected with one between -n, -P or -p, if given, or all the CTL
+and LTL properties in the model. The generated properties are added to the
+database (they can be listed with the command show\_property).
+%
+\begin{cmdOpt}
+\opt{-n \parameter{\natnum{number}}}{Convert CTL or LTL property with index ``number''.}
+
+\opt{-P \parameter{"name"}}{Convert CTL or LTL property named ``name''.}
+
+\opt{-p \parameter{G~\expression{next} | AG~\expression{next}}}{Convert the given CTL or LTL formula.}
+
+\end{cmdOpt}
+
+\end{nusmvCommand}

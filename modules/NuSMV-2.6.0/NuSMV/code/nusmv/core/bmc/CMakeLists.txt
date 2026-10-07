@@ -1,0 +1,39 @@
+add_subdirectory(sbmc)
+
+set(SRCS
+  bmcBmcInc.c
+  bmcBmcNonInc.c
+  bmcCheck.c
+  bmcConv.c
+  bmcDump.c
+  bmcGen.c
+  bmcInt.c
+  bmcModel.c
+  bmcOpt.c
+  bmcPkg.c
+  bmcSimulate.c
+  bmcTableau.c
+  bmcTableauLTLformula.c
+  bmcTableauPLTLformula.c
+  bmcTest.c
+  bmcTrace.c
+  bmcUtils.c
+  )
+
+nusmv_add_pkg_lib(${SRCS})
+
+nusmv_add_pkg_headers(
+  bmcBmc.h
+  bmcDump.h
+  bmc.h
+  bmcModel.h
+  bmcTableau.h
+  bmcCheck.h
+  bmcConv.h
+  bmcGen.h
+  bmcPkg.h
+  bmcSimulate.h
+  bmcUtils.h
+  bmcTest.h
+  bmcInt.h
+)

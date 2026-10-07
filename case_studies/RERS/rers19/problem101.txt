@@ -1,0 +1,31 @@
+Model checker:
+SPIN
+
+Model name:
+./case_studies/RERS/rers19/problem101.pml
+
+rLTLspecs:
+20
+(pa21 | pa25) rR (!pa20 | pa21 | pa25)
+rG (!pa1 | (pa3 rR (pa3 | !pa6)))
+(pa4 | pa6) rR (pa4 | !pa5 | pa6)
+(pa3 | pa17) rR (pa3 | pa17 | !pa21)
+!pa25 rU pa17
+pa25 rR (!pa4 | pa25 | (pa3 rR (pa3 | !pa16)))
+(pa4 | pa17) rR (pa4 | !pa5 | pa17 | (!pa25 rU pa2))
+(pa16 | pa25) rR (!pa1 | pa16 | pa25 | (!pa19 rU pa4))
+rG (!pa25 | (!pa5 rU pa20))
+pa3 rR (pa3 | !pa4 | rF pa3)
+pa22 rR (!pa16 | pa22 | (pa18 rR (pa18 | !pa24)))
+(pa4 | pa20) rR (pa4 | !pa16 | pa20 | (pa24 rR (!pa19 | pa24)))
+pa24 rR (!pa19 | pa24)
+pa16 rR (pa16 | !pa20)
+pa16 rR (!pa6 | pa16 | rF pa5)
+pa16 rR (pa16 | !pa19 | (pa23 rR (!pa21 | pa23)))
+pa17 rR (pa17 | !pa20 | (pa1 rR (pa1 | !pa3)))
+!pa17 rU (pa1 | pa24)
+rF (pa20 & rF pa17)
+pa1 rR (pa1 | !pa4 | rG !pa20)
+
+flags:
+-search -DBITSTATE -w37 -N -m100000000 -ltl

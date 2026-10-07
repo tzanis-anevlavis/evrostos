@@ -1,0 +1,15 @@
+/*!
+  \dir nusmv/core
+  \brief This package contains the NuSMV core functionalities.
+
+  All core functionalities here.
+
+*/
+
+/*!
+  \dir nusmv/shell
+  \brief This package contains the NuSMV shell functionalities.
+
+  All core functionalities here.
+
+*/

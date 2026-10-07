@@ -1,0 +1,119 @@
+---------------------- rLTL Verification Report ----------------------
+
+Model used: model.smv
+
+----------------------------------------------------------------------
+Original rLTL Formula No1:
+rG( !(tt1 & d12) | td2 )
+
+
+Translated LTL formulas:
+(G ((!(tt1 & d12)) | td2))
+(F (G ((!(tt1 & d12)) | td2)))
+(G (F ((!(tt1 & d12)) | td2)))
+(F ((!(tt1 & d12)) | td2))
+
+Model Checking of the original rLTL formula took 319.101585 seconds, and returns truth value 0001.
+
+----------------------------------------------------------------------
+Original rLTL Formula No2:
+rG( !(msg2) | ((d21 & tcs12) | (d24 & tcs42)) )
+
+
+Translated LTL formulas:
+(G ((!msg2) | ((d21 & tcs12) | (d24 & tcs42))))
+(F (G ((!msg2) | ((d21 & tcs12) | (d24 & tcs42)))))
+(G (F ((!msg2) | ((d21 & tcs12) | (d24 & tcs42)))))
+(F ((!msg2) | ((d21 & tcs12) | (d24 & tcs42))))
+
+Model Checking of the original rLTL formula took 26.713511 seconds, and returns truth value 0011.
+
+----------------------------------------------------------------------
+Original rLTL Formula No3:
+rG( !(ph1forw0) | rG(!(ring1 |td1)) )
+
+
+Translated LTL formulas:
+(G ((!ph1forw0) | (G (!(ring1 | td1)))))
+(F (G ((!ph1forw0) | (F (G (!(ring1 | td1)))))))
+(G (F ((!ph1forw0) | (G (F (!(ring1 | td1)))))))
+(F ((!ph1forw0) | (F (!(ring1 | td1)))))
+
+Model Checking of the original rLTL formula took 352.071775 seconds, and returns truth value 0001.
+
+----------------------------------------------------------------------
+Original rLTL Formula No4:
+rG( !(tcs12 & ring1) | ringt3 )
+
+
+Translated LTL formulas:
+(G ((!(tcs12 & ring1)) | ringt3))
+(F (G ((!(tcs12 & ring1)) | ringt3)))
+(G (F ((!(tcs12 & ring1)) | ringt3)))
+(F ((!(tcs12 & ring1)) | ringt3))
+
+Model Checking of the original rLTL formula took 157.956950 seconds, and returns truth value 0001.
+
+----------------------------------------------------------------------
+Original rLTL Formula No5:
+rG( !(msg3) | ((d31 & tcs13) | (d34 & tcs43)) )
+
+
+Translated LTL formulas:
+(G ((!msg3) | ((d31 & tcs13) | (d34 & tcs43))))
+(F (G ((!msg3) | ((d31 & tcs13) | (d34 & tcs43)))))
+(G (F ((!msg3) | ((d31 & tcs13) | (d34 & tcs43)))))
+(F ((!msg3) | ((d31 & tcs13) | (d34 & tcs43))))
+
+Model Checking of the original rLTL formula took 139.256528 seconds, and returns truth value 0011.
+
+----------------------------------------------------------------------
+Original rLTL Formula No6:
+rG( !(try1) | rX(ringt1 | busyt1) )
+
+
+Translated LTL formulas:
+(G ((!try1) | (X (ringt1 | busyt1))))
+(F (G ((!try1) | (X (ringt1 | busyt1)))))
+(G (F ((!try1) | (X (ringt1 | busyt1)))))
+(F ((!try1) | (X (ringt1 | busyt1))))
+
+Model Checking of the original rLTL formula took 541.174879 seconds, and returns truth value 0011.
+
+----------------------------------------------------------------------
+Original rLTL Formula No7:
+rG( !(tt1 & d13) | td3 )
+
+
+Translated LTL formulas:
+(G ((!(tt1 & d13)) | td3))
+(F (G ((!(tt1 & d13)) | td3)))
+(G (F ((!(tt1 & d13)) | td3)))
+(F ((!(tt1 & d13)) | td3))
+
+Model Checking of the original rLTL formula took 10.438937 seconds, and returns truth value 1111.
+
+----------------------------------------------------------------------
+Original rLTL Formula No8:
+rG( !(tcs13) | rG(!(d31 & (ringt3 | tt3))) )
+
+
+Translated LTL formulas:
+(G ((!tcs13) | (G (!(d31 & (ringt3 | tt3))))))
+(F (G ((!tcs13) | (F (G (!(d31 & (ringt3 | tt3))))))))
+(G (F ((!tcs13) | (G (F (!(d31 & (ringt3 | tt3))))))))
+(F ((!tcs13) | (F (!(d31 & (ringt3 | tt3))))))
+
+Model Checking of the original rLTL formula took 94.464124 seconds, and returns truth value 0001.
+
+----------------------------------------------------------------------
+Original rLTL Formula No9:
+rG( !(tcs42) | rG(!(d24 & (ringt2 | tt2))) )
+
+Translated LTL formulas:
+(G ((!tcs42) | (G (!(d24 & (ringt2 | tt2))))))
+(F (G ((!tcs42) | (F (G (!(d24 & (ringt2 | tt2))))))))
+(G (F ((!tcs42) | (G (F (!(d24 & (ringt2 | tt2))))))))
+(F ((!tcs42) | (F (!(d24 & (ringt2 | tt2))))))
+
+Model Checking of the original rLTL formula took 11.103772 seconds, and returns truth value 0001.

@@ -1,0 +1,701 @@
+-- Edit by: Tzanis Anevlavis (janis10@ucla.edu)
+-- Code J-Edit for the following changes:
+-- 1. Add new definitions in "main" for the rLTL model checking: Line 656.
+
+MODULE tphone (f,N,ph_b,ph_c,ph_d,p1,p2,p3,p4)
+VAR
+   dialled :
+      {0,1,2,3,4};
+
+   st :
+      {idle,dialt,trying,busyt,ringingt,talking,ringing,talked,ended};
+
+   ward3 :
+      {0,1,2};
+
+   tcs1 :
+      boolean;
+
+   tcs2 :
+      boolean;
+
+   tcs3 :
+      boolean;
+
+   tcs4 :
+      boolean;
+
+
+DEFINE
+   party :=
+      case
+      ph_b.st=talking & ph_b.dialled=N : case N=1 : 2;         TRUE : 1; esac;
+      ph_c.st=talking & ph_c.dialled=N : case N=1 | N=2 : 3;   TRUE : 2; esac;
+      ph_d.st=talking & ph_d.dialled=N : case N=4 : 3;         TRUE : 4; esac;
+      st=talking                       : dialled;
+      TRUE                             : 0;
+      esac;
+
+
+ASSIGN
+   init(dialled) :=
+      0;
+
+   next(dialled) :=
+      0;
+
+   init(st) :=
+      idle;
+
+   next(st) :=
+      case ((f.fAllcfnr & !(ward3=0)  & st=ringing &
+      ( (ph_b.st=ringingt & ph_b.dialled=4 & ph_b.nr3)
+      | (ph_c.st=ringingt & ph_c.dialled=4 & ph_c.nr3)
+      | (ph_d.st=ringingt & ph_d.dialled=4 & ph_d.nr3)))): (idle); TRUE: case
+      st=idle :
+      case
+      ph_b.st=trying & ph_b.dialled=4 & p1 : ringing;
+      ph_c.st=trying & ph_c.dialled=4 & p2 : ringing;
+      ph_d.st=trying & ph_d.dialled=4 & p3 : ringing;
+      TRUE                                                        : idle;
+      esac;
+      st=ringing :
+      case
+      ph_b.st=ringingt & ph_b.dialled=4 & p1 : idle;
+      ph_c.st=ringingt & ph_c.dialled=4 & p2 : idle;
+      ph_d.st=ringingt & ph_d.dialled=4 & p3 : idle;
+      p4                                     : ringing;
+      TRUE                                   : talking;
+      esac;
+      st=talked :
+      case
+      ph_b.st=talking & ph_b.dialled=4 & p1 : ended;
+      ph_c.st=talking & ph_c.dialled=4 & p2 : ended;
+      ph_d.st=talking & ph_d.dialled=4 & p3 : ended;
+      p4                                    : talked;
+      TRUE                                  : idle;
+      esac;
+      st=ended : {ended,idle};
+      TRUE : idle;
+      esac; esac;
+
+   next(ward3) :=
+      ward3;
+
+   next(tcs1) :=
+      tcs1;
+
+   next(tcs2) :=
+      tcs2;
+
+   next(tcs3) :=
+      tcs3;
+
+   next(tcs4) :=
+      tcs4;
+
+
+MODULE ophone (f,N,ph_b,ph_c,ph_d,p1,p2,p3,p4)
+VAR
+   dialled :
+      {0,1,2,3,4};
+
+   st :
+      {idle,dialt,trying,busyt,ringingt,talking,ringing,talked,ended};
+
+   NoRep :
+      boolean;
+
+   nr3 :
+      boolean;
+
+   tcs-msg :
+      boolean;
+
+
+DEFINE
+   party :=
+      case
+      ph_b.st=talking & ph_b.dialled=N : case N=1 : 2;         TRUE : 1; esac;
+      ph_c.st=talking & ph_c.dialled=N : case N=1 | N=2 : 3;   TRUE : 2; esac;
+      ph_d.st=talking & ph_d.dialled=N : case N=4 : 3;         TRUE : 4; esac;
+      st=talking                       : dialled;
+      TRUE                             : 0;
+      esac;
+
+
+ASSIGN
+   init(dialled) :=
+      0;
+
+   next(dialled) :=
+      case ((f.fCfu-1 & st=trying & dialled=1 & !(ph_b.cfu-forw=0))): (ph_b.cfu-forw); TRUE: case ((f.fAllcfnr & st=ringingt & nr3 & dialled=4 & !(ph_d.ward3=0))): (ph_d.ward3); TRUE: case ((f.fCfnr-1 & st=ringingt & NoRep & dialled=1 & !(ph_b.kadim=0))): (ph_b.kadim); TRUE: case ((f.fCfb-2 & st=trying & dialled=2 & !(ph_b.st=idle) & !(ph_b.forw=0))): (ph_b.forw); TRUE: case ((f.fCfb-1 & st=trying & dialled=1 & !(ph_b.st=idle) & !(ph_b.forw=0))): (ph_b.forw); TRUE: case
+      st=idle                : 0;
+      st=dialt & dialled = 0 : {1,2,3,4};
+      TRUE                   : dialled;
+      esac; esac; esac; esac; esac; esac;
+
+   init(st) :=
+      idle;
+
+   next(st) :=
+      case ((f.fCfu-1 & st=trying & dialled=1 & !(ph_b.cfu-forw=0))): (trying); TRUE: case ((f.fTcs-1t & next(tcs-msg))): (busyt); TRUE: case ((f.fAllcfnr & st=ringingt & nr3 & dialled=4 & !(ph_d.ward3=0))): (trying); TRUE: case ((f.fCfnr-1 & st=ringingt & NoRep & dialled=1 & !(ph_b.kadim=0))): (trying); TRUE: case ((f.fCfb-2 & st=trying & dialled=2 & !(ph_b.st=idle) & !(ph_b.forw=0))): (trying); TRUE: case ((f.fCfb-1 & st=trying & dialled=1 & !(ph_b.st=idle) & !(ph_b.forw=0))): (trying); TRUE: case
+      st=idle : {idle,dialt};
+      st=dialt : {dialt,trying};
+      st=busyt : {idle,busyt};
+      st=trying :
+      case
+      dialled=1 & ph_b.st=idle & p1 &
+      (!(ph_c.st=trying) | !(ph_c.dialled=1) | p2) :ringingt;
+      dialled=2 & ph_c.st=idle & p2 &
+      (!(ph_b.st=trying) | !(ph_b.dialled=2) | p1 ) :ringingt;
+      dialled=4 & ph_d.st=idle & p4 &
+      (!(ph_b.st=trying) | !(ph_b.dialled=4) | p1)
+      & (!(ph_c.st=trying) | !(ph_c.dialled=4) | p2) :ringingt;
+      TRUE							     :busyt;
+      esac;
+      st=ringingt :
+      case
+      dialled=1 & p1 : talking;
+      dialled=2 & p2 : talking;
+      dialled=4 & p4 : talking;
+      !p3            : idle;
+      TRUE           : ringingt;
+      esac;
+      st=talking :
+      case
+      dialled=1 & ph_b.st=talked &  !p1 : ended;
+      dialled=2 & ph_c.st=talked &  !p2 : ended;
+      dialled=4 & ph_d.st=talked &  !p4 : ended;
+      !p3                               : idle;
+      TRUE                              :talking;
+      esac;
+      st=ended : {ended,idle};
+      TRUE     : idle;
+      esac; esac; esac; esac; esac; esac; esac;
+
+   init(NoRep) :=
+      FALSE;
+
+   next(NoRep) :=
+      case
+      st=ringingt & next(st)=ringingt : TRUE;
+      st=ringingt : NoRep;
+      TRUE        : FALSE;
+      esac;
+
+   init(nr3) :=
+      FALSE;
+
+   next(nr3) :=
+      case
+      st=ringingt & next(st)=ringingt : TRUE;
+      st=ringingt : nr3;
+      TRUE        : FALSE;
+      esac;
+
+   init(tcs-msg) :=
+      FALSE;
+
+   next(tcs-msg) :=
+      st=trying
+      & ((dialled=1 & ph_b.tcs3)
+      |(dialled=4 & ph_d.tcs3));
+
+
+MODULE phone1 (f,N,ph_b,ph_c,ph_d,p1,p2,p3,p4)
+VAR
+   dialled :
+      {0,1,2,3,4};
+
+   st :
+      {idle,dialt,trying,busyt,ringingt,talking,ringing,talked,ended};
+
+   forw :
+      {0,1,2,3,4};
+
+   kadim :
+      {0,2,4};
+
+   NoRep :
+      boolean;
+
+   ward3 :
+      {0,2,4};
+
+   nr3 :
+      boolean;
+
+   tcs1 :
+      boolean;
+
+   tcs2 :
+      boolean;
+
+   tcs3 :
+      boolean;
+
+   tcs4 :
+      boolean;
+
+   tcs-msg :
+      boolean;
+
+   rbwf-number :
+      {0,1,2,3,4};
+
+   rbwf-use :
+      boolean;
+
+   cfu-forw :
+      {0,2,4};
+
+
+DEFINE
+   party :=
+      case
+      st=talking                       : dialled;
+      ph_b.st=talking & ph_b.dialled=N : case  N=1 : 2;        TRUE : 1;  esac;
+      ph_c.st=talking & ph_c.dialled=N : case  N=1 | N=2 : 3;  TRUE : 2; esac;
+      ph_d.st=talking & ph_d.dialled=N : case  N=4 : 3;        TRUE : 4; esac;
+      TRUE                             : 0;
+      esac;
+
+
+ASSIGN
+   init(dialled) :=
+      0;
+
+   next(dialled) :=
+      case ((f.fRbwf-1 & (rbwf-use & st=idle
+      &((rbwf-number=2 & ph_b.st=idle)
+      |(rbwf-number=4 & ph_d.st=idle))))): (rbwf-number); TRUE: case ((f.fAllcfnr & st=ringingt & nr3 & dialled=4 & !(ph_d.ward3=0))): (ph_d.ward3); TRUE: case ((f.fCfb-2 & st=trying & dialled=2 & !(ph_b.st=idle) & !(ph_b.forw=0))): (ph_b.forw); TRUE: case
+      st=idle                : 0;
+      st=dialt & dialled = 0 : {1,2,4};
+      TRUE                   : dialled;
+      esac; esac; esac; esac;
+
+   init(st) :=
+      idle;
+
+   next(st) :=
+      case ((f.fCfu-1 & !(cfu-forw=0) & st=idle &
+      ( (ph_b.st=trying & ph_b.dialled=N & !(next(ph_b.dialled)=1))
+      | (ph_c.st=trying & ph_c.dialled=N & !(next(ph_c.dialled)=1))))): (idle); TRUE: case ((f.fRbwf-1 & (rbwf-use & st=idle
+      &((rbwf-number=2 & ph_b.st=idle)
+      |(rbwf-number=4 & ph_d.st=idle))))): (trying); TRUE: case ((f.fTcs-1t & next(tcs-msg))): (busyt); TRUE: case ((f.fAllcfnr & st=ringingt & nr3 & dialled=4 & !(ph_d.ward3=0))): (trying); TRUE: case ((f.fCfnr-1 & !(kadim=0) & st=ringing &
+      ( (ph_b.st=ringingt & ph_b.dialled=1 & ph_b.NoRep)
+      | (ph_c.st=ringingt & ph_c.dialled=1 & ph_c.NoRep)))): (idle); TRUE: case ((f.fCfb-2 & st=trying & dialled=2 & !(ph_b.st=idle) & !(ph_b.forw=0))): (trying); TRUE: case
+      st=idle :
+      case
+      ph_b.st=trying & ph_b.dialled=1 & p2 : ringing;
+      ph_c.st=trying & ph_c.dialled=1 & p3 : ringing;
+      !p1                                  : idle;
+      TRUE                                 : dialt;
+      esac;
+      st=ringing :
+      case
+      ph_b.st=ringingt & ph_b.dialled=1 & !p2 : idle;
+      ph_c.st=ringingt & ph_c.dialled=1 & !p3 : idle;
+      p1				                            : ringing;
+      TRUE                                    : talked;
+      esac;
+      st=dialt : {dialt,trying};
+      st=busyt :
+      case
+      !p1 : idle; TRUE: busyt;
+      esac;
+      st=trying :
+      case
+      dialled=2 & ph_b.st=idle & p2 &
+      (!(ph_c.st=trying) | !(ph_c.dialled=2) | p3) :ringingt;
+      dialled=4 & ph_d.st=idle & p4 &
+      (!(ph_b.st=trying) | !(ph_b.dialled=4) | p2 )
+      & (!(ph_c.st=trying) | !(ph_c.dialled=4) | p3) :ringingt;
+      TRUE	                  						     :busyt;
+      esac;
+      st=ringingt :
+      case
+      dialled=2 & p2 : talking;
+      dialled=4 & p4 : talking;
+      p1             : ringingt;
+      TRUE           : idle;
+      esac;
+      st=talked :
+      case
+      ph_b.st=talking & ph_b.dialled=1 & !p2 : ended;
+      ph_c.st=talking & ph_c.dialled=1 & !p3 : ended;
+      !p1                                    : idle;
+      TRUE                                   : talked;
+      esac;
+      st=talking :
+      case
+      dialled=2 & ph_b.st=talked & !p2 : ended;
+      dialled=4 & ph_d.st=talked & !p4 : ended;
+      !p1                              : idle;
+      TRUE                             : talking;
+      esac;
+      st=ended :
+      case p1 : ended;
+      TRUE    : idle;
+      esac;
+      esac; esac; esac; esac; esac; esac; esac;
+
+   init(forw) :=
+      {0,2,4};
+
+   next(forw) :=
+      forw;
+
+   next(kadim) :=
+      kadim;
+
+   init(NoRep) :=
+      FALSE;
+
+   next(ward3) :=
+      ward3;
+
+   init(nr3) :=
+      FALSE;
+
+   next(nr3) :=
+      case
+      st=ringingt & next(st)=ringingt : TRUE;
+      st=ringingt : nr3;
+      TRUE        : FALSE;
+      esac;
+
+   next(tcs1) :=
+      tcs1;
+
+   next(tcs2) :=
+      tcs2;
+
+   next(tcs3) :=
+      tcs3;
+
+   next(tcs4) :=
+      tcs4;
+
+   init(tcs-msg) :=
+      FALSE;
+
+   next(tcs-msg) :=
+      st=trying & dialled=4 & ph_d.tcs1;
+
+   init(rbwf-number) :=
+      0;
+
+   next(rbwf-number) :=
+      case
+      st=busyt & rbwf-use & rbwf-number=0 : dialled;
+      !rbwf-use | (st=talking&dialled=rbwf-number)  : 0;
+      TRUE : rbwf-number;
+      esac;
+
+   init(rbwf-use) :=
+      FALSE;
+
+   next(rbwf-use) :=
+      case
+      rbwf-use
+      &((dialled=rbwf-number & st=talking)
+      |(st=talked
+      &(rbwf-number=2 & ph_b.st=talking & ph_b.dialled=1))) : FALSE;
+      !rbwf-use & st=busyt : {FALSE,TRUE};
+      TRUE                 : rbwf-use;
+      esac;
+
+   next(cfu-forw) :=
+      cfu-forw;
+
+
+MODULE phone2 (f,N,ph_b,ph_c,ph_d,p1,p2,p3,p4)
+VAR
+   dialled :
+      {0,1,2,3,4};
+
+   st :
+      {idle,dialt,trying,busyt,ringingt,talking,ringing,talked,ended};
+
+   forw :
+      {0,1,2,3,4};
+
+   NoRep :
+      boolean;
+
+   ward3 :
+      {0,1,4};
+
+   nr3 :
+      boolean;
+
+   tcs-msg :
+      boolean;
+
+
+DEFINE
+   party :=
+      case
+      ph_b.st=talking & ph_b.dialled=N : case N=1 : 2;         TRUE : 1; esac;
+      ph_c.st=talking & ph_c.dialled=N : case N=1 | N=2 : 3;   TRUE : 2; esac;
+      ph_d.st=talking & ph_c.dialled=N : case N=4 : 3;         TRUE : 4; esac;
+      st=talking                       : dialled;
+      TRUE                             : 0;
+      esac;
+
+
+ASSIGN
+   init(dialled) :=
+      0;
+
+   next(dialled) :=
+      case ((f.fCfu-1 & st=trying & dialled=1 & !(ph_b.cfu-forw=0))): (ph_b.cfu-forw); TRUE: case ((f.fAllcfnr & st=ringingt & nr3 & dialled=4 & !(ph_d.ward3=0))): (ph_d.ward3); TRUE: case ((f.fCfnr-1 & st=ringingt & NoRep & dialled=1 & !(ph_b.kadim=0))): (ph_b.kadim); TRUE: case ((f.fCfb-1 & st=trying & dialled=1 &  !(ph_b.st=idle) & !(ph_b.forw=0))): (ph_b.forw); TRUE: case
+      st=idle                : 0;
+      st=dialt & dialled = 0 : {1,2,4};
+      TRUE                   : dialled;
+      esac; esac; esac; esac; esac;
+
+   init(st) :=
+      idle;
+
+   next(st) :=
+      case ((f.fCfu-1 & st=trying & dialled=1 & !(ph_b.cfu-forw=0))): (trying); TRUE: case ((f.fTcs-1t & next(tcs-msg))): (busyt); TRUE: case ((f.fAllcfnr & st=ringingt & nr3 & dialled=4 & !(ph_d.ward3=0))): (trying); TRUE: case ((f.fCfnr-1 & st=ringingt & NoRep & dialled=1 & !(ph_b.kadim=0))): (trying); TRUE: case ((f.fCfb-1 & st=trying & dialled=1 &  !(ph_b.st=idle) & !(ph_b.forw=0))): (trying); TRUE: case
+      st=idle :
+      case
+      ph_b.st=trying & ph_b.dialled=2 & p1 : ringing;
+      ph_c.st=trying & ph_c.dialled=2 & p3 : ringing;
+      p2                                   : dialt;
+      TRUE                                 : idle;
+      esac;
+      st=ringing :
+      case
+      ph_b.st=ringingt & ph_b.dialled=2 & !p1 : idle;
+      ph_c.st=ringingt & ph_c.dialled=2 & !p3 : idle;
+      p1			                   	          : ringing;
+      TRUE                                    : talked;
+      esac;
+      st=dialt : {dialt,trying};
+      st=busyt :
+      case
+      p2 : busyt; TRUE : idle;
+      esac;
+      st=trying :
+      case
+      dialled=1 & ph_b.st=idle & p1 &
+      (!(ph_c.st=trying) | !(ph_c.dialled=1) | p3) :ringingt;
+      dialled=4 & ph_d.st=idle & p4 &
+      (!(ph_b.st=trying) | !(ph_b.dialled=4) | p1)
+      & (!(ph_c.st=trying) | !(ph_c.dialled=4) | p3) :ringingt;
+      TRUE	                   						     :busyt;
+      esac;
+      st=ringingt :
+      case
+      dialled=1 & p1 : talking;
+      dialled=4 &p4  : talking;
+      p1             : ringingt;
+      TRUE           : idle;
+      esac;
+      st=talked :
+      case
+      ph_b.st=talking & ph_b.dialled=2 & p1 : ended;
+      ph_c.st=talking & ph_c.dialled=2 & p3 : ended;
+      !p2                                   : idle;
+      TRUE                                  : talked;
+      esac;
+      st=talking :
+      case
+      dialled=1 & ph_b.st=talked & !p1 : ended;
+      dialled=4 & ph_d.st=talked & !p4 : ended;
+      !p2                              : idle;
+      TRUE                             : talking;
+      esac;
+      st=ended :
+      case
+      p2 : ended; TRUE :idle;
+      esac;
+      esac; esac; esac; esac; esac; esac;
+
+   init(forw) :=
+      {0,1,4};
+
+   next(forw) :=
+      forw;
+
+   init(NoRep) :=
+      FALSE;
+
+   next(NoRep) :=
+      case
+      st=ringingt & next(st)=ringingt : TRUE;
+      st=ringingt : NoRep;
+      TRUE        : FALSE;
+      esac;
+
+   next(ward3) :=
+      ward3;
+
+   init(nr3) :=
+      FALSE;
+
+   next(nr3) :=
+      case
+      st=ringingt & next(st)=ringingt : TRUE;
+      st=ringingt : nr3;
+      TRUE        : FALSE;
+      esac;
+
+   init(tcs-msg) :=
+      FALSE;
+
+   next(tcs-msg) :=
+      st=trying
+      & ((dialled=1 & ph_b.tcs2)
+      |(dialled=4 & ph_d.tcs2));
+
+
+MODULE features
+VAR
+   fCfb-1 :
+      boolean;
+
+   fCfb-2 :
+      boolean;
+
+   fCfnr-1 :
+      boolean;
+
+   fAllcfnr :
+      boolean;
+
+   fTcs-1t :
+      boolean;
+
+   fRbwf-1 :
+      boolean;
+
+   fCfu-1 :
+      boolean;
+
+
+
+ASSIGN
+   init(fCfb-1) :=
+      {FALSE,TRUE};
+
+   next(fCfb-1) :=
+      fCfb-1;
+
+   init(fCfb-2) :=
+      {FALSE,TRUE};
+
+   next(fCfb-2) :=
+      fCfb-2;
+
+   init(fCfnr-1) :=
+      {FALSE,TRUE};
+
+   next(fCfnr-1) :=
+      fCfnr-1;
+
+   init(fAllcfnr) :=
+      {FALSE,TRUE};
+
+   next(fAllcfnr) :=
+      fAllcfnr;
+
+   init(fTcs-1t) :=
+      {FALSE,TRUE};
+
+   next(fTcs-1t) :=
+      fTcs-1t;
+
+   init(fRbwf-1) :=
+      {FALSE,TRUE};
+
+   next(fRbwf-1) :=
+      fRbwf-1;
+
+   init(fCfu-1) :=
+      {FALSE,TRUE};
+
+   next(fCfu-1) :=
+      fCfu-1;
+
+
+MODULE main
+VAR
+   f :
+      features;
+
+   i1 :
+      boolean;
+
+   e1 :
+      boolean;
+
+   t1 :
+      boolean;
+
+   r1 :
+      boolean;
+
+   ph_1 :
+      phone1 (f, 1,ph_2,ph_3,ph_4,i1,e1,t1,r1);
+
+   ph_2 :
+      phone2 (f, 2,ph_1,ph_3,ph_4,i1,e1,t1,r1);
+
+   ph_3 :
+      ophone (f, 3,ph_1,ph_2,ph_4,i1,e1,t1,r1);
+
+   ph_4 :
+      tphone (f, 4,ph_1,ph_2,ph_3,i1,e1,t1,r1);
+
+-------------------------------------------------------------------------------
+-------------------- J-edit: Definitions for rLTL formulas --------------------
+-------------------------------------------------------------------------------
+DEFINE
+tt1 := ph_1.st=talking;
+tt2 := ph_2.st=talking;
+tt3 := ph_3.st=talking;
+
+td1 := ph_1.st=talked;
+td2 := ph_2.st=talked;
+td3 := ph_3.st=talked;
+
+d12 := ph_1.dialled=2;
+d13 := ph_1.dialled=3;
+
+d21 := ph_2.dialled=1;
+d24 := ph_2.dialled=4;
+
+d31 := ph_3.dialled=1;
+d34 := ph_3.dialled=4;
+
+tcs12 := ph_1.tcs2;
+tcs13 := ph_1.tcs3;
+
+tcs42 := ph_4.tcs2;
+tcs43 := ph_4.tcs3;
+
+msg2 := ph_2.tcs-msg;
+msg3 := ph_3.tcs-msg;
+
+ring1 := ph_1.st=ringing;
+
+ringt1 := ph_1.st=ringingt;
+ringt2 := ph_2.st=ringingt;
+ringt3 := ph_3.st=ringingt;
+
+try1 := ph_1.st=trying;
+
+busyt1 := ph_1.st=busyt;
+
+ph1forw0 := ph_1.cfu-forw = 0;
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+--**************************************************

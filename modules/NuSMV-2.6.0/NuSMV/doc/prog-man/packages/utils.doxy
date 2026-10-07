@@ -1,0 +1,10 @@
+/*!
+  \dir nusmv/core/utils
+  \brief The utils package contains all NuSMV core utilities.
+
+  This package contains a lot of utils..
+
+  THIS IS JUST AN EXAMPLE. EDIT THE
+  <i>doc/doxygen/packages/utils.doxy</i> FOR CHANGING THIS PAGE.
+
+*/

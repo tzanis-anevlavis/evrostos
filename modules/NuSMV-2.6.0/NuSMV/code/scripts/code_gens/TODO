@@ -1,0 +1,10 @@
+Possible improvements:
+
+1.
+An option to let the user provide the fields of the Class. This way is possible
+to fill, partially, the declaration, the init and deinit, and to add getters
+and setters; the user should be able to control which getters and setters will
+be outputted.
+
+2.
+The possibility to provide the package where is located the superclass.

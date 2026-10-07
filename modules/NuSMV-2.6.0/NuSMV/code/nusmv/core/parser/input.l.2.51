@@ -1,0 +1,4 @@
+  /* **************************************************************  -*-C-*-  ***/
+
+"CONSTARRAY"            {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_CONST_ARRAY);}
+"typeof"                {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_TYPEOF);}

@@ -1,0 +1,13 @@
+% -*-latex-*-
+\begin{nusmvCommand}{print\_fair\_transitions} {Prints out the number of fair transitions, and optionally list them}
+
+\cmdLine{print\_fair\_transitions [-h] [-v [-f format] [-o
+    out\_fname]]}
+
+Prints the number of fair transitions of the given model. In verbose
+mode, prints also the list of all fair transitions, with a limit of
+$2^{16}$. The transitions are displayed as state-input-next triples,
+in three possible formats: smv (default), dot and csv. Also, each
+transition is tagged with a current state ID and next state ID.
+
+\end{nusmvCommand}

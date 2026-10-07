@@ -1,0 +1,56 @@
+---------------------- Report for corresponding LTL specifications ----------------------
+
+Model used: model2.smv
+
+----------------------------------------------------------------------
+LTL Formula No1:
+G( !(tt1 & d12) | td2 )
+
+Model Checking of the LTL formula took 265.298717 seconds, and returns truth value 0.
+
+----------------------------------------------------------------------
+LTL Formula No2:
+G( !(msg2) | ((d21 & tcs12) | (d24 & tcs42)) )
+
+Model Checking of the LTL formula took 11.540004 seconds, and returns truth value 0.
+
+----------------------------------------------------------------------
+LTL Formula No3:
+G( !(ph1forw0) | G(!(ring1 |td1)) )
+
+Model Checking of the LTL formula took 278.050181 seconds, and returns truth value 0.
+
+----------------------------------------------------------------------
+LTL Formula No4:
+G( !(tcs12 & ring1) | ringt3 )
+
+Model Checking of the LTL formula took 117.010614 seconds, and returns truth value 0.
+
+----------------------------------------------------------------------
+LTL Formula No5:
+G( !(msg3) | ((d31 & tcs13) | (d34 & tcs43)) )
+
+Model Checking of the LTL formula took 55.919850 seconds, and returns truth value 0.
+
+----------------------------------------------------------------------
+LTL Formula No6:
+G( !(try1) | X(ringt1 | busyt1) )
+
+Model Checking of the LTL formula took 220.242442 seconds, and returns truth value 0.
+
+----------------------------------------------------------------------
+LTL Formula No7:
+G( !(tt1 & d13) | td3 )
+
+Model Checking of the LTL formula took 3.012289 seconds, and returns truth value 1.
+
+----------------------------------------------------------------------
+LTL Formula No8:
+G( !(tcs13) | G(!(d31 & (ringt3 | tt3))) )
+
+Model Checking of the LTL formula took 91.924002 seconds, and returns truth value 0.
+
+----------------------------------------------------------------------
+LTL Formula No9:
+G( !(tcs42) | G(!(d24 & (ringt2 | tt2))) )
+Model Checking of the LTL formula took 7.538675 seconds, and returns truth value 0.

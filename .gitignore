@@ -1,0 +1,11 @@
+.DS_Store
+benchmarks
+WBS-local
+*.xlsx
+*.rtf
+*.zip
+**/build/
+modules/Spin/Src/*.o
+modules/Spin/Src/spin
+evrostos
+*.jar

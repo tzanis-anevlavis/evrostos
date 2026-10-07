@@ -1,0 +1,158 @@
+---------------------- rLTL Verification Report ----------------------
+
+Model used: model.smv
+
+----------------------------------------------------------------------
+Original rLTL Formula No1:
+rG( !(ctr1 & ta12non & ta13non & ta23non & (rX !ta12at) & (rX !ta13at) & (rX !ta23at)) | (rX (rX ctr1)) )
+
+
+Translated LTL formulas:
+(G ((!((((((ctr1 & ta12non) & ta13non) & ta23non) & (X (!ta12at))) & (X (!ta13at))) & (X (!ta23at)))) | (X (X ctr1))))
+(F (G ((!((((((ctr1 & ta12non) & ta13non) & ta23non) & (X (!ta12at))) & (X (!ta13at))) & (X (!ta23at)))) | (X (X ctr1)))))
+(G (F ((!((((((ctr1 & ta12non) & ta13non) & ta23non) & (X (!ta12at))) & (X (!ta13at))) & (X (!ta23at)))) | (X (X ctr1)))))
+(F ((!((((((ctr1 & ta12non) & ta13non) & ta23non) & (X (!ta12at))) & (X (!ta13at))) & (X (!ta23at)))) | (X (X ctr1))))
+
+Model Checking of the original rLTL formula took 1.038290 seconds, and returns truth value 1111.
+
+----------------------------------------------------------------------
+Original rLTL Formula No2:
+rG( !(ta12bt & !ta13at & !ta23at & ctr0 & tsscmd & tswin) | (rX (tscmd1|tscmd2)) )
+
+
+Translated LTL formulas:
+(G ((!(((((ta12bt & (!ta13at)) & (!ta23at)) & ctr0) & tsscmd) & tswin)) | (X (tscmd1 | tscmd2))))
+(F (G ((!(((((ta12bt & (!ta13at)) & (!ta23at)) & ctr0) & tsscmd) & tswin)) | (X (tscmd1 | tscmd2)))))
+(G (F ((!(((((ta12bt & (!ta13at)) & (!ta23at)) & ctr0) & tsscmd) & tswin)) | (X (tscmd1 | tscmd2)))))
+(F ((!(((((ta12bt & (!ta13at)) & (!ta23at)) & ctr0) & tsscmd) & tswin)) | (X (tscmd1 | tscmd2))))
+
+Model Checking of the original rLTL formula took 0.518587 seconds, and returns truth value 1111.
+
+----------------------------------------------------------------------
+Original rLTL Formula No3:
+rG( !(ta12at & !ta13at & !ta23at & ctr0 & !ac1tscmd & !ac2tscmd) | (rF (tscmd1 | tscmd2)) )
+
+
+Translated LTL formulas:
+(G ((!(((((ta12at & (!ta13at)) & (!ta23at)) & ctr0) & (!ac1tscmd)) & (!ac2tscmd))) | (F (tscmd1 | tscmd2))))
+(F (G ((!(((((ta12at & (!ta13at)) & (!ta23at)) & ctr0) & (!ac1tscmd)) & (!ac2tscmd))) | (F (tscmd1 | tscmd2)))))
+(G (F ((!(((((ta12at & (!ta13at)) & (!ta23at)) & ctr0) & (!ac1tscmd)) & (!ac2tscmd))) | (F (tscmd1 | tscmd2)))))
+(F ((!(((((ta12at & (!ta13at)) & (!ta23at)) & ctr0) & (!ac1tscmd)) & (!ac2tscmd))) | (F (tscmd1 | tscmd2))))
+
+Model Checking of the original rLTL formula took 1.018838 seconds, and returns truth value 0011.
+
+----------------------------------------------------------------------
+Original rLTL Formula No4:
+rG( !(ac1tscmddone & !ac1tscmd & tsctr1) | rX (!tsctr1) )
+
+
+Translated LTL formulas:
+(G ((!((ac1tscmddone & (!ac1tscmd)) & tsctr1)) | (X (!tsctr1))))
+(F (G ((!((ac1tscmddone & (!ac1tscmd)) & tsctr1)) | (X (!tsctr1)))))
+(G (F ((!((ac1tscmddone & (!ac1tscmd)) & tsctr1)) | (X (!tsctr1)))))
+(F ((!((ac1tscmddone & (!ac1tscmd)) & tsctr1)) | (X (!tsctr1))))
+
+Model Checking of the original rLTL formula took 0.510607 seconds, and returns truth value 0011.
+
+----------------------------------------------------------------------
+Original rLTL Formula No5:
+rG( !(ac1tccmd & !ac1tscmddone) | ((!ac1tscmddone) rU ac1tccmddone) )
+
+
+Translated LTL formulas:
+(G ((!(ac1tccmd & (!ac1tscmddone))) | ((!ac1tscmddone) U ac1tccmddone)))
+(F (G ((!(ac1tccmd & (!ac1tscmddone))) | ((!ac1tscmddone) U ac1tccmddone))))
+(G (F ((!(ac1tccmd & (!ac1tscmddone))) | ((!ac1tscmddone) U ac1tccmddone))))
+(F ((!(ac1tccmd & (!ac1tscmddone))) | ((!ac1tscmddone) U ac1tccmddone)))
+
+Model Checking of the original rLTL formula took 0.255589 seconds, and returns truth value 0000.
+
+----------------------------------------------------------------------
+Original rLTL Formula No6:
+rG( !(ac1tscmd & !ac1ctrcmddone) | ((!ac1ctrcmddone) rU ac1tscmddone) )
+
+
+Translated LTL formulas:
+(G ((!(ac1tscmd & (!ac1ctrcmddone))) | ((!ac1ctrcmddone) U ac1tscmddone)))
+(F (G ((!(ac1tscmd & (!ac1ctrcmddone))) | ((!ac1ctrcmddone) U ac1tscmddone))))
+(G (F ((!(ac1tscmd & (!ac1ctrcmddone))) | ((!ac1ctrcmddone) U ac1tscmddone))))
+(F ((!(ac1tscmd & (!ac1ctrcmddone))) | ((!ac1ctrcmddone) U ac1tscmddone)))
+
+Model Checking of the original rLTL formula took 0.337304 seconds, and returns truth value 0001.
+
+----------------------------------------------------------------------
+Original rLTL Formula No7:
+rG( !(!ta12non) | (rF ta12non))
+
+
+Translated LTL formulas:
+(G ((!(!ta12non)) | (F ta12non)))
+(F (G ((!(!ta12non)) | (F ta12non))))
+(G (F ((!(!ta12non)) | (F ta12non))))
+(F ((!(!ta12non)) | (F ta12non)))
+
+Model Checking of the original rLTL formula took 0.301175 seconds, and returns truth value 0001.
+
+----------------------------------------------------------------------
+Original rLTL Formula No8:
+(rG(rF (ta12non & ta13non))) => (rG( !(tsctr1) | (rF (!tsctr1)) ))
+
+
+Translated LTL formulas:
+(((G (F (ta12non & ta13non))) => (G ((!tsctr1) | (F (!tsctr1))))) & (((F (G (F (ta12non & ta13non)))) => (F (G ((!tsctr1) | (F (!tsctr1)))))) & (((G (F (F (ta12non & ta13non)))) => (G (F ((!tsctr1) | (F (!tsctr1)))))) & ((F (F (ta12non & ta13non))) => (F ((!tsctr1) | (F (!tsctr1))))))))
+(((F (G (F (ta12non & ta13non)))) => (F (G ((!tsctr1) | (F (!tsctr1)))))) & (((G (F (F (ta12non & ta13non)))) => (G (F ((!tsctr1) | (F (!tsctr1)))))) & ((F (F (ta12non & ta13non))) => (F ((!tsctr1) | (F (!tsctr1)))))))
+(((G (F (F (ta12non & ta13non)))) => (G (F ((!tsctr1) | (F (!tsctr1)))))) & ((F (F (ta12non & ta13non))) => (F ((!tsctr1) | (F (!tsctr1))))))
+((F (F (ta12non & ta13non))) => (F ((!tsctr1) | (F (!tsctr1)))))
+
+Model Checking of the original rLTL formula took 0.593712 seconds, and returns truth value 1111.
+
+----------------------------------------------------------------------
+Original rLTL Formula No9:
+rG( !(!ctr1 & !ac1ctrcmddone) | (((!ac1ctrcmddone) rU ctr1) | (rF ac1tscmddone)) )
+
+
+Translated LTL formulas:
+(G ((!((!ctr1) & (!ac1ctrcmddone))) | (((!ac1ctrcmddone) U ctr1) | (F ac1tscmddone))))
+(F (G ((!((!ctr1) & (!ac1ctrcmddone))) | (((!ac1ctrcmddone) U ctr1) | (F ac1tscmddone)))))
+(G (F ((!((!ctr1) & (!ac1ctrcmddone))) | (((!ac1ctrcmddone) U ctr1) | (F ac1tscmddone)))))
+(F ((!((!ctr1) & (!ac1ctrcmddone))) | (((!ac1ctrcmddone) U ctr1) | (F ac1tscmddone))))
+
+Model Checking of the original rLTL formula took 0.360987 seconds, and returns truth value 0001.
+
+----------------------------------------------------------------------
+Original rLTL Formula No10:
+rG( !(tsctr1 & !ac1ctrcmddone) | (((!ac1ctrcmddone) rU ctr1) | (rF ac1tscmddone)) )
+
+
+Translated LTL formulas:
+(G ((!(tsctr1 & (!ac1ctrcmddone))) | (((!ac1ctrcmddone) U ctr1) | (F ac1tscmddone))))
+(F (G ((!(tsctr1 & (!ac1ctrcmddone))) | (((!ac1ctrcmddone) U ctr1) | (F ac1tscmddone)))))
+(G (F ((!(tsctr1 & (!ac1ctrcmddone))) | (((!ac1ctrcmddone) U ctr1) | (F ac1tscmddone)))))
+(F ((!(tsctr1 & (!ac1ctrcmddone))) | (((!ac1ctrcmddone) U ctr1) | (F ac1tscmddone))))
+
+Model Checking of the original rLTL formula took 0.362114 seconds, and returns truth value 0001.
+
+----------------------------------------------------------------------
+Original rLTL Formula No11:
+rG( !(ac1tscmd & !ac2tscmd & !ac2tscmddone) | ((!ac1tscmddone & !ac2tscmddone) rU ac1tscmddone) )
+
+
+Translated LTL formulas:
+(G ((!((ac1tscmd & (!ac2tscmd)) & (!ac2tscmddone))) | (((!ac1tscmddone) & (!ac2tscmddone)) U ac1tscmddone)))
+(F (G ((!((ac1tscmd & (!ac2tscmd)) & (!ac2tscmddone))) | (((!ac1tscmddone) & (!ac2tscmddone)) U ac1tscmddone))))
+(G (F ((!((ac1tscmd & (!ac2tscmd)) & (!ac2tscmddone))) | (((!ac1tscmddone) & (!ac2tscmddone)) U ac1tscmddone))))
+(F ((!((ac1tscmd & (!ac2tscmd)) & (!ac2tscmddone))) | (((!ac1tscmddone) & (!ac2tscmddone)) U ac1tscmddone)))
+
+Model Checking of the original rLTL formula took 0.708394 seconds, and returns truth value 0001.
+
+----------------------------------------------------------------------
+Original rLTL Formula No12:
+rG( !(tscmd1 & ctr1) | (rX(!ctr1)) )
+
+Translated LTL formulas:
+(G ((!(tscmd1 & ctr1)) | (X (!ctr1))))
+(F (G ((!(tscmd1 & ctr1)) | (X (!ctr1)))))
+(G (F ((!(tscmd1 & ctr1)) | (X (!ctr1)))))
+(F ((!(tscmd1 & ctr1)) | (X (!ctr1))))
+
+Model Checking of the original rLTL formula took 0.520413 seconds, and returns truth value 1111.

@@ -1,0 +1,8 @@
+# generates sigref output for example 'sample-sigref.smv'
+set input_file "sample-sigref.smv"
+set on_failure_script_quits
+go
+compass_gen_sigref -i sample-sigref.prob -t "act=tau" -a sample-sigref.lab -o sample-sigref.xml
+echo "Generated output in sigref format in file 'sample-sigref.xml'"
+quit -x
+

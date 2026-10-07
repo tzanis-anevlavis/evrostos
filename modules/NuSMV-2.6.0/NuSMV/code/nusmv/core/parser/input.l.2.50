@@ -1,0 +1,147 @@
+  /* **************************************************************  -*-C-*-  ***/
+
+"MODULE"                {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_MODULE);}
+"process"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_PROCESS);}
+"DEFINE"                {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_DEFINE);}
+"MDEFINE"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_ARRAY_DEFINE);}
+"VAR"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_VAR);}
+"FUN"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_FUN);}
+"FROZENVAR"             {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_FROZENVAR);}
+"IVAR"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_IVAR);}
+"INIT"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_INIT);}
+"TRANS"                 {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_TRANS);}
+"INVAR"                 {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_INVAR);}
+"SPEC"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_SPEC);}
+"CTLSPEC"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_CTLSPEC);}
+"LTLSPEC"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_LTLSPEC);}
+"PSLSPEC"               {nusmv_yylval.lineno = nusmv_yylineno; Parser_switch_to_psl(); return(TOK_PSLSPEC);}
+"COMPUTE"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_COMPUTE);}
+"INVARSPEC"             {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_INVARSPEC);}
+"NAME"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_NAME);}
+"CONSTRAINT"            {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_CONSTRAINT);}
+"ITYPE"                 {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_ITYPE);}
+"CONSTANTS"             {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_CONSTANTS);}
+"SIMPWFF"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_SIMPWFF);}
+"NEXTWFF"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_NEXTWFF);}
+"CTLWFF"                {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_CTLWFF);}
+"LTLWFF"                {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_LTLWFF);}
+"COMPWFF"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_COMPWFF);}
+"COMPID"                {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_COMPID);}
+"IN"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_INCONTEXT);}
+"FAIRNESS"              {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_FAIRNESS);}
+"JUSTICE"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_JUSTICE);}
+"COMPASSION"            {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_COMPASSION);}
+"ISA"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_ISA);}
+"ASSIGN"                {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_ASSIGN);}
+
+"array"                 {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_ARRAY);}
+"bool"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_BOOL);}
+"of"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_OF);}
+"boolean"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_BOOLEAN);}
+"word1"                 {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_WORD1);}
+"word"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_WORD);}
+"Word"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_WORD);}
+
+"signed"                {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_SIGNED);}
+"unsigned"              {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_UNSIGNED);}
+"extend"                {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_EXTEND);}
+
+"uwconst"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_UWCONST);}
+"swconst"               {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_SWCONST);}
+
+"resize"                {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_WRESIZE);}
+"sizeof"                {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_WSIZEOF);}
+"toint"                 {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_WTOINT);}
+"count"                 {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_COUNT);}
+
+"READ"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_WAREAD);}
+"WRITE"                 {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_WAWRITE);}
+
+"EX"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_EX);}
+"AX"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_AX);}
+"EF"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_EF);}
+"AF"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_AF);}
+"EG"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_EG);}
+"AG"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_AG);}
+"E"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_EE);}
+"F"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_OP_FUTURE);}
+"O"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_OP_ONCE);}
+"G"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_OP_GLOBAL);}
+"H"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_OP_HISTORICAL);}
+"X"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_OP_NEXT);}
+"Y"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_OP_PREC);}
+"Z"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_OP_NOTPRECNOT);}
+"A"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_AA);}
+"U"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_UNTIL);}
+"S"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_SINCE);}
+"V"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_RELEASES);}
+"T"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_TRIGGERED);}
+"BU"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_BUNTIL);}
+"EBF"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_EBF);}
+"ABF"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_ABF);}
+"EBG"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_EBG);}
+"ABG"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_ABG);}
+"MIN"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_MMIN);}
+"MAX"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_MMAX);}
+"("                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_LP);}
+")"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_RP);}
+"["                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_LB);}
+"]"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_RB);}
+"{"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_LCB);}
+"}"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_RCB);}
+"FALSE"                 {
+                         const NodeMgr_ptr nodemgr =
+                           NODE_MGR(NuSMVEnv_get_value(__nusmv_parser_env__,
+                                                           ENV_NODE_MGR));
+                         nusmv_yylval.node = new_node(nodemgr, FALSEEXP,Nil,Nil);
+                         return(TOK_FALSEEXP);
+                        }
+"TRUE"                  {
+                         const NodeMgr_ptr nodemgr =
+                           NODE_MGR(NuSMVEnv_get_value(__nusmv_parser_env__,
+                                                           ENV_NODE_MGR));
+                         nusmv_yylval.node = new_node(nodemgr, TRUEEXP,Nil,Nil);
+                         return(TOK_TRUEEXP);
+                        }
+"case"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_CASE);}
+"esac"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_ESAC);}
+":="                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_EQDEF);}
+"+"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_PLUS);}
+"-"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_MINUS);}
+"*"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_TIMES);}
+"/"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_DIVIDE);}
+"mod"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_MOD);}
+"<<"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_LSHIFT);}
+">>"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_RSHIFT);}
+"<<<"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_LROTATE);}
+">>>"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_RROTATE);}
+"="                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_EQUAL);}
+"!="                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_NOTEQUAL);}
+"<="                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_LE);}
+">="                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_GE);}
+"<"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_LT);}
+">"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_GT);}
+"next"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_NEXT);}
+"init"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_SMALLINIT);}
+"self"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_SELF);}
+"union"                 {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_UNION);}
+"in"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_SETIN);}
+"abs"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_ABS);}
+"min"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_MIN);}
+"max"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_MAX);}
+".."                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_TWODOTS);}
+"."                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_DOT);}
+"->"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_IMPLIES);}
+"<->"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_IFF);}
+"|"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_OR);}
+"&"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_AND);}
+"xor"                   {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_XOR);}
+"xnor"                  {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_XNOR);}
+"!"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_NOT);}
+"?"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_QUESTIONMARK);}
+","                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_COMMA);}
+":"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_COLON);}
+";"                     {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_SEMI);}
+"::"                    {nusmv_yylval.lineno = nusmv_yylineno; return(TOK_CONCATENATION);}
+
+

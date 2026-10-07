@@ -1,0 +1,253 @@
+----------------------------------------------------------------------
+-------------------- Evrostos: the rLTL Verifier! --------------------
+---------------------- rLTL Verification Report ----------------------
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Model-checker used: SPIN
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Model name: ./case_studies/RERS/rers16/problem103.pml
+----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+Original rLTL Formula No1:
+(pc2t4 | pc2t14) rR (!pc1t3c0t0 | pc2t4 | pc2t14 | (!pc1t7 rU pc2t8))
+
+Translated LTL formulas:
+((pc2t4 || pc2t14) V ((((!pc1t3c0t0) || pc2t4) || pc2t14) || ((!pc1t7) U pc2t8)))
+((<> ([] ((((!pc1t3c0t0) || pc2t4) || pc2t14) || ((!pc1t7) U pc2t8)))) || (<> (pc2t4 || pc2t14)))
+(([] (<> ((((!pc1t3c0t0) || pc2t4) || pc2t14) || ((!pc1t7) U pc2t8)))) || (<> (pc2t4 || pc2t14)))
+((<> ((((!pc1t3c0t0) || pc2t4) || pc2t14) || ((!pc1t7) U pc2t8))) || (<> (pc2t4 || pc2t14)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No2:
+rG!pc0t2
+
+Translated LTL formulas:
+([] (!pc0t2))
+(<> ([] (!pc0t2)))
+([] (<> (!pc0t2)))
+(<> (!pc0t2))
+
+Model-checking the original rLTL formula returned truth value 0011.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No3:
+pc2t4 rR (!pc1t3c0t0 | pc2t4 | (!pc1t1 rU pc2t13))
+
+Translated LTL formulas:
+(pc2t4 V (((!pc1t3c0t0) || pc2t4) || ((!pc1t1) U pc2t13)))
+((<> ([] (((!pc1t3c0t0) || pc2t4) || ((!pc1t1) U pc2t13)))) || (<> pc2t4))
+(([] (<> (((!pc1t3c0t0) || pc2t4) || ((!pc1t1) U pc2t13)))) || (<> pc2t4))
+((<> (((!pc1t3c0t0) || pc2t4) || ((!pc1t1) U pc2t13))) || (<> pc2t4))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No4:
+(pc1t3c0t0 | pc1t7) rR (pc1t3c0t0 | pc1t7 | !pc2t2 | rG!pc2t8)
+
+Translated LTL formulas:
+((pc1t3c0t0 || pc1t7) V (((pc1t3c0t0 || pc1t7) || (!pc2t2)) || ([] (!pc2t8))))
+((<> ([] (((pc1t3c0t0 || pc1t7) || (!pc2t2)) || (<> ([] (!pc2t8)))))) || (<> (pc1t3c0t0 || pc1t7)))
+(([] (<> (((pc1t3c0t0 || pc1t7) || (!pc2t2)) || ([] (<> (!pc2t8)))))) || (<> (pc1t3c0t0 || pc1t7)))
+((<> (((pc1t3c0t0 || pc1t7) || (!pc2t2)) || (<> (!pc2t8)))) || (<> (pc1t3c0t0 || pc1t7)))
+
+Model-checking the original rLTL formula returned truth value 0111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No5:
+(pc0t6 | pc1t3c0t0) rR (pc0t6 | pc1t3c0t0 | !pc2t1 | (pc0t9 rR (!pc0t2 | pc0t9)))
+
+Translated LTL formulas:
+((pc0t6 || pc1t3c0t0) V (((pc0t6 || pc1t3c0t0) || (!pc2t1)) || (pc0t9 V ((!pc0t2) || pc0t9))))
+((<> ([] (((pc0t6 || pc1t3c0t0) || (!pc2t1)) || ((<> ([] ((!pc0t2) || pc0t9))) || (<> pc0t9))))) || (<> (pc0t6 || pc1t3c0t0)))
+(([] (<> (((pc0t6 || pc1t3c0t0) || (!pc2t1)) || (([] (<> ((!pc0t2) || pc0t9))) || (<> pc0t9))))) || (<> (pc0t6 || pc1t3c0t0)))
+((<> (((pc0t6 || pc1t3c0t0) || (!pc2t1)) || ((<> ((!pc0t2) || pc0t9)) || (<> pc0t9)))) || (<> (pc0t6 || pc1t3c0t0)))
+
+Model-checking the original rLTL formula returned truth value 0111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No6:
+rF rG !pc2t1
+
+Translated LTL formulas:
+(<> ([] (!pc2t1)))
+(<> (<> ([] (!pc2t1))))
+(<> ([] (<> (!pc2t1))))
+(<> (<> (!pc2t1)))
+
+Model-checking the original rLTL formula returned truth value 0011.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No7:
+rG(!pc0t2 | (!pc0t9 rU pc0t6))
+
+Translated LTL formulas:
+([] ((!pc0t2) || ((!pc0t9) U pc0t6)))
+(<> ([] ((!pc0t2) || ((!pc0t9) U pc0t6))))
+([] (<> ((!pc0t2) || ((!pc0t9) U pc0t6))))
+(<> ((!pc0t2) || ((!pc0t9) U pc0t6)))
+
+Model-checking the original rLTL formula returned truth value 0011.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No8:
+(pc0t6 | pc0t8) rR (pc0t6 | pc0t8 | !pc1t3c0t0 | rG!pc0t5c2t3)
+
+Translated LTL formulas:
+((pc0t6 || pc0t8) V (((pc0t6 || pc0t8) || (!pc1t3c0t0)) || ([] (!pc0t5c2t3))))
+((<> ([] (((pc0t6 || pc0t8) || (!pc1t3c0t0)) || (<> ([] (!pc0t5c2t3)))))) || (<> (pc0t6 || pc0t8)))
+(([] (<> (((pc0t6 || pc0t8) || (!pc1t3c0t0)) || ([] (<> (!pc0t5c2t3)))))) || (<> (pc0t6 || pc0t8)))
+((<> (((pc0t6 || pc0t8) || (!pc1t3c0t0)) || (<> (!pc0t5c2t3)))) || (<> (pc0t6 || pc0t8)))
+
+Model-checking the original rLTL formula returned truth value 0011.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No9:
+rG((!pc0t9 | (!pc1t6 rU pc0t6)) & (!pc0t3 | rF pc1t4))
+
+Translated LTL formulas:
+([] (((!pc0t9) || ((!pc1t6) U pc0t6)) && ((!pc0t3) || (<> pc1t4))))
+(<> ([] (((!pc0t9) || ((!pc1t6) U pc0t6)) && ((!pc0t3) || (<> pc1t4)))))
+([] (<> (((!pc0t9) || ((!pc1t6) U pc0t6)) && ((!pc0t3) || (<> pc1t4)))))
+(<> (((!pc0t9) || ((!pc1t6) U pc0t6)) && ((!pc0t3) || (<> pc1t4))))
+
+Model-checking the original rLTL formula returned truth value 0011.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No10:
+rF(pc2t0 rR (pc2t0 | !pc2t5c1t0))
+
+Translated LTL formulas:
+(<> (pc2t0 V (pc2t0 || (!pc2t5c1t0))))
+(<> ((<> ([] (pc2t0 || (!pc2t5c1t0)))) || (<> pc2t0)))
+(<> (([] (<> (pc2t0 || (!pc2t5c1t0)))) || (<> pc2t0)))
+(<> ((<> (pc2t0 || (!pc2t5c1t0))) || (<> pc2t0)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No11:
+rF rG !pc0t5c2t3
+
+Translated LTL formulas:
+(<> ([] (!pc0t5c2t3)))
+(<> (<> ([] (!pc0t5c2t3))))
+(<> ([] (<> (!pc0t5c2t3))))
+(<> (<> (!pc0t5c2t3)))
+
+Model-checking the original rLTL formula returned truth value 0011.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No12:
+(pc0t1 | pc2t8) rR (pc0t1 | !pc1t3c0t0 | pc2t8)
+
+Translated LTL formulas:
+((pc0t1 || pc2t8) V ((pc0t1 || (!pc1t3c0t0)) || pc2t8))
+((<> ([] ((pc0t1 || (!pc1t3c0t0)) || pc2t8))) || (<> (pc0t1 || pc2t8)))
+(([] (<> ((pc0t1 || (!pc1t3c0t0)) || pc2t8))) || (<> (pc0t1 || pc2t8)))
+((<> ((pc0t1 || (!pc1t3c0t0)) || pc2t8)) || (<> (pc0t1 || pc2t8)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No13:
+(pc2t8 | pc2t14) rR (pc2t8 | pc2t14 | !(pc0t2 | pc0t7))
+
+Translated LTL formulas:
+((pc2t8 || pc2t14) V ((pc2t8 || pc2t14) || (!(pc0t2 || pc0t7))))
+((<> ([] ((pc2t8 || pc2t14) || (!(pc0t2 || pc0t7))))) || (<> (pc2t8 || pc2t14)))
+(([] (<> ((pc2t8 || pc2t14) || (!(pc0t2 || pc0t7))))) || (<> (pc2t8 || pc2t14)))
+((<> ((pc2t8 || pc2t14) || (!(pc0t2 || pc0t7)))) || (<> (pc2t8 || pc2t14)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No14:
+rG((!pc0t8 | rG!pc0t9) & (!pc0t6 | rF pc1t2))
+
+Translated LTL formulas:
+([] (((!pc0t8) || ([] (!pc0t9))) && ((!pc0t6) || (<> pc1t2))))
+(<> ([] (((!pc0t8) || (<> ([] (!pc0t9)))) && ((!pc0t6) || (<> pc1t2)))))
+([] (<> (((!pc0t8) || ([] (<> (!pc0t9)))) && ((!pc0t6) || (<> pc1t2)))))
+(<> (((!pc0t8) || (<> (!pc0t9))) && ((!pc0t6) || (<> pc1t2))))
+
+Model-checking the original rLTL formula returned truth value 0011.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No15:
+(pc0t5c2t3 | pc1t7) rR (pc0t5c2t3 | pc1t7 | !pc2t9 | (pc1t7 rR (pc1t7 | !pc2t7)))
+
+Translated LTL formulas:
+((pc0t5c2t3 || pc1t7) V (((pc0t5c2t3 || pc1t7) || (!pc2t9)) || (pc1t7 V (pc1t7 || (!pc2t7)))))
+((<> ([] (((pc0t5c2t3 || pc1t7) || (!pc2t9)) || ((<> ([] (pc1t7 || (!pc2t7)))) || (<> pc1t7))))) || (<> (pc0t5c2t3 || pc1t7)))
+(([] (<> (((pc0t5c2t3 || pc1t7) || (!pc2t9)) || (([] (<> (pc1t7 || (!pc2t7)))) || (<> pc1t7))))) || (<> (pc0t5c2t3 || pc1t7)))
+((<> (((pc0t5c2t3 || pc1t7) || (!pc2t9)) || ((<> (pc1t7 || (!pc2t7))) || (<> pc1t7)))) || (<> (pc0t5c2t3 || pc1t7)))
+
+Model-checking the original rLTL formula returned truth value 0111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No16:
+rF rG !pc0t1
+
+Translated LTL formulas:
+(<> ([] (!pc0t1)))
+(<> (<> ([] (!pc0t1))))
+(<> ([] (<> (!pc0t1))))
+(<> (<> (!pc0t1)))
+
+Model-checking the original rLTL formula returned truth value 0011.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No17:
+(pc2t5c1t0 | pc2t12) rR (!pc0t2 | pc2t5c1t0 | pc2t12 | rF pc2t9)
+
+Translated LTL formulas:
+((pc2t5c1t0 || pc2t12) V ((((!pc0t2) || pc2t5c1t0) || pc2t12) || (<> pc2t9)))
+((<> ([] ((((!pc0t2) || pc2t5c1t0) || pc2t12) || (<> pc2t9)))) || (<> (pc2t5c1t0 || pc2t12)))
+(([] (<> ((((!pc0t2) || pc2t5c1t0) || pc2t12) || (<> pc2t9)))) || (<> (pc2t5c1t0 || pc2t12)))
+((<> ((((!pc0t2) || pc2t5c1t0) || pc2t12) || (<> pc2t9))) || (<> (pc2t5c1t0 || pc2t12)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No18:
+(pc0t7 | pc2t8) rR (!pc0t6 | pc0t7 | pc2t8)
+
+Translated LTL formulas:
+((pc0t7 || pc2t8) V (((!pc0t6) || pc0t7) || pc2t8))
+((<> ([] (((!pc0t6) || pc0t7) || pc2t8))) || (<> (pc0t7 || pc2t8)))
+(([] (<> (((!pc0t6) || pc0t7) || pc2t8))) || (<> (pc0t7 || pc2t8)))
+((<> (((!pc0t6) || pc0t7) || pc2t8)) || (<> (pc0t7 || pc2t8)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No19:
+(pc2t5c1t0 | pc2t10) rR (!pc0t6 | pc2t5c1t0 | pc2t10 | (!pc2t7 rU pc0t1))	 
+
+Translated LTL formulas:
+((pc2t5c1t0 || pc2t10) V ((((!pc0t6) || pc2t5c1t0) || pc2t10) || ((!pc2t7) U pc0t1)))
+((<> ([] ((((!pc0t6) || pc2t5c1t0) || pc2t10) || ((!pc2t7) U pc0t1)))) || (<> (pc2t5c1t0 || pc2t10)))
+(([] (<> ((((!pc0t6) || pc2t5c1t0) || pc2t10) || ((!pc2t7) U pc0t1)))) || (<> (pc2t5c1t0 || pc2t10)))
+((<> ((((!pc0t6) || pc2t5c1t0) || pc2t10) || ((!pc2t7) U pc0t1))) || (<> (pc2t5c1t0 || pc2t10)))
+
+Model-checking the original rLTL formula returned truth value 1111.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Original rLTL Formula No20:
+pc0t2 rR (!pc0t1 | pc0t2 | rF pc1t6)
+
+Translated LTL formulas:
+(pc0t2 V (((!pc0t1) || pc0t2) || (<> pc1t6)))
+((<> ([] (((!pc0t1) || pc0t2) || (<> pc1t6)))) || (<> pc0t2))
+(([] (<> (((!pc0t1) || pc0t2) || (<> pc1t6)))) || (<> pc0t2))
+((<> (((!pc0t1) || pc0t2) || (<> pc1t6))) || (<> pc0t2))
+
+Model-checking the original rLTL formula returned truth value 0111.
+----------------------------------------------------------------------
