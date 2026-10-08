@@ -16,9 +16,37 @@ ctest --test-dir build/core-debug --output-on-failure
 ```
 
 Neither command sequence uses Java, model checkers, or the legacy wrapper.
-No dependencies are downloaded. `-B` suppresses Python bytecode; build output
-stays under ignored `build/`. `BUILD_TESTING=OFF` builds only the library, without
-Python or test drivers; see [build options](../../docs/core.md#build-and-test-locally).
+CMake downloads GoogleTest as described below; the Python-only command has no
+third-party dependencies. `-B` suppresses Python bytecode; build output stays
+under ignored `build/`. `BUILD_TESTING=OFF` builds only the library, without
+GoogleTest, Python, Java, or downloads; see
+[build options](../../docs/core.md#build-and-test-locally).
+
+## C++ unit tests
+
+`core_test.cpp` uses GoogleTest 1.18.0. CMake fetches its source archive with a
+pinned SHA-256 and builds `gtest_main`; GoogleMock and installation are disabled.
+The dependency is confined to test builds and is not linked into `evrostos_core`.
+CTest discovers each unit test separately, with the `core.api.` prefix and `unit`
+label. Assertions report the failing source line and actual/expected values.
+
+```sh
+ctest --test-dir build/core-debug -L unit --output-on-failure
+ctest --test-dir build/core-debug -R 'core.api.TranslationSharing' --output-on-failure
+```
+
+For an offline build, supply an already extracted GoogleTest 1.18.0 source tree:
+
+```sh
+cmake -S . -B build/core-offline -DCMAKE_BUILD_TYPE=Debug \
+  -DFETCHCONTENT_SOURCE_DIR_GOOGLETEST=/absolute/path/to/googletest-1.18.0
+cmake --build build/core-offline --parallel
+ctest --test-dir build/core-offline --output-on-failure
+```
+
+The local-source override bypasses downloading and archive checksum validation.
+`translation_test_driver` retains its own `main()` and JSON protocol for the
+Python semantic and Java differential suites; it is not a GoogleTest executable.
 
 ## What is checked
 
@@ -71,10 +99,10 @@ ctest --test-dir build/core-java --output-on-failure
 ```
 
 This compiles unchanged sources in `modules/rltl2ltl/src`, including the generated
-parser, into the build tree. It does not run Ant/JavaCC, download dependencies,
-or write into `modules/`. The option defaults to `OFF`; library-only builds
-ignore it. When enabled, missing tools fail configuration and Java process
-errors fail the build or tests.
+parser, into the build tree. Java comparisons do not run Ant/JavaCC, download
+additional dependencies, or write into `modules/`. The option defaults to `OFF`;
+library-only builds ignore it. When enabled, missing tools fail configuration
+and Java process errors fail the build or tests.
 
 To override JDK discovery, pass
 `-DJava_JAVA_EXECUTABLE=/path/to/jdk/bin/java` and

@@ -9,6 +9,6 @@ namespace evrostos::detail {
 // chains which do not cause parser recursion but would deepen later traversals.
 inline constexpr std::size_t max_formula_depth = 256;
 
-[[nodiscard]] Rltl parse(std::string_view source, const TranslationLimits& limits);
+[[nodiscard]] SharedPtrRltlNode parse(std::string_view source, const TranslationLimits& limits);
 
 } // namespace evrostos::detail

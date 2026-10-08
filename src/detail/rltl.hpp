@@ -14,13 +14,13 @@ enum class RltlOperator {
 };
 
 struct RltlNode;
-using Rltl = std::shared_ptr<const RltlNode>;
+using SharedPtrRltlNode = std::shared_ptr<const RltlNode>;
 
 struct RltlNode {
     const RltlOperator op;
     const std::string atom;
-    const Rltl left;
-    const Rltl right;
+    const SharedPtrRltlNode left;
+    const SharedPtrRltlNode right;
     const std::size_t offset;
     const std::size_t height;
 };

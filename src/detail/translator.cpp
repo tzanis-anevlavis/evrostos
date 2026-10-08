@@ -8,13 +8,14 @@
 
 namespace evrostos::detail {
 
-// Intern structural duplicates within ONE translation. No global state/cache.
+// Reuse structurally identical LTL nodes within each translation.
 // Shared suffixes and operand nodes avoid exponential expansion of the LTL AST.
 class LtlBuilder {
 public:
     LtlBuilder(std::string_view source, std::size_t limit) : source_(source), limit_(limit) {}
 
-    Ltl make(LtlOperator op, std::size_t offset, Ltl left = {}, Ltl right = {}, std::string atom = {}) {
+    SharedPtrLtlNode make(LtlOperator op, std::size_t offset, SharedPtrLtlNode left = {},
+                      SharedPtrLtlNode right = {}, std::string atom = {}) {
         auto key = std::make_tuple(op, atom, left, right);
         if (const auto found = nodes_.find(key); found != nodes_.end()) {
             return found->second;
@@ -22,7 +23,7 @@ public:
         if (nodes_.size() >= limit_) {
             fail(DiagnosticCode::node_limit, "LTL node limit exceeded", source_, offset);
         }
-        Ltl result(new LtlNode(op, std::move(atom), std::move(left), std::move(right)));
+        SharedPtrLtlNode result(new LtlNode(op, std::move(atom), std::move(left), std::move(right)));
         nodes_.emplace(std::move(key), result);
         return result;
     }
@@ -30,22 +31,22 @@ public:
 private:
     std::string_view source_;
     std::size_t limit_;
-    std::map<std::tuple<LtlOperator, std::string, Ltl, Ltl>, Ltl> nodes_;
+    std::map<std::tuple<LtlOperator, std::string, SharedPtrLtlNode, SharedPtrLtlNode>, SharedPtrLtlNode> nodes_;
 };
 
 namespace {
 
-using Bits = std::array<Ltl, 4>;
+using Bits = std::array<SharedPtrLtlNode, 4>;
 
 class Translator {
 public:
     Translator(std::string_view source, std::size_t limit) : builder_(source, limit) {}
 
-    Bits visit(const Rltl& node) {
+    Bits visit(const SharedPtrRltlNode& node) {
         if (const auto found = cache_.find(node.get()); found != cache_.end()) {
             return found->second;
         }
-        const auto make = [&](LtlOperator op, Ltl left = {}, Ltl right = {}) {
+        const auto make = [&](LtlOperator op, SharedPtrLtlNode left = {}, SharedPtrLtlNode right = {}) {
             return builder_.make(op, node->offset, std::move(left), std::move(right));
         };
         Bits result;
@@ -114,7 +115,7 @@ private:
 
 } // namespace
 
-Translation translate(const Rltl& formula, std::string_view source, const TranslationLimits& limits) {
+Translation translate(const SharedPtrRltlNode& formula, std::string_view source, const TranslationLimits& limits) {
     return {Translator(source, limits.max_ltl_nodes).visit(formula)};
 }
 

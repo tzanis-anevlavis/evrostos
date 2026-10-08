@@ -5,7 +5,7 @@
 
 namespace evrostos::detail {
 
-[[nodiscard]] Translation translate(const Rltl& formula, std::string_view source,
+[[nodiscard]] Translation translate(const SharedPtrRltlNode& formula, std::string_view source,
                                     const TranslationLimits& limits);
 
 } // namespace evrostos::detail

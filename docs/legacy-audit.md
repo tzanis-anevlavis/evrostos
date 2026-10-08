@@ -115,10 +115,12 @@ order, and file references without running model checkers.
 
 ## Executable validation record
 
-On 2026-10-07, all five CTest suites passed in Debug, Release, and ASan/UBSan
-builds on macOS ARM64 with AppleClang 21.0.0, Python 3.14.6, and Corretto JDK
-11.0.32.1. The three default suites passed without Java; the library-only build
-required neither Java nor Python discovery.
+On 2026-10-07, all 22 CTest entries (18 GoogleTest cases and four Python suites)
+passed in Debug, Release, and ASan/UBSan builds on macOS ARM64 with AppleClang
+21.0.0, Python 3.14.6, GoogleTest 1.18.0, and Corretto JDK 11.0.32.1. The 20
+default entries passed without Java using a local GoogleTest source tree.
+The downloaded dependency configuration also passed; the library-only build
+required no GoogleTest, Java, or Python discovery or downloads.
 
 References were tested separately: classes compiled from unchanged repository
 sources, and the untracked `modules/rltl2ltl/rltl2ltl.jar`, SHA-256

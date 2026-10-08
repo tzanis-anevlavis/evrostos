@@ -77,7 +77,7 @@ void error_json(const evrostos::Diagnostic& error) {
               << ",\"column\":" << error.column << "}}\n";
 }
 
-void rltl_json(const evrostos::detail::Rltl& node) {
+void rltl_json(const evrostos::detail::SharedPtrRltlNode& node) {
     if (node->op == evrostos::detail::RltlOperator::atom) {
         quoted(std::cout, node->atom);
         return;
@@ -131,7 +131,7 @@ public:
     }
 
 private:
-    void visit(const evrostos::Ltl& node) {
+    void visit(const evrostos::SharedPtrLtlNode& node) {
         if (ids_.contains(node.get())) {
             return;
         }
@@ -145,7 +145,7 @@ private:
         nodes_.push_back(node);
     }
     std::map<const evrostos::LtlNode*, std::size_t> ids_;
-    std::vector<evrostos::Ltl> nodes_;
+    std::vector<evrostos::SharedPtrLtlNode> nodes_;
 };
 
 } // namespace

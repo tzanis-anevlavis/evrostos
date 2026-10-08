@@ -1,19 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "evrostos.hpp"
 
+#include <gtest/gtest.h>
+
 #include <future>
-#include <iostream>
 #include <set>
 #include <stdexcept>
 #include <vector>
 
 namespace {
-
-void check(bool condition, const char* message) {
-    if (!condition) {
-        throw std::runtime_error(message);
-    }
-}
 
 evrostos::Translation translated(std::string_view source,
                                 const evrostos::TranslationLimits& limits = {}) {
@@ -27,13 +22,15 @@ evrostos::Translation translated(std::string_view source,
 evrostos::Diagnostic rejected(std::string_view source,
                              const evrostos::TranslationLimits& limits = {}) {
     auto result = evrostos::Evrostos{}.translate(source, limits);
-    check(std::holds_alternative<evrostos::Diagnostic>(result), "expected diagnostic");
+    if (!std::holds_alternative<evrostos::Diagnostic>(result)) {
+        throw std::runtime_error("Expected a diagnostic for: " + std::string(source));
+    }
     return std::get<evrostos::Diagnostic>(std::move(result));
 }
 
 std::size_t node_count(const evrostos::Translation& translation) {
     std::set<const evrostos::LtlNode*> seen;
-    std::vector<evrostos::Ltl> pending(translation.bits.begin(), translation.bits.end());
+    std::vector<evrostos::SharedPtrLtlNode> pending(translation.bits.begin(), translation.bits.end());
     while (!pending.empty()) {
         auto node = pending.back();
         pending.pop_back();
@@ -46,7 +43,7 @@ std::size_t node_count(const evrostos::Translation& translation) {
     return seen.size();
 }
 
-void ownership_and_sharing() {
+TEST(TranslationOwnership, ResultOutlivesInputAndCore) {
     auto result = [] {
         std::string source = "GFReady2";
         evrostos::Evrostos core;
@@ -54,101 +51,151 @@ void ownership_and_sharing() {
         source.assign(source.size(), 'x');
         return std::get<evrostos::Translation>(std::move(value));
     }();
-    check(result.bits[0]->atom() == "GFReady2", "result must own identifier storage");
+    ASSERT_NE(result.bits[0], nullptr);
+    EXPECT_EQ(result.bits[0]->atom(), "GFReady2");
+}
+
+TEST(TranslationSharing, AtomBitsShareOneNode) {
+    const auto result = translated("p");
     for (const auto& bit : result.bits) {
-        check(bit == result.bits[0], "atom bits should share one node");
-        check(!bit->left() && !bit->right(), "atom must have no children");
+        ASSERT_NE(bit, nullptr);
+        EXPECT_EQ(bit, result.bits[0]);
+        EXPECT_EQ(bit->left(), nullptr);
+        EXPECT_EQ(bit->right(), nullptr);
     }
-    check(node_count(result) == 1, "atom should have exactly one node");
+    EXPECT_EQ(node_count(result), 1u);
+}
+
+TEST(TranslationSharing, RepeatedSubexpressionsShareNodes) {
     const auto repeated = translated("(rG p) & (rG p)");
     for (const auto& bit : repeated.bits) {
-        check(bit->left() == bit->right(), "repeated subexpressions must be shared");
-    }
-
-    const auto implication = translated("(rG p) => (rG q)");
-    for (std::size_t i = 0; i < 3; ++i) {
-        check(implication.bits[i]->right() == implication.bits[i + 1], "implication suffix must be shared");
-    }
-    check(implication.bits[3]->op() == evrostos::LtlOperator::implication, "weakest implication bit");
-
-    const auto negation = translated("!((rG p) => (rG q))");
-    for (const auto& bit : negation.bits) {
-        check(bit == negation.bits[0], "negation must replicate the same first-bit negation");
+        ASSERT_NE(bit, nullptr);
+        ASSERT_NE(bit->left(), nullptr);
+        EXPECT_EQ(bit->left(), bit->right());
     }
 }
 
-void diagnostics_and_limits() {
-    using Code = evrostos::DiagnosticCode;
-    auto error = rejected("p &\r\n  )");
-    check(error.code == Code::syntax_error, "syntax error category");
-    check(error.offset == 7 && error.line == 2 && error.column == 3, "CRLF diagnostic location");
-    error = rejected("p &\n");
-    check(error.offset == 4 && error.line == 2 && error.column == 1, "EOF diagnostic location");
-    error = rejected(std::string("p\0", 2));
-    check(error.code == Code::syntax_error && error.offset == 1, "embedded NUL must be rejected");
-    check(rejected("").code == Code::syntax_error, "empty formula rejected");
+TEST(TranslationSharing, ImplicationSuffixesShareNodes) {
+    const auto implication = translated("(rG p) => (rG q)");
+    for (std::size_t i = 0; i < 3; ++i) {
+        SCOPED_TRACE(i);
+        ASSERT_NE(implication.bits[i], nullptr);
+        ASSERT_NE(implication.bits[i + 1], nullptr);
+        EXPECT_EQ(implication.bits[i]->right(), implication.bits[i + 1]);
+    }
+    EXPECT_EQ(implication.bits[3]->op(), evrostos::LtlOperator::implication);
+}
 
+TEST(TranslationSharing, NegationBitsShareOneNode) {
+    const auto negation = translated("!((rG p) => (rG q))");
+    ASSERT_NE(negation.bits[0], nullptr);
+    EXPECT_EQ(negation.bits[0]->op(), evrostos::LtlOperator::negation);
+    for (const auto& bit : negation.bits) {
+        EXPECT_EQ(bit, negation.bits[0]);
+    }
+}
+
+TEST(TranslationDiagnostics, CrLfCountsAsOneNewline) {
+    const auto error = rejected("p &\r\n  )");
+    EXPECT_EQ(error.code, evrostos::DiagnosticCode::syntax_error);
+    EXPECT_EQ(error.offset, 7u);
+    EXPECT_EQ(error.line, 2u);
+    EXPECT_EQ(error.column, 3u);
+}
+
+TEST(TranslationDiagnostics, MissingOperandReportsEndOfInput) {
+    const auto error = rejected("p &\n");
+    EXPECT_EQ(error.code, evrostos::DiagnosticCode::syntax_error);
+    EXPECT_EQ(error.offset, 4u);
+    EXPECT_EQ(error.line, 2u);
+    EXPECT_EQ(error.column, 1u);
+}
+
+TEST(TranslationDiagnostics, EmbeddedNullIsRejected) {
+    const auto error = rejected(std::string("p\0", 2));
+    EXPECT_EQ(error.code, evrostos::DiagnosticCode::syntax_error);
+    EXPECT_EQ(error.offset, 1u);
+}
+
+TEST(TranslationDiagnostics, EmptyFormulaIsRejected) {
+    EXPECT_EQ(rejected("").code, evrostos::DiagnosticCode::syntax_error);
+}
+
+TEST(TranslationLimits, InputByteBudgetIncludesBoundary) {
     evrostos::TranslationLimits limits;
     limits.max_input_bytes = 1;
-    check(translated("p", limits).bits[0]->atom() == "p", "input boundary accepted");
-    check(rejected("pp", limits).code == Code::input_limit, "input limit enforced");
-    limits = {};
-    limits.max_parse_nodes = 2;
-    check(rejected("p & q", limits).code == Code::node_limit, "parse node limit enforced");
-    limits.max_parse_nodes = 3;
-    check(translated("p & q", limits).bits[0]->op() == evrostos::LtlOperator::conjunction,
-          "parse node boundary accepted");
-    limits = {};
-    limits.max_ltl_nodes = 1;
-    check(node_count(translated("p", limits)) == 1, "shared nodes count once");
-    check(rejected("rG p", limits).code == Code::node_limit, "LTL node limit enforced");
-    limits.max_ltl_nodes = 0;
-    check(rejected("p", limits).code == Code::node_limit, "zero node budget");
+    const auto result = translated("p", limits);
+    ASSERT_NE(result.bits[0], nullptr);
+    EXPECT_EQ(result.bits[0]->atom(), "p");
+    EXPECT_EQ(rejected("pp", limits).code, evrostos::DiagnosticCode::input_limit);
+}
 
-    check(rejected(std::string(256, '!') + "p").code == Code::depth_limit, "unary depth bounded");
-    check(rejected(std::string(256, '(') + "p" + std::string(256, ')')).code == Code::depth_limit,
-          "parenthesis depth bounded");
+TEST(TranslationLimits, ParseNodeBudgetIncludesBoundary) {
+    evrostos::TranslationLimits limits;
+    limits.max_parse_nodes = 2;
+    EXPECT_EQ(rejected("p & q", limits).code, evrostos::DiagnosticCode::node_limit);
+    limits.max_parse_nodes = 3;
+    const auto result = translated("p & q", limits);
+    ASSERT_NE(result.bits[0], nullptr);
+    EXPECT_EQ(result.bits[0]->op(), evrostos::LtlOperator::conjunction);
+}
+
+TEST(TranslationLimits, LtlNodeBudgetCountsSharedNodesOnce) {
+    evrostos::TranslationLimits limits;
+    limits.max_ltl_nodes = 1;
+    EXPECT_EQ(node_count(translated("p", limits)), 1u);
+    EXPECT_EQ(rejected("rG p", limits).code, evrostos::DiagnosticCode::node_limit);
+}
+
+TEST(TranslationLimits, ZeroLtlNodeBudgetIsRejected) {
+    evrostos::TranslationLimits limits;
+    limits.max_ltl_nodes = 0;
+    EXPECT_EQ(rejected("p", limits).code, evrostos::DiagnosticCode::node_limit);
+}
+
+TEST(TranslationLimits, UnaryDepthIncludesBoundary) {
+    EXPECT_EQ(rejected(std::string(256, '!') + "p").code, evrostos::DiagnosticCode::depth_limit);
+    EXPECT_NE(translated(std::string(255, '!') + "p").bits[0], nullptr);
+}
+
+TEST(TranslationLimits, ParenthesisDepthIsBounded) {
+    EXPECT_EQ(rejected(std::string(256, '(') + "p" + std::string(256, ')')).code,
+              evrostos::DiagnosticCode::depth_limit);
+}
+
+TEST(TranslationLimits, LeftAssociatedTreeDepthIsBounded) {
     std::string chain = "p";
     for (int i = 0; i < 256; ++i) {
         chain += " & p";
     }
-    check(rejected(chain).code == Code::depth_limit, "left-associated tree depth bounded");
-    check(translated(std::string(255, '!') + "p").bits[0] != nullptr, "depth boundary accepted");
+    EXPECT_EQ(rejected(chain).code, evrostos::DiagnosticCode::depth_limit);
 }
 
-void bounded_growth_and_reentrancy() {
+TEST(TranslationSharing, NestedImplicationHasBoundedDagGrowth) {
     std::string formula = "rG p";
     for (int i = 0; i < 100; ++i) {
         formula = "(" + formula + ") => (rG q)";
     }
     const auto result = translated(formula);
-    check(node_count(result) < 1000, "nested implication must remain a DAG, not expand exponentially");
+    EXPECT_LT(node_count(result), 1000u);
+}
 
+TEST(TranslationReentrancy, ConcurrentCallsRecoverAfterInvalidInput) {
     const evrostos::Evrostos core;
     std::vector<std::future<bool>> calls;
     for (int i = 0; i < 16; ++i) {
         calls.push_back(std::async(std::launch::async, [&core] {
             const auto bad = core.translate("rG");
             const auto good = core.translate("p rR q");
+            const auto* translation = std::get_if<evrostos::Translation>(&good);
             return std::holds_alternative<evrostos::Diagnostic>(bad)
-                && std::get<evrostos::Translation>(good).bits[0]->op() == evrostos::LtlOperator::release;
+                && translation != nullptr && translation->bits[0] != nullptr
+                && translation->bits[0]->op() == evrostos::LtlOperator::release;
         }));
     }
     for (auto& call : calls) {
-        check(call.get(), "independent calls on one core object");
+        EXPECT_TRUE(call.get());
     }
 }
 
 } // namespace
-
-int main() {
-    try {
-        ownership_and_sharing();
-        diagnostics_and_limits();
-        bounded_growth_and_reentrancy();
-        std::cout << "Core API, ownership, DAG sharing, limits, and reentrancy passed\n";
-    } catch (const std::exception& error) {
-        std::cerr << error.what() << '\n';
-        return 1;
-    }
-}

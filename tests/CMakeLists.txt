@@ -1,10 +1,27 @@
 find_package(Python3 3.10 REQUIRED COMPONENTS Interpreter)
 find_package(Threads REQUIRED)
 
+include(FetchContent)
+if(POLICY CMP0135)
+    cmake_policy(SET CMP0135 NEW)
+endif()
+set(BUILD_GMOCK OFF)
+set(INSTALL_GTEST OFF)
+if(MSVC)
+    set(gtest_force_shared_crt ON)
+endif()
+FetchContent_Declare(googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.18.0.tar.gz
+    URL_HASH SHA256=6e3191c1455468b3fc35a417fb565c1c5071aee1b7e7f85e30cf48a98d37d8b5)
+FetchContent_MakeAvailable(googletest)
+
 add_executable(core_test core_test.cpp)
-target_link_libraries(core_test PRIVATE evrostos::core Threads::Threads)
+target_link_libraries(core_test PRIVATE evrostos::core Threads::Threads GTest::gtest_main)
 evrostos_compile_options(core_test)
-add_test(NAME core.api COMMAND core_test)
+include(GoogleTest)
+gtest_discover_tests(core_test
+    TEST_PREFIX "core.api."
+    PROPERTIES TIMEOUT 60 LABELS "unit")
 
 # Private fixture bridge, built only with BUILD_TESTING. Not an application CLI.
 add_executable(translation_test_driver translation_driver.cpp)
@@ -17,7 +34,7 @@ add_test(NAME semantics.reference
 add_test(NAME core.semantic_integration
     COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_CURRENT_SOURCE_DIR}/semantics/cpp_integration.py"
             "$<TARGET_FILE:translation_test_driver>")
-set_tests_properties(core.api semantics.reference core.semantic_integration PROPERTIES TIMEOUT 60)
+set_tests_properties(semantics.reference core.semantic_integration PROPERTIES TIMEOUT 60)
 
 option(EVROSTOS_ENABLE_JAVA_DIFFERENTIAL_TESTS "Test against the repository's Java translator" OFF)
 set(EVROSTOS_JAVA_REFERENCE_JAR "" CACHE FILEPATH "Optional additional Java translator JAR to test")

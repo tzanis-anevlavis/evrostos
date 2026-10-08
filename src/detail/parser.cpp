@@ -21,13 +21,14 @@ bool letter(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
 bool digit(char c) { return c >= '0' && c <= '9'; }
 bool space(char c) { return c == ' ' || c == '\t' || c == '\r' || c == '\n'; }
 
-// Preserve the JavaCC grammar: implication binds MORE tightly than conjunction.
+// Grammar: implication binds MORE tightly than conjunction.
 int precedence(TokenKind kind) {
     switch (kind) {
     case TokenKind::disjunction: return 1;
     case TokenKind::conjunction: return 2;
     case TokenKind::implication: return 3;
-    case TokenKind::until: case TokenKind::release: return 4;
+    case TokenKind::until:
+    case TokenKind::release: return 4;
     default: return 0;
     }
 }
@@ -52,7 +53,7 @@ public:
     Parser(std::string_view source, const TranslationLimits& limits)
         : source_(source), limits_(limits) { advance(); }
 
-    Rltl run() {
+    SharedPtrRltlNode run() {
         auto result = expression(1, 0);
         if (token_.kind != TokenKind::end) {
             syntax("expected end of formula", token_.offset);
@@ -113,7 +114,8 @@ private:
         token_ = {kind, source_.substr(start, cursor_ - start), start};
     }
 
-    Rltl node(RltlOperator op, std::size_t offset, Rltl left = {}, Rltl right = {}, std::string atom = {}) {
+    SharedPtrRltlNode node(RltlOperator op, std::size_t offset, SharedPtrRltlNode left = {},
+                       SharedPtrRltlNode right = {}, std::string atom = {}) {
         const auto height = 1 + std::max(left ? left->height : 0, right ? right->height : 0);
         if (height > max_formula_depth) {
             fail(DiagnosticCode::depth_limit, "formula AST depth exceeds 256", source_, offset);
@@ -126,7 +128,7 @@ private:
             op, std::move(atom), std::move(left), std::move(right), offset, height});
     }
 
-    Rltl expression(int minimum, std::size_t nesting) {
+    SharedPtrRltlNode expression(int minimum, std::size_t nesting) {
         auto left = unary(nesting);
         while (precedence(token_.kind) >= minimum) {
             const auto op = token_;
@@ -138,7 +140,7 @@ private:
         return left;
     }
 
-    Rltl unary(std::size_t nesting) {
+    SharedPtrRltlNode unary(std::size_t nesting) {
         if (nesting >= max_formula_depth) {
             fail(DiagnosticCode::depth_limit, "formula nesting exceeds 256", source_, token_.offset);
         }
@@ -175,7 +177,7 @@ private:
 
 } // namespace
 
-Rltl parse(std::string_view source, const TranslationLimits& limits) {
+SharedPtrRltlNode parse(std::string_view source, const TranslationLimits& limits) {
     if (source.size() > limits.max_input_bytes) {
         fail(DiagnosticCode::input_limit, "formula input byte limit exceeded", source, limits.max_input_bytes);
     }

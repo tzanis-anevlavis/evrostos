@@ -28,7 +28,7 @@ struct TranslationLimits {
 };
 
 struct Translation {
-    std::array<Ltl, 4> bits; // Strongest (b1) through weakest (b4), never query order.
+    std::array<SharedPtrLtlNode, 4> bits; // Strongest (b1) through weakest (b4), never query order.
 };
 
 using TranslationResult = std::variant<Translation, Diagnostic>;

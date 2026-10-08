@@ -85,7 +85,10 @@ output-size limits are outside the core's scope.
 
 ## Build and test locally
 
-Requires C++20 and CMake 3.20+. Tests use Python 3.10+ (standard library only).
+Requires C++20 and CMake 3.20+. Tests use GoogleTest 1.18.0 and Python 3.10+
+(standard library only). CMake downloads the checksum-pinned GoogleTest source
+into the build directory at first configuration; an
+[offline source override](../tests/semantics/README.md#cpp-unit-tests) is available.
 Only the optional [Java comparisons](../tests/semantics/README.md#java-differential-tests)
 require JDK 11+; no tests require model checkers.
 
@@ -95,7 +98,7 @@ cmake --build build/core-debug --parallel
 ctest --test-dir build/core-debug --output-on-failure
 ```
 
-Build only the internal library, without Python or test executables:
+Build only the internal library, without GoogleTest, Python, Java, or downloads:
 
 ```sh
 cmake -S . -B build/core-only -DBUILD_TESTING=OFF
