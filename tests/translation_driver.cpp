@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Test-only bridge. No stable CLI/protocol and no model-checker integration.
+// TODO: Re-evaluate the Python/C++ test split and whether the semantic and
+// differential suites should move to GoogleTest, replacing this JSON bridge.
 #include "evrostos.hpp"
 #include "detail/parser.hpp"
+#include "backends/serialization.hpp"
 
 #include <iostream>
 #include <map>
@@ -148,10 +151,52 @@ private:
     std::vector<evrostos::SharedPtrLtlNode> nodes_;
 };
 
+std::string_view name(evrostos::backends::SerializationCode code) {
+    switch (code) {
+    case evrostos::backends::SerializationCode::null_formula: return "null_formula";
+    case evrostos::backends::SerializationCode::invalid_identifier: return "invalid_identifier";
+    case evrostos::backends::SerializationCode::unsupported_operator: return "unsupported_operator";
+    case evrostos::backends::SerializationCode::output_limit: return "output_limit";
+    }
+    throw std::logic_error("unknown serialization diagnostic");
+}
+
+void serialization_json(const evrostos::Translation& translation, std::string_view mode) {
+    std::array<std::string, 4> formulas;
+    for (std::size_t i = 0; i < 4; ++i) {
+        auto result = (mode == "serialize-nusmv")
+                    ? evrostos::backends::serialize_nusmv(translation.bits[i])
+                    : evrostos::backends::serialize_spin(translation.bits[i],
+                        {.allow_next = (mode == "serialize-spin-next")});
+        if (const auto* error = std::get_if<evrostos::backends::SerializationDiagnostic>(&result)) {
+            std::cout << "{\"ok\":false,\"bit\":" << i << ",\"error\":{\"code\":";
+            quoted(std::cout, name(error->code));
+            std::cout << ",\"message\":";
+            quoted(std::cout, error->message);
+            std::cout << "}}\n";
+            return;
+        }
+        formulas[i] = std::get<std::string>(std::move(result));
+    }
+    std::cout << "{\"ok\":true,\"formulas\":[";
+    for (std::size_t i = 0; i < 4; ++i) {
+        if (i != 0) {
+            std::cout << ',';
+        }
+        quoted(std::cout, formulas[i]);
+    }
+    std::cout << "]}\n";
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
-    if (argc != 2 || (std::string_view(argv[1]) != "parse" && std::string_view(argv[1]) != "translate")) {
+    if (argc != 2) {
+        return 2;
+    }
+    const std::string_view mode = argv[1];
+    if ((mode != "parse") && (mode != "translate") && (mode != "serialize-nusmv")
+        && (mode != "serialize-spin") && (mode != "serialize-spin-next")) {
         return 2;
     }
     const evrostos::TranslationLimits limits;
@@ -164,7 +209,7 @@ int main(int argc, char** argv) {
     if (std::cin.bad()) {
         return 2;
     }
-    if (std::string_view(argv[1]) == "parse") {
+    if (mode == "parse") {
         try {
             const auto ast = evrostos::detail::parse(input, limits);
             std::cout << "{\"ok\":true,\"ast\":";
@@ -177,8 +222,10 @@ int main(int argc, char** argv) {
         const auto result = evrostos::Evrostos{}.translate(input);
         if (const auto* error = std::get_if<evrostos::Diagnostic>(&result)) {
             error_json(*error);
-        } else {
+        } else if (mode == "translate") {
             DagJson{}.write(std::get<evrostos::Translation>(result));
+        } else {
+            serialization_json(std::get<evrostos::Translation>(result), mode);
         }
     }
 }

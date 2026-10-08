@@ -150,10 +150,11 @@ unverified. See
 ## Migration boundaries
 
 The [C++ core](core.md) supplies translation, immutable ASTs, diagnostics, and
-tests through a library API. Integration requires:
+[NuSMV/SPIN formula serialization](serialization.md) through a library API.
+Integration requires:
 
-1. AST-based NuSMV/SPIN printers and wrapper integration, with application I/O
-   separate from the translation API.
+1. Wrapper integration, with application I/O separate from translation and
+   formula serialization.
 2. Adapters for unmodified checkers: discovered/pinned executable versions,
    argument arrays, isolated workspaces, diagnostics, timeouts, and typed outcomes.
    Upgrade and reproduce the corpus one backend at a time.
