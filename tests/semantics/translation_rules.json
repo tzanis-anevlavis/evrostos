@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "source": {
+    "doi": "10.1145/3491216",
+    "section": "4",
+    "table": "2",
+    "published_page": "8:19",
+    "verified_on": "2026-10-06",
+    "verified_against": "Published ACM PDF; all ten operator rows visually checked",
+    "pdf_sha256": "285a1d275c23c0e86af830249983e31a120ce89cb17556a886a6d5fcc0a936c3",
+    "open_access_version": "https://arxiv.org/abs/2102.11991v2"
+  },
+  "bit_order": [1, 2, 3, 4],
+  "notation": "Prefix LTL ASTs. ai and bi stand for bit i of arbitrary operand values; p is Boolean.",
+  "rules": [
+    {"operator": "atom", "arity": 0, "ltl": ["p", "p", "p", "p"]},
+    {"operator": "!", "arity": 1, "ltl": [["!", "a1"], ["!", "a1"], ["!", "a1"], ["!", "a1"]]},
+    {"operator": "&", "arity": 2, "ltl": [["&", "a1", "b1"], ["&", "a2", "b2"], ["&", "a3", "b3"], ["&", "a4", "b4"]]},
+    {"operator": "|", "arity": 2, "ltl": [["|", "a1", "b1"], ["|", "a2", "b2"], ["|", "a3", "b3"], ["|", "a4", "b4"]]},
+    {"operator": "=>", "arity": 2, "ltl": [
+      ["&", ["->", "a1", "b1"], ["&", ["->", "a2", "b2"], ["&", ["->", "a3", "b3"], ["->", "a4", "b4"]]]],
+      ["&", ["->", "a2", "b2"], ["&", ["->", "a3", "b3"], ["->", "a4", "b4"]]],
+      ["&", ["->", "a3", "b3"], ["->", "a4", "b4"]],
+      ["->", "a4", "b4"]
+    ]},
+    {"operator": "rX", "arity": 1, "ltl": [["X", "a1"], ["X", "a2"], ["X", "a3"], ["X", "a4"]]},
+    {"operator": "rF", "arity": 1, "ltl": [["F", "a1"], ["F", "a2"], ["F", "a3"], ["F", "a4"]]},
+    {"operator": "rG", "arity": 1, "ltl": [["G", "a1"], ["F", ["G", "a2"]], ["G", ["F", "a3"]], ["F", "a4"]]},
+    {"operator": "rU", "arity": 2, "ltl": [["U", "a1", "b1"], ["U", "a2", "b2"], ["U", "a3", "b3"], ["U", "a4", "b4"]]},
+    {"operator": "rR", "arity": 2, "ltl": [
+      ["R", "a1", "b1"],
+      ["|", ["F", "a2"], ["F", ["G", "b2"]]],
+      ["|", ["F", "a3"], ["G", ["F", "b3"]]],
+      ["|", ["F", "a4"], ["F", "b4"]]
+    ]}
+  ]
+}

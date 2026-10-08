@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "Transcribed historical reports, not reproduced backend runs. All paths are repository-relative.",
+  "cases": [
+    {
+      "id": "aac-original",
+      "input": "case_studies/HSCC19/input_AAC_rLTL.txt",
+      "report": "case_studies/HSCC19/expected_results/aac_original_rLTL.txt",
+      "manifest_model": "case_studies/HSCC19/aac_original.smv",
+      "replay_model": "case_studies/HSCC19/aac_original.smv",
+      "replay_note": "Reproduce with the original model.",
+      "expected": ["1111", "1111", "1111", "1111", "1111", "1111", "1111", "1111", "0001", "0001", "0011", "1111"]
+    },
+    {
+      "id": "aac-abstract",
+      "input": "case_studies/HSCC19/input_AAC_rLTL.txt",
+      "report": "case_studies/HSCC19/expected_results/aac_abstract_rLTL.txt",
+      "manifest_model": "case_studies/HSCC19/aac_original.smv",
+      "replay_model": "case_studies/HSCC19/aac_abstract.smv",
+      "replay_note": "Explicit model override needed; reuse the AAC formula list.",
+      "expected": ["1111", "1111", "0011", "0011", "0000", "0001", "0001", "1111", "0001", "0001", "0001", "1111"]
+    },
+    {
+      "id": "telephone",
+      "input": "case_studies/HSCC19/input_telephone_rLTL.txt",
+      "report": "case_studies/HSCC19/expected_results/telephone_rLTL.txt",
+      "manifest_model": "case_studies/HSCC19/aac_original.smv",
+      "replay_model": "case_studies/HSCC19/telephone.smv",
+      "replay_note": "Known wrong-model manifest. Candidate replay model is inferred; confirm before integration.",
+      "expected": ["0001", "0011", "0001", "0001", "0011", "0011", "1111", "0001", "0001"]
+    },
+    {
+      "id": "motivating-example",
+      "input": "case_studies/HSCC19/input_mot_example.txt",
+      "report": "case_studies/HSCC19/expected_results/mot_exampleReport.txt",
+      "manifest_model": "case_studies/HSCC19/mot_example.smv",
+      "replay_model": "case_studies/HSCC19/mot_example.smv",
+      "replay_note": "Historical translation text predates the pointwise-implication visitor.",
+      "expected": ["0001"]
+    },
+    {
+      "id": "wbs",
+      "input": "case_studies/WBS/input-wbs_arch4_flattened_misreads_pedal_L.txt",
+      "report": "case_studies/WBS/evrostos-report-wbs_arch4_flattened_misreads_pedal_L.txt",
+      "manifest_model": "case_studies/WBS/wbs_arch4_flattened_misreads_pedal_L.smv",
+      "replay_model": "case_studies/WBS/wbs_arch4_flattened_misreads_pedal_L.smv",
+      "replay_note": "Report uses pointwise implication queries with reverse-order checking.",
+      "expected": ["0111", "0011", "0011"]
+    }
+  ]
+}
