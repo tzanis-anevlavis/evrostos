@@ -46,6 +46,8 @@ constexpr std::string_view spin_keywords[] = {
 };
 
 bool valid_identifier(std::string_view atom, Dialect dialect) {
+    // Check the core's ASCII atom alphabet before applying backend keywords.
+    // Locale-dependent character classes could admit names outside that alphabet.
     const auto letter = [](char c) {
         return ((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z'));
     };
@@ -60,6 +62,7 @@ bool valid_identifier(std::string_view atom, Dialect dialect) {
         }
     }
 
+    // Keyword matching uses the complete, case-sensitive name in one dialect.
     std::span<const std::string_view> keywords;
     switch (dialect) {
     case Dialect::nusmv:
@@ -75,6 +78,7 @@ bool valid_identifier(std::string_view atom, Dialect dialect) {
     return (std::find(keywords.begin(), keywords.end(), atom) == keywords.end());
 }
 
+// Map operator tokens only; emit() supplies grouping and operand placement.
 std::string_view spelling(LtlOperator op, Dialect dialect) {
     switch (op) {
     case LtlOperator::negation: return "!";
@@ -97,12 +101,13 @@ SerializationDiagnostic output_limit() {
 
 // The root owns all visited nodes. Raw pointers here are nonowning traversal keys.
 // Measure each unique node once, but count shared children at every occurrence
-// in the expanded text. Subtraction avoids overflow even for a SIZE_MAX budget.
+// in the expanded text. The size map also records which nodes are fully validated.
 std::optional<SerializationDiagnostic> measure(
     const LtlNode* root, Dialect dialect, bool allow_next, std::size_t limit,
     std::unordered_map<const LtlNode*, std::size_t>& sizes) {
     struct Frame {
         const LtlNode* node;
+        // Revisit an operator after its children have entries in sizes.
         bool children_visited;
     };
     std::vector<Frame> pending{{root, false}};
@@ -127,13 +132,16 @@ std::optional<SerializationDiagnostic> measure(
                 return SerializationDiagnostic{SerializationCode::unsupported_operator,
                     "SPIN next operator requires allow_next and a compatible checker configuration"};
             }
+            // Postorder traversal: the LIFO stack processes left, right, then
+            // the parent. A shared child may already have a cached size.
             pending.push_back({node, true});
             if (node->right()) {
                 pending.push_back({node->right().get(), false});
             }
             pending.push_back({node->left().get(), false});
         } else {
-            // Unary: (op child). Binary: (left op right).
+            // Unary (op child) adds two parentheses and one space; binary
+            // (left op right) adds two parentheses and two spaces.
             std::size_t size = spelling(node->op(), dialect).size() + (node->right() ? 4 : 3);
             if (size > limit) {
                 return output_limit();
@@ -141,6 +149,8 @@ std::optional<SerializationDiagnostic> measure(
             for (const auto* child : {node->left().get(), node->right().get()}) {
                 if (child != nullptr) {
                     const auto child_size = sizes.at(child);
+                    // Compare against remaining capacity before adding, so
+                    // expanded sizes cannot wrap even with a SIZE_MAX budget.
                     if (child_size > limit - size) {
                         return output_limit();
                     }
@@ -153,12 +163,17 @@ std::optional<SerializationDiagnostic> measure(
     return std::nullopt;
 }
 
+// Expand every occurrence of a node into text. Shared DAG nodes therefore appear
+// multiple times, with parentheses preserving the AST's operand grouping.
 std::string emit(const LtlNode* root, Dialect dialect, std::size_t size) {
     struct Frame {
         const LtlNode* node;
+        // Resume phases: 0 enters the node, 1 follows the left child,
+        // and 2 follows the right child.
         unsigned int phase;
     };
     std::string output;
+    // Reserve the measured output size, which may be much smaller than the limit.
     output.reserve(size);
     std::vector<Frame> pending{{root, 0}};
     while (!pending.empty()) {
@@ -168,11 +183,14 @@ std::string emit(const LtlNode* root, Dialect dialect, std::size_t size) {
             output += node->atom();
             pending.pop_back();
         } else if (frame.phase == 0) {
+            // Unary operators precede their child; binary operators are written
+            // between children when this frame resumes in phase 1.
             output += '(';
             if (!node->right()) {
                 output += spelling(node->op(), dialect);
                 output += ' ';
             }
+            // Save the resume phase before push_back can invalidate frame.
             frame.phase = 1;
             pending.push_back({node->left().get(), 0});
         } else if ((frame.phase == 1) && node->right()) {
@@ -182,6 +200,7 @@ std::string emit(const LtlNode* root, Dialect dialect, std::size_t size) {
             frame.phase = 2;
             pending.push_back({node->right().get(), 0});
         } else {
+            // Unary nodes finish after the left child, binary nodes after both.
             output += ')';
             pending.pop_back();
         }
@@ -195,6 +214,8 @@ SerializationResult serialize(const SharedPtrLtlNode& formula, Dialect dialect,
         return SerializationDiagnostic{SerializationCode::null_formula, "formula root is null"};
     }
     std::unordered_map<const LtlNode*, std::size_t> sizes;
+    // Both the caller's budget and the string implementation's capacity bound
+    // the expanded text. Measuring first avoids allocating a partial result.
     const auto limit = std::min(limits.max_output_bytes, std::string{}.max_size());
     if (auto error = measure(formula.get(), dialect, allow_next, limit, sizes)) {
         return std::move(*error);

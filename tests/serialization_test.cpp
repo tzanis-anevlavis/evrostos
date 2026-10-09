@@ -46,6 +46,8 @@ struct OperatorCase {
 
 class SerializationOperators : public testing::TestWithParam<OperatorCase> {};
 
+// Each case isolates an LTL operator and checks its token and operand order in
+// both dialects. Implication uses bit 4 to isolate a single implication node.
 TEST_P(SerializationOperators, PreservesOperatorAndOperands) {
     const auto& example = GetParam();
     const auto formula = translated(example.source).bits[example.bit];
@@ -66,6 +68,7 @@ INSTANTIATE_TEST_SUITE_P(AllOperators, SerializationOperators, testing::Values(
     OperatorCase{"Release", "p rR q", 0, "(p V q)", "(p V q)"}
 ), [](const testing::TestParamInfo<OperatorCase>& info) { return info.param.name; });
 
+// Robust always yields G p, F G p, G F p, and F p in strongest-to-weakest order.
 TEST(SerializationStructure, AlwaysPreservesFourBitOrder) {
     const auto translation = translated("rG p");
     const std::array nusmv{"(G p)", "(F (G p))", "(G (F p))", "(F p)"};
@@ -77,6 +80,8 @@ TEST(SerializationStructure, AlwaysPreservesFourBitOrder) {
     }
 }
 
+// Release keeps V in bit 1; the weaker bits combine F p with weakened G q.
+// Check the grouping and bit order of these compound translations.
 TEST(SerializationStructure, ReleasePreservesFourBitOrder) {
     const auto translation = translated("p rR q");
     const std::array nusmv{"(p V q)", "((F p) | (F (G q)))", "((F p) | (G (F q)))", "((F p) | (F q))"};
@@ -88,6 +93,8 @@ TEST(SerializationStructure, ReleasePreservesFourBitOrder) {
     }
 }
 
+// Stronger implication bits conjoin suffixes shared in the DAG. Serialization
+// expands those suffixes and preserves repeated terms even when they are equal.
 TEST(SerializationStructure, ImplicationPreservesSharedSuffixesInText) {
     const auto translation = translated("p => q");
     const std::array nusmv{
@@ -103,18 +110,24 @@ TEST(SerializationStructure, ImplicationPreservesSharedSuffixesInText) {
     }
 }
 
+// Mixed unary and binary operators retain their AST grouping in either dialect,
+// independently of the backend's precedence rules.
 TEST(SerializationStructure, ParenthesesPreserveGrouping) {
     const auto formula = translated("!((p | q) & (rF p))").bits[0];
     EXPECT_EQ(text(evrostos::backends::serialize_nusmv(formula)), "(! ((p | q) & (F p)))");
     EXPECT_EQ(text(evrostos::backends::serialize_spin(formula)), "(! ((p || q) && (<> p)))");
 }
 
+// Operator-like substrings belong to the atom name; only operator nodes change
+// spelling when the dialect changes.
 TEST(SerializationIdentifiers, OperatorLettersWithinNamesArePreserved) {
     const auto formula = translated("rG (GFReady2 & rFuture)").bits[0];
     EXPECT_EQ(text(evrostos::backends::serialize_nusmv(formula)), "(G (GFReady2 & rFuture))");
     EXPECT_EQ(text(evrostos::backends::serialize_spin(formula)), "([] (GFReady2 && rFuture))");
 }
 
+// The core accepts these names as atoms, but NuSMV would interpret them as
+// keywords or constants. Serialization reports invalid_identifier for them.
 TEST(SerializationIdentifiers, NuSmvReservedNamesAreRejected) {
     for (const auto* name : {"TRUE", "FALSE", "MODULE", "G", "F", "X", "V", "U",
                              "next", "init", "self", "Word", "typeof", "CONSTARRAY", "READ"}) {
@@ -124,6 +137,7 @@ TEST(SerializationIdentifiers, NuSmvReservedNamesAreRejected) {
     }
 }
 
+// SPIN's reserved set includes both inline-LTL operators and Promela keywords.
 TEST(SerializationIdentifiers, SpinReservedNamesAreRejected) {
     for (const auto* name : {"true", "false", "skip", "timeout", "U", "V", "W", "X", "ltl",
                              "always", "eventually", "release", "next", "empty", "nfull", "proctype"}) {
@@ -133,6 +147,8 @@ TEST(SerializationIdentifiers, SpinReservedNamesAreRejected) {
     }
 }
 
+// Case changes and suffixes can make a keyword into an identifier. A name
+// reserved by one backend can also remain a valid atom in the other.
 TEST(SerializationIdentifiers, ValidationIsCaseSensitiveAndDialectSpecific) {
     for (const auto* name : {"True", "TRUE2", "Always", "Module", "G1", "release2"}) {
         const auto formula = translated(name).bits[0];
@@ -144,11 +160,14 @@ TEST(SerializationIdentifiers, ValidationIsCaseSensitiveAndDialectSpecific) {
     EXPECT_EQ(text(evrostos::backends::serialize_spin(translated("G").bits[0])), "G");
 }
 
+// Both backends diagnose a null root before traversal.
 TEST(SerializationDiagnostics, NullRootsAreRejected) {
     expect_error(evrostos::backends::serialize_nusmv({}), evrostos::backends::SerializationCode::null_formula);
     expect_error(evrostos::backends::serialize_spin({}), evrostos::backends::SerializationCode::null_formula);
 }
 
+// Next requires opt-in even when nested inside another operator or introduced
+// into several output bits. Enabling it permits serialization of each bit.
 TEST(SerializationDiagnostics, SpinNextRequiresExplicitPermissionAtAnyDepth) {
     for (const auto* source : {"rX p", "rG (p & rX q)", "!((rX p) => q)"}) {
         const auto translation = translated(source);
@@ -160,6 +179,8 @@ TEST(SerializationDiagnostics, SpinNextRequiresExplicitPermissionAtAnyDepth) {
     }
 }
 
+// For each bit and dialect, the exact emitted length fits the budget, while
+// one byte less fails. Parentheses, spaces, and multi-character tokens all count.
 TEST(SerializationLimits, ExactByteBoundaryIsAcceptedForEveryOperator) {
     for (const auto* source : {"p", "!p", "p & q", "p | q", "p => q", "rX p", "rF p",
                                "rG p", "p rU q", "p rR q", "(rG p) => (rG q)"}) {
@@ -177,6 +198,7 @@ TEST(SerializationLimits, ExactByteBoundaryIsAcceptedForEveryOperator) {
     }
 }
 
+// Both occurrences of the shared child contribute to the 15-byte output length.
 TEST(SerializationLimits, SharedNodesCountAtEveryTextOccurrence) {
     const auto formula = translated("(!p) & (!p)").bits[0];
     ASSERT_EQ(formula->left(), formula->right());
@@ -185,6 +207,8 @@ TEST(SerializationLimits, SharedNodesCountAtEveryTextOccurrence) {
                  evrostos::backends::SerializationCode::output_limit);
 }
 
+// A one-character atom remains serializable with a SIZE_MAX budget, exercising
+// allocation based on the measured output size.
 TEST(SerializationLimits, LargeBudgetDoesNotAllocateUnusedCapacity) {
     const auto formula = translated("p").bits[0];
     const evrostos::backends::SerializationLimits limits{std::numeric_limits<std::size_t>::max()};
@@ -192,9 +216,12 @@ TEST(SerializationLimits, LargeBudgetDoesNotAllocateUnusedCapacity) {
     EXPECT_EQ(text(evrostos::backends::serialize_spin(formula, {}, limits)), "p");
 }
 
+// A compact DAG can expand beyond the configured budget or string capacity.
+// Repeated negated implications exercise checked sizing without emitting that text.
 TEST(SerializationLimits, ExponentialExpansionIsRejectedBeforeEmissionOrOverflow) {
     std::string source = "p";
-    // Negation replicates bit 1, so each implication multiplies its text fourfold.
+    // Negation copies bit 1 into all four bits. The next implication repeats
+    // that operand four times in its strongest-bit translation.
     for (int i = 0; i < 40; ++i) {
         source = "!(" + source + " => q)";
     }
@@ -208,6 +235,8 @@ TEST(SerializationLimits, ExponentialExpansionIsRejectedBeforeEmissionOrOverflow
     }
 }
 
+// Exercise iterative emission at the parser's depth limit, checking every
+// nested negation and its closing parenthesis.
 TEST(SerializationStructure, MaximumParserDepthSerializes) {
     const auto formula = translated(std::string(255, '!') + "p").bits[0];
     const std::string expected = [&] {
@@ -221,6 +250,8 @@ TEST(SerializationStructure, MaximumParserDepthSerializes) {
     EXPECT_EQ(text(evrostos::backends::serialize_spin(formula)), expected);
 }
 
+// Concurrent calls recover from a per-call budget failure and serialize both
+// dialects. The root's owner count is unchanged after they complete.
 TEST(SerializationOwnership, CallsAreIndependentAndDoNotRetainNodes) {
     const auto formula = translated("rG p").bits[0];
     const auto owners = formula.use_count();
