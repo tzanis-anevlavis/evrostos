@@ -19,6 +19,8 @@ The [C++20 library](docs/core.md) under `src/` exposes `Evrostos::translate`,
 which returns four LTL ASTs without Java, filesystem I/O, or model checkers.
 There is no public translation CLI. See the [translation rules](docs/semantics.md),
 [legacy audit](docs/legacy-audit.md), and [tests](tests/semantics/README.md).
+The library also provides [NuSMV and SPIN formula printers](docs/serialization.md)
+with identifier validation and output-size limits.
 
 Build and test the core:
 

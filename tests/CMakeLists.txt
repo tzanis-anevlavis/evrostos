@@ -23,6 +23,13 @@ gtest_discover_tests(core_test
     TEST_PREFIX "core.api."
     PROPERTIES TIMEOUT 60 LABELS "unit")
 
+add_executable(serialization_test serialization_test.cpp)
+target_link_libraries(serialization_test PRIVATE evrostos::core Threads::Threads GTest::gtest_main)
+evrostos_compile_options(serialization_test)
+gtest_discover_tests(serialization_test
+    TEST_PREFIX "backends."
+    PROPERTIES TIMEOUT 60 LABELS "unit;serialization")
+
 # Private fixture bridge, built only with BUILD_TESTING. Not an application CLI.
 add_executable(translation_test_driver translation_driver.cpp)
 target_link_libraries(translation_test_driver PRIVATE evrostos::core)
@@ -35,6 +42,10 @@ add_test(NAME core.semantic_integration
     COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_CURRENT_SOURCE_DIR}/semantics/cpp_integration.py"
             "$<TARGET_FILE:translation_test_driver>")
 set_tests_properties(semantics.reference core.semantic_integration PROPERTIES TIMEOUT 60)
+add_test(NAME backends.serialization_integration
+    COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_CURRENT_SOURCE_DIR}/semantics/serialization_integration.py"
+            "$<TARGET_FILE:translation_test_driver>")
+set_tests_properties(backends.serialization_integration PROPERTIES TIMEOUT 120 LABELS "serialization")
 
 option(EVROSTOS_ENABLE_JAVA_DIFFERENTIAL_TESTS "Test against the repository's Java translator" OFF)
 set(EVROSTOS_JAVA_REFERENCE_JAR "" CACHE FILEPATH "Optional additional Java translator JAR to test")

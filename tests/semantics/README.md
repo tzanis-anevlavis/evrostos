@@ -59,6 +59,7 @@ Python semantic and Java differential suites; it is not a GoogleTest executable.
 | Historical reports | 37 transcribed values; historical/instructional formulas parse and translate |
 | Parser | Acceptance, rejection, grouping, diagnostics, byte/nesting/node limits |
 | C++ API | Ownership, immutable shared nodes, bounded DAG growth, reentrancy |
+| Serialization | NuSMV/SPIN operator spellings, identifiers, output bounds, text-to-AST round trips |
 | Java (optional) | Parser, both visitors, CLI, semantic comparisons, expected differences |
 
 `reference.py` evaluates rLTL from five-valued algebra and temporal limits,
@@ -75,6 +76,12 @@ with direct rLTL evaluation, substituting templates for nested formulas.
 `cpp_integration.py` evaluates compiled C++ output with the same oracle.
 Its `translation_test_driver` exports a shared DAG through a private test
 interface, preserving node sharing.
+
+`serialization_integration.py` parses emitted NuSMV and SPIN formula text and
+compares all four trees with the C++ DAG. It covers named/historical formulas,
+binary-operator nesting, and 100 seeded formulas. Lexer keyword checks use the
+vendored sources. GoogleTest covers exact spellings, diagnostics, output limits,
+and concurrency; see [serialization](../../docs/serialization.md).
 
 ## Fixtures
 
@@ -151,8 +158,8 @@ guard; outer implications use the scheduling comparison.
 
 Coverage is limited to the test corpus. Equivalence over all formulas and
 infinite traces remains unverified. Syntax extensions, unbounded inputs,
-NuSMV/SPIN dialects, wrapper integration/file protocols, and model-checker
-results are outside the test scope.
+checker acceptance of serialized text, wrapper integration/file protocols, and
+model-checker results are outside the automated test scope.
 Backend aggregation, scheduling, unknown/error outcomes, evidence retention,
 property selection/polarity, resource limits, and concurrency need adapter tests;
 the [audit](../../docs/legacy-audit.md) records source findings only for those paths.

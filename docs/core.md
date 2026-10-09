@@ -10,12 +10,15 @@ vendored model checkers.
 src/
   evrostos.hpp / evrostos.cpp     Public Evrostos entry point and result types
   ltl.hpp                       Read-only LTL nodes returned by translation
+  backends/
+    serialization.hpp / .cpp    Bounded NuSMV and SPIN formula printers
   detail/
     rltl.hpp                    Internal parsed representation and diagnostics
     parser.hpp / parser.cpp     Legacy-compatible grammar
     translator.hpp / .cpp       Section 4, Table 2 translation
 tests/
   core_test.cpp                 API, ownership, sharing, limits, reentrancy
+  serialization_test.cpp        Backend syntax, identifiers, output limits
   translation_driver.cpp        Private bridge to the Python reference tests
   java/LegacyBridge.java        Private bridge to the Java parser and visitors
   semantics/                    Fixtures and independent semantic evaluation
@@ -79,9 +82,9 @@ traversal, and destruction, including left-associated chains. Allocation failure
 such as `std::bad_alloc` propagate as exceptions. A call returns either a complete
 `Translation` or a `Diagnostic`.
 
-The core performs no filesystem I/O, process execution, serialization, or model
-checking. Expanding the DAG into text can be exponential; serialization and
-output-size limits are outside the core's scope.
+Translation performs no filesystem I/O, process execution, or model checking.
+The library also provides [backend formula printers](serialization.md) with
+separate serialization diagnostics and output-size limits.
 
 ## Build and test locally
 
@@ -114,8 +117,9 @@ ctest --test-dir build/core-sanitize --output-on-failure
 ```
 
 With `BUILD_TESTING=ON`, a driver exports the LTL DAG to Python through a private
-test protocol, bypassing backend serialization. Tests cover
-the parser, published rules, named and generated formulas, and historical inputs
-using independent rLTL evaluation. `EVROSTOS_ENABLE_JAVA_DIFFERENTIAL_TESTS=ON`
+test protocol.
+Tests cover the parser, published rules, named and generated formulas, and historical inputs
+using independent rLTL evaluation. Serialization tests compare parsed backend
+text with the original LTL DAG. `EVROSTOS_ENABLE_JAVA_DIFFERENTIAL_TESTS=ON`
 also exercises the Java parser, both visitors, and CLI, including implication
 and resource-limit differences. See [test coverage and limits](../tests/semantics/README.md).
