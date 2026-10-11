@@ -47,6 +47,45 @@ add_test(NAME backends.serialization_integration
             "$<TARGET_FILE:translation_test_driver>")
 set_tests_properties(backends.serialization_integration PROPERTIES TIMEOUT 120 LABELS "serialization")
 
+if(EVROSTOS_ENABLE_SPIN)
+    # The helper supplies controlled subprocess behavior, including nested runner
+    # calls. Its absolute build path is passed to the GoogleTest executable.
+    add_executable(process_test_helper process_helper.cpp)
+    target_compile_features(process_test_helper PRIVATE cxx_std_20)
+    target_compile_definitions(process_test_helper PRIVATE _POSIX_C_SOURCE=200809L)
+    target_link_libraries(process_test_helper PRIVATE evrostos::spin Threads::Threads)
+    evrostos_compile_options(process_test_helper)
+    add_executable(process_test process_test.cpp)
+    target_compile_definitions(process_test PRIVATE _POSIX_C_SOURCE=200809L
+        "$<$<PLATFORM_ID:Darwin>:_DARWIN_C_SOURCE>"
+        EVROSTOS_PROCESS_HELPER="$<TARGET_FILE:process_test_helper>")
+    target_link_libraries(process_test PRIVATE evrostos::spin Threads::Threads GTest::gtest_main)
+    add_dependencies(process_test process_test_helper)
+    evrostos_compile_options(process_test)
+    gtest_discover_tests(process_test TEST_PREFIX "backends."
+        PROPERTIES TIMEOUT 30 LABELS "unit;spin")
+
+    # Protocol fixtures exercise malformed evidence without launching a checker.
+    add_executable(spin_result_test spin_result_test.cpp)
+    target_link_libraries(spin_result_test PRIVATE evrostos::spin GTest::gtest_main)
+    evrostos_compile_options(spin_result_test)
+    gtest_discover_tests(spin_result_test TEST_PREFIX "backends."
+        PROPERTIES TIMEOUT 30 LABELS "unit;spin")
+
+    # Integration cases use the pinned checker and this build's C compiler.
+    # Explicit dependencies make a test-target-only build prepare the checker too.
+    add_executable(spin_test spin_test.cpp)
+    target_compile_definitions(spin_test PRIVATE _POSIX_C_SOURCE=200809L
+        "$<$<PLATFORM_ID:Darwin>:_DARWIN_C_SOURCE>"
+        EVROSTOS_SPIN_EXECUTABLE="$<TARGET_FILE:evrostos_spin_tool>"
+        EVROSTOS_C_COMPILER="${CMAKE_C_COMPILER}")
+    target_link_libraries(spin_test PRIVATE evrostos::spin Threads::Threads GTest::gtest_main)
+    add_dependencies(spin_test evrostos_spin_tool)
+    evrostos_compile_options(spin_test)
+    gtest_discover_tests(spin_test TEST_PREFIX "backends."
+        PROPERTIES TIMEOUT 120 LABELS "integration;spin")
+endif()
+
 option(EVROSTOS_ENABLE_JAVA_DIFFERENTIAL_TESTS "Test against the repository's Java translator" OFF)
 set(EVROSTOS_JAVA_REFERENCE_JAR "" CACHE FILEPATH "Optional additional Java translator JAR to test")
 
