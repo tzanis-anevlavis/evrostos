@@ -12,6 +12,8 @@ src/
   ltl.hpp                       Read-only LTL nodes returned by translation
   backends/
     serialization.hpp / .cpp    Bounded NuSMV and SPIN formula printers
+    spin.hpp / spin.cpp         Optional single-property SPIN adapter
+    detail/                     Process execution and SPIN result parsing
   detail/
     rltl.hpp                    Internal parsed representation and diagnostics
     parser.hpp / parser.cpp     Legacy-compatible grammar
@@ -19,6 +21,9 @@ src/
 tests/
   core_test.cpp                 API, ownership, sharing, limits, reentrancy
   serialization_test.cpp        Backend syntax, identifiers, output limits
+  spin_test.cpp                 Native SPIN integration and semantic cases
+  spin_result_test.cpp          Verifier output and trail validation
+  process_test.cpp              POSIX process execution and resource limits
   translation_driver.cpp        Private bridge to the Python reference tests
   java/LegacyBridge.java        Private bridge to the Java parser and visitors
   semantics/                    Fixtures and independent semantic evaluation
@@ -85,6 +90,7 @@ such as `std::bad_alloc` propagate as exceptions. A call returns either a comple
 Translation performs no filesystem I/O, process execution, or model checking.
 The library also provides [backend formula printers](serialization.md) with
 separate serialization diagnostics and output-size limits.
+The optional [SPIN adapter](spin.md) links separately as `evrostos::spin`.
 
 ## Build and test locally
 
@@ -93,7 +99,8 @@ Requires C++20 and CMake 3.20+. Tests use GoogleTest 1.18.0 and Python 3.10+
 into the build directory at first configuration; an
 [offline source override](../tests/semantics/README.md#cpp-unit-tests) is available.
 Only the optional [Java comparisons](../tests/semantics/README.md#java-differential-tests)
-require JDK 11+; no tests require model checkers.
+require JDK 11+. Core tests require no model checker; enabling
+`EVROSTOS_ENABLE_SPIN` adds native checker builds and integration tests.
 
 ```sh
 cmake -S . -B build/core-debug -DCMAKE_BUILD_TYPE=Debug
