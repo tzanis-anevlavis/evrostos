@@ -61,7 +61,8 @@ encodes the rules as printer-independent ASTs and records PDF verification metad
 
 The model-level value is the infimum of the formula's values over admissible
 infinite executions. Universal model checking of each `Ti` yields its bits.
-The C++ core returns these formulas without executing a model checker.
+`Evrostos::translate` returns these formulas; `Evrostos::verify` checks them
+through a caller-supplied LTL checker and [aggregates the evidence](verification.md).
 
 Checking `T4`, `T3`, `T2`, then `T1` allows early termination: a false bit makes
 all stronger bits false.

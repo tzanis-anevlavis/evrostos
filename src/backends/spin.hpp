@@ -2,17 +2,19 @@
 #pragma once
 
 #include "serialization.hpp"
+#include "evrostos.hpp"
 
+#include <array>
 #include <chrono>
 #include <filesystem>
+#include <optional>
 #include <string>
+#include <string_view>
+#include <variant>
 #include <vector>
 
 namespace evrostos::backends {
 
-// holds requires a complete search; violated requires a replayed counterexample.
-// Incomplete evidence and execution failures remain separate from truth values.
-enum class CheckOutcome { holds, violated, inconclusive, execution_error };
 enum class SpinStage { validation, version, preprocessing, generation, compilation, search, replay };
 
 struct SpinOptions {
@@ -65,6 +67,15 @@ struct SpinResult {
     std::vector<SpinCommand> commands;
 };
 
+struct SpinVerification {
+    Verification summary;
+    // Full evidence for attempted queries in b1..b4 order. Unchecked entries
+    // remain empty even when their truth follows from another bit.
+    std::array<std::optional<SpinResult>, 4> checks{};
+};
+
+using SpinVerificationResult = std::variant<SpinVerification, Diagnostic>;
+
 // Check one positive LTL property over a trusted Promela model. Calls are
 // independent and may run concurrently. No shell interpolation of caller paths.
 // Subprocess, search, and trail limits return inconclusive; invalid inputs and
@@ -74,6 +85,12 @@ public:
     explicit SpinBackend(SpinOptions options);
     [[nodiscard]] SpinResult check(const std::filesystem::path& model,
                                    const SharedPtrLtlNode& property) const;
+    // Translate once and schedule the four bits through the core. Limits in
+    // SpinOptions apply per property. The model and includes must stay unchanged
+    // throughout the call; each attempted property retains its own workspace.
+    [[nodiscard]] SpinVerificationResult verify(
+        const std::filesystem::path& model, std::string_view formula,
+        const TranslationLimits& limits = {}) const;
 private:
     SpinOptions options_;
 };

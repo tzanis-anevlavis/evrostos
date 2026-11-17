@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ltl.hpp"
+#include "verification.hpp"
 
 #include <array>
 #include <cstddef>
@@ -32,13 +33,22 @@ struct Translation {
 };
 
 using TranslationResult = std::variant<Translation, Diagnostic>;
+using VerificationResult = std::variant<Verification, Diagnostic>;
 
-// The core entry point. No I/O, model-checker dependency, or per-call state is
-// retained. Results own their nodes and outlive both the input and this object.
+// The core entry point. Translation has no I/O or model-checker dependency;
+// verification delegates checking to a caller-supplied callback. No per-call
+// state is retained. Translation results own their nodes independently.
 class Evrostos final {
 public:
     [[nodiscard]] TranslationResult translate(
         std::string_view formula, const TranslationLimits& limits = {}) const;
+
+    // Check b4 through b1, stopping after a proven false bit. Errors and
+    // incomplete checks remain recorded even when other evidence fixes the value.
+    // Translation failures invoke no checker. Callback exceptions propagate.
+    [[nodiscard]] VerificationResult verify(
+        std::string_view formula, const LtlChecker& checker,
+        const TranslationLimits& limits = {}) const;
 };
 
 } // namespace evrostos
