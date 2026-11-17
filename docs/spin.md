@@ -4,8 +4,10 @@
 positive LTL AST against a Promela model and returns a `SpinResult`. Link
 `evrostos::spin`.
 
-The backend does not schedule the four rLTL queries or aggregate their answers.
-Translation and serialization remain in `evrostos::core`.
+`SpinBackend::verify` accepts an rLTL formula and returns its robust value or
+remaining bounds, together with per-bit evidence. It delegates translation,
+scheduling, and aggregation to `evrostos::core`; see
+[rLTL verification](verification.md). `check` remains the single-property API.
 
 ## Build
 

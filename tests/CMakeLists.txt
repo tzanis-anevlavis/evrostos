@@ -23,6 +23,13 @@ gtest_discover_tests(core_test
     TEST_PREFIX "core.api."
     PROPERTIES TIMEOUT 60 LABELS "unit")
 
+add_executable(verification_test verification_test.cpp)
+target_link_libraries(verification_test PRIVATE evrostos::core Threads::Threads GTest::gtest_main)
+evrostos_compile_options(verification_test)
+gtest_discover_tests(verification_test
+    TEST_PREFIX "core."
+    PROPERTIES TIMEOUT 60 LABELS "unit;verification")
+
 add_executable(serialization_test serialization_test.cpp)
 target_link_libraries(serialization_test PRIVATE evrostos::core Threads::Threads GTest::gtest_main)
 evrostos_compile_options(serialization_test)
@@ -74,16 +81,18 @@ if(EVROSTOS_ENABLE_SPIN)
 
     # Integration cases use the pinned checker and this build's C compiler.
     # Explicit dependencies make a test-target-only build prepare the checker too.
-    add_executable(spin_test spin_test.cpp)
-    target_compile_definitions(spin_test PRIVATE _POSIX_C_SOURCE=200809L
-        "$<$<PLATFORM_ID:Darwin>:_DARWIN_C_SOURCE>"
-        EVROSTOS_SPIN_EXECUTABLE="$<TARGET_FILE:evrostos_spin_tool>"
-        EVROSTOS_C_COMPILER="${CMAKE_C_COMPILER}")
-    target_link_libraries(spin_test PRIVATE evrostos::spin Threads::Threads GTest::gtest_main)
-    add_dependencies(spin_test evrostos_spin_tool)
-    evrostos_compile_options(spin_test)
-    gtest_discover_tests(spin_test TEST_PREFIX "backends."
-        PROPERTIES TIMEOUT 120 LABELS "integration;spin")
+    foreach(spin_test_target IN ITEMS spin_test spin_verification_test)
+        add_executable(${spin_test_target} ${spin_test_target}.cpp)
+        target_compile_definitions(${spin_test_target} PRIVATE _POSIX_C_SOURCE=200809L
+            "$<$<PLATFORM_ID:Darwin>:_DARWIN_C_SOURCE>"
+            EVROSTOS_SPIN_EXECUTABLE="$<TARGET_FILE:evrostos_spin_tool>"
+            EVROSTOS_C_COMPILER="${CMAKE_C_COMPILER}")
+        target_link_libraries(${spin_test_target} PRIVATE evrostos::spin Threads::Threads GTest::gtest_main)
+        add_dependencies(${spin_test_target} evrostos_spin_tool)
+        evrostos_compile_options(${spin_test_target})
+        gtest_discover_tests(${spin_test_target} TEST_PREFIX "backends."
+            PROPERTIES TIMEOUT 120 LABELS "integration;spin")
+    endforeach()
 endif()
 
 option(EVROSTOS_ENABLE_JAVA_DIFFERENTIAL_TESTS "Test against the repository's Java translator" OFF)

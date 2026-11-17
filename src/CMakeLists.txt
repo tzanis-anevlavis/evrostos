@@ -1,5 +1,6 @@
 add_library(evrostos_core STATIC
     evrostos.cpp
+    verification.cpp
     detail/parser.cpp
     detail/translator.cpp
     backends/serialization.cpp

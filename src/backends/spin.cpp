@@ -171,6 +171,24 @@ void validate_options(const SpinOptions& options, const std::filesystem::path& m
 
 SpinBackend::SpinBackend(SpinOptions options) : options_(std::move(options)) {}
 
+SpinVerificationResult SpinBackend::verify(const std::filesystem::path& model,
+                                          std::string_view formula,
+                                          const TranslationLimits& limits) const {
+    SpinVerification result;
+    // Keep backend evidence beside the generic summary without introducing
+    // filesystem or SPIN types into the core's scheduler.
+    const auto verified = Evrostos{}.verify(formula,
+        [&](std::size_t bit, const SharedPtrLtlNode& property) {
+            result.checks[bit] = check(model, property);
+            return result.checks[bit]->outcome;
+        }, limits);
+    if (const auto* error = std::get_if<Diagnostic>(&verified)) {
+        return *error;
+    }
+    result.summary = std::get<Verification>(verified);
+    return result;
+}
+
 SpinResult SpinBackend::check(const std::filesystem::path& model,
                               const SharedPtrLtlNode& property) const {
     SpinResult result;

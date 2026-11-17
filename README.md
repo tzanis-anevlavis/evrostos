@@ -25,6 +25,9 @@ with identifier validation and output-size limits.
 The optional [SPIN backend](docs/spin.md) checks one LTL AST against a Promela
 model using a pinned native SPIN 6.5.2 build and returns a typed outcome with
 execution diagnostics and retained artifacts.
+`SpinBackend::verify` provides [end-to-end rLTL checking](docs/verification.md),
+with an exact robust value or remaining bounds and evidence for each queried bit.
+Its scheduler is backend-independent and also available through `Evrostos::verify`.
 
 Build and test the core:
 

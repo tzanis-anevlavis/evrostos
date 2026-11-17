@@ -9,10 +9,12 @@ vendored model checkers.
 ```text
 src/
   evrostos.hpp / evrostos.cpp     Public Evrostos entry point and result types
+  verification.hpp / .cpp        Backend-independent scheduling and value bounds
   ltl.hpp                       Read-only LTL nodes returned by translation
   backends/
+    check.hpp                   Shared single-property checker outcomes
     serialization.hpp / .cpp    Bounded NuSMV and SPIN formula printers
-    spin.hpp / spin.cpp         Optional single-property SPIN adapter
+    spin.hpp / spin.cpp         Optional LTL and rLTL SPIN adapter
     detail/                     Process execution and SPIN result parsing
   detail/
     rltl.hpp                    Internal parsed representation and diagnostics
@@ -20,8 +22,10 @@ src/
     translator.hpp / .cpp       Section 4, Table 2 translation
 tests/
   core_test.cpp                 API, ownership, sharing, limits, reentrancy
+  verification_test.cpp         Scheduling and evidence-bound aggregation
   serialization_test.cpp        Backend syntax, identifiers, output limits
   spin_test.cpp                 Native SPIN integration and semantic cases
+  spin_verification_test.cpp    End-to-end rLTL verification and per-bit evidence
   spin_result_test.cpp          Verifier output and trail validation
   process_test.cpp              POSIX process execution and resource limits
   translation_driver.cpp        Private bridge to the Python reference tests
@@ -91,6 +95,10 @@ Translation performs no filesystem I/O, process execution, or model checking.
 The library also provides [backend formula printers](serialization.md) with
 separate serialization diagnostics and output-size limits.
 The optional [SPIN adapter](spin.md) links separately as `evrostos::spin`.
+
+`Evrostos::verify` performs [four-bit verification](verification.md) through a
+caller-supplied LTL checker. It returns an exact robust value or bounds derived
+from completed evidence. The core itself performs no process or filesystem I/O.
 
 ## Build and test locally
 
