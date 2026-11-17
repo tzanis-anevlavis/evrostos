@@ -9,7 +9,8 @@ Evrostos is a model-checking tool for Robust Linear-time Temporal Logic (rLTL). 
 Therefore, rLTL verification provides much more insight to the designer than classical LTL verification. For more details, see _Evrostos: The rLTL Verifier_ https://doi.org/10.1145/3302504.3311812 .
 
 Evrostos is easy to use, and works with your favorite LTL model-checker, bridging the gap between classical LTL model-checking, and rLTL model-checking in an effortless way. That is, one has *to only refine the syntax of the LTL specification accordingly, to obtain the rLTL version* (for example replace the always operator `G` with the robust always operator `rG`).
-Currently, as an underlying LTL model-checker, Evrostos is compatible with NuSMV 2.6.0 (14 October 2015), and SPIN Version 6.5.1 (31 July 2020).
+The Makefile application under `modules/` uses NuSMV 2.6.0 (14 October 2015)
+and SPIN 6.5.1 (31 July 2020). The optional C++ backend uses SPIN 6.5.2.
 
 Evrostos is publicly available online at this [github repository](https://github.com/tzanis-anevlavis/evrostos).
 
@@ -21,6 +22,9 @@ There is no public translation CLI. See the [translation rules](docs/semantics.m
 [legacy audit](docs/legacy-audit.md), and [tests](tests/semantics/README.md).
 The library also provides [NuSMV and SPIN formula printers](docs/serialization.md)
 with identifier validation and output-size limits.
+The optional [SPIN backend](docs/spin.md) checks one LTL AST against a Promela
+model using a pinned native SPIN 6.5.2 build and returns a typed outcome with
+execution diagnostics and retained artifacts.
 
 Build and test the core:
 

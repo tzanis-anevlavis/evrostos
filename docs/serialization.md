@@ -91,6 +91,10 @@ execution configuration must use SPIN built with `NXT` and disable partial-order
 reduction for properties using next. See the
 [SPIN reference notes](https://spinroot.com/spin/Man/ltl.html).
 
+The [SPIN backend](spin.md) supplies this configuration and disables statement
+merging. It accepts `X` by default; standalone serialization requires the opt-in
+shown above.
+
 ## Diagnostics and bounds
 
 | Code | Meaning |
@@ -141,6 +145,8 @@ historical formulas, all ordered binary-operator pairs in both operand positions
 and 100 seeded formulas. Additional checks cover lexer keywords and malformed
 text rejected by the test parser. The parser recognizes the emitted subset;
 these tests do not execute NuSMV or SPIN or establish model-checking results.
+The optional [SPIN backend suite](spin.md#tests) additionally runs the emitted
+syntax through SPIN's native parser, verifier generation, compilation, and search.
 
 On 2026-10-08, all 49 CTest entries passed in Debug, Release, and ASan/UBSan
 builds on macOS ARM64 with AppleClang 21.0.0. This includes 26 serialization
