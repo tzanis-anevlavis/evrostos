@@ -23,7 +23,66 @@ TEST(Verification, FormatsRobustValues) {
     for (std::size_t i = 0; i < values.size(); ++i) {
         EXPECT_EQ(evrostos::to_string(values[i]), bit_strings[i]);
     }
-    EXPECT_THROW((void)evrostos::to_string(static_cast<evrostos::RobustValue>(2)), std::invalid_argument);
+    EXPECT_THROW((void)evrostos::to_string(static_cast<evrostos::RobustValue>(-1)), std::invalid_argument);
+}
+
+// Check every pair against the declared chain, including reflexivity and both
+// operand orders. Meet and join must select the corresponding chain elements.
+TEST(Verification, UsesTheExplicitTruthValueOrder) {
+    for (std::size_t left = 0; left < values.size(); ++left) {
+        for (std::size_t right = 0; right < values.size(); ++right) {
+            SCOPED_TRACE(std::string(bit_strings[left]) + ", " + std::string(bit_strings[right]));
+            EXPECT_EQ(evrostos::less_equal(values[left], values[right]), left <= right);
+            EXPECT_EQ(evrostos::meet(values[left], values[right]), values[std::min(left, right)]);
+            EXPECT_EQ(evrostos::join(values[left], values[right]), values[std::max(left, right)]);
+        }
+    }
+}
+
+// Exhaust the finite carrier to check the bounded distributive lattice laws:
+// identities, idempotence, commutativity, absorption, associativity, and distribution.
+TEST(Verification, MeetAndJoinSatisfyLatticeLaws) {
+    for (const auto a : values) {
+        EXPECT_EQ(evrostos::meet(a, evrostos::RobustValue::b1111), a);
+        EXPECT_EQ(evrostos::join(a, evrostos::RobustValue::b0000), a);
+        EXPECT_EQ(evrostos::meet(a, evrostos::RobustValue::b0000), evrostos::RobustValue::b0000);
+        EXPECT_EQ(evrostos::join(a, evrostos::RobustValue::b1111), evrostos::RobustValue::b1111);
+        EXPECT_EQ(evrostos::meet(a, a), a);
+        EXPECT_EQ(evrostos::join(a, a), a);
+        for (const auto b : values) {
+            EXPECT_EQ(evrostos::meet(a, b), evrostos::meet(b, a));
+            EXPECT_EQ(evrostos::join(a, b), evrostos::join(b, a));
+            EXPECT_EQ(evrostos::meet(a, evrostos::join(a, b)), a);
+            EXPECT_EQ(evrostos::join(a, evrostos::meet(a, b)), a);
+            for (const auto c : values) {
+                EXPECT_EQ(evrostos::meet(a, evrostos::meet(b, c)),
+                          evrostos::meet(evrostos::meet(a, b), c));
+                EXPECT_EQ(evrostos::join(a, evrostos::join(b, c)),
+                          evrostos::join(evrostos::join(a, b), c));
+                EXPECT_EQ(evrostos::meet(a, evrostos::join(b, c)),
+                          evrostos::join(evrostos::meet(a, b), evrostos::meet(a, c)));
+                EXPECT_EQ(evrostos::join(a, evrostos::meet(b, c)),
+                          evrostos::meet(evrostos::join(a, b), evrostos::join(a, c)));
+            }
+        }
+    }
+}
+
+// Invalid casts are outside the algebra and must be rejected in either operand,
+// including comparisons where the two invalid operands would otherwise be equal.
+TEST(Verification, AlgebraRejectsInvalidElements) {
+    const auto invalid = static_cast<evrostos::RobustValue>(-1);
+    for (const auto value : values) {
+        EXPECT_THROW((void)evrostos::less_equal(invalid, value), std::invalid_argument);
+        EXPECT_THROW((void)evrostos::less_equal(value, invalid), std::invalid_argument);
+        EXPECT_THROW((void)evrostos::meet(invalid, value), std::invalid_argument);
+        EXPECT_THROW((void)evrostos::meet(value, invalid), std::invalid_argument);
+        EXPECT_THROW((void)evrostos::join(invalid, value), std::invalid_argument);
+        EXPECT_THROW((void)evrostos::join(value, invalid), std::invalid_argument);
+    }
+    EXPECT_THROW((void)evrostos::less_equal(invalid, invalid), std::invalid_argument);
+    EXPECT_THROW((void)evrostos::meet(invalid, invalid), std::invalid_argument);
+    EXPECT_THROW((void)evrostos::join(invalid, invalid), std::invalid_argument);
 }
 
 // Each legal value is recovered in reverse bit order. The first false bit stops
@@ -198,10 +257,18 @@ TEST(Verification, TranslationFailuresInvokeNoChecker) {
     EXPECT_EQ(calls, 0);
 }
 
-// Invalid callback configuration and callback exceptions stay programming or
+// An empty checker is an invalid API argument, even when the formula also has
+// a syntax error or exceeds a translation budget.
+TEST(Verification, RejectsEmptyCheckerBeforeTranslation) {
+    EXPECT_THROW((void)evrostos::Evrostos{}.verify("p", {}), std::invalid_argument);
+    EXPECT_THROW((void)evrostos::Evrostos{}.verify("p &", {}), std::invalid_argument);
+    EXPECT_THROW((void)evrostos::Evrostos{}.verify("rG p", {}, {.max_input_bytes = 1}),
+                 std::invalid_argument);
+}
+
+// Invalid callback outcomes and callback exceptions stay programming or
 // allocation failures rather than becoming evidence about a formula.
 TEST(Verification, RejectsInvalidCallbacksAndPropagatesExceptions) {
-    EXPECT_THROW((void)evrostos::Evrostos{}.verify("p", {}), std::invalid_argument);
     EXPECT_THROW((void)evrostos::Evrostos{}.verify("p",
         [](std::size_t, const evrostos::SharedPtrLtlNode&) {
             return static_cast<evrostos::backends::CheckOutcome>(99);

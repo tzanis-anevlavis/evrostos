@@ -45,7 +45,8 @@ public:
 
     // Check b4 through b1, stopping after a proven false bit. Errors and
     // incomplete checks remain recorded even when other evidence fixes the value.
-    // Translation failures invoke no checker. Callback exceptions propagate.
+    // An empty checker is rejected before translation. Translation failures
+    // invoke no checker. Callback exceptions propagate.
     [[nodiscard]] VerificationResult verify(
         std::string_view formula, const LtlChecker& checker,
         const TranslationLimits& limits = {}) const;

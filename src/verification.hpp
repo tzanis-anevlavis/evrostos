@@ -12,12 +12,19 @@
 
 namespace evrostos {
 
-// Ordered from false to true. The numeric values encode b1 through b4.
-enum class RobustValue : unsigned char {
-    b0000 = 0, b0001 = 1, b0011 = 3, b0111 = 7, b1111 = 15
+// Elements of the robust truth-value algebra. Their order is defined by
+// less_equal; the enum representation carries no semantic meaning.
+enum class RobustValue {
+    b0000, b0001, b0011, b0111, b1111
 };
 
 [[nodiscard]] std::string_view to_string(RobustValue value);
+
+// The chain is 0000 < 0001 < 0011 < 0111 < 1111. Meet is its greatest lower
+// bound; join is its least upper bound. Invalid enum values are rejected.
+[[nodiscard]] bool less_equal(RobustValue left, RobustValue right);
+[[nodiscard]] RobustValue meet(RobustValue left, RobustValue right);
+[[nodiscard]] RobustValue join(RobustValue left, RobustValue right);
 
 struct Verification {
     // Inclusive bounds over the five legal robust values.

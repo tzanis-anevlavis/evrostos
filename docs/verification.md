@@ -25,6 +25,11 @@ values are never aggregated separately.
 consistent with completed evidence. `exact_value()` returns a `RobustValue` only
 when the bounds coincide. `to_string` provides its four-bit spelling.
 
+`RobustValue` names the five algebra elements without a numeric interpretation.
+`less_equal` defines their order through the explicit chain above. `meet` returns
+the greatest lower bound and `join` the least upper bound. Verification refines
+its lower bound with `join` and its upper bound with `meet`.
+
 `outcomes` stores actual checker outcomes in `b1..b4` order. An empty entry was
 not checked; it is distinct from a failed query. Inference narrows the bounds
 without replacing recorded failures or adding synthetic checker outcomes.
@@ -54,11 +59,12 @@ ordering used for inference. The scheduler does not independently validate a
 checker's evidence or detect model changes.
 
 `VerificationResult` contains either `Verification` or a translation `Diagnostic`.
-Syntax and translation-limit failures invoke no checker. The optional third
-argument supplies `TranslationLimits`. An empty callback or invalid outcome enum
-throws `std::invalid_argument`; callback exceptions and allocation failures
-propagate. Operational checker failures are returned as outcomes to retain
-completed evidence. The callback is invoked synchronously and is not retained.
+An empty callback throws `std::invalid_argument` before translation. With a valid
+callback, syntax and translation-limit failures invoke no checker. The optional
+third argument supplies `TranslationLimits`. An invalid outcome enum also throws
+`std::invalid_argument`; callback exceptions and allocation failures propagate.
+Operational checker failures are returned as outcomes to retain completed
+evidence. The callback is invoked synchronously and is not retained.
 
 ## SPIN interface
 
@@ -103,6 +109,9 @@ Core tests enumerate all 256 four-query outcome sequences and compare the
 computed bounds with an independent filter over the five legal values. They
 also check scheduling, root identity and bit mapping, translation diagnostics,
 callback errors, and concurrent calls without a model checker.
+Algebra tests cover all 25 ordered pairs and the bounded distributive lattice
+laws over all five elements, including every triple for associativity and
+distributivity.
 
 Native SPIN tests cover all five robust values, nested implication, release,
 default and disabled `X`, early termination, retained per-bit artifacts, tool
