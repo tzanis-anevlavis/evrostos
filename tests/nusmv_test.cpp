@@ -181,7 +181,7 @@ TEST_F(NuSmv, RecoversAllRobustValuesAndEvidence) {
         EXPECT_EQ(result.summary.exact_value(), example.value);
         for (std::size_t bit = 0; bit < 4; ++bit) {
             ASSERT_EQ(result.checks[bit].has_value(), bit >= (4 - example.count));
-            if (result.checks[bit]) {
+            if (result.checks[bit].has_value()) {
                 const auto& evidence = *result.checks[bit];
                 EXPECT_EQ(evidence.outcome, result.summary.outcomes[bit]) << diagnostics(evidence);
                 EXPECT_EQ(evidence.has_admissible_executions, true) << diagnostics(evidence);
@@ -261,7 +261,7 @@ TEST_F(NuSmv, RejectsToolAndProtocolFailures) {
         options.executable = executable(body);
         result = evrostos::backends::NuSmvBackend(options).check(model, property("p"));
         EXPECT_EQ(result.outcome, evrostos::backends::CheckOutcome::execution_error);
-        EXPECT_FALSE(result.has_admissible_executions);
+        EXPECT_FALSE(result.has_admissible_executions.has_value());
     }
 }
 
@@ -296,7 +296,7 @@ TEST_F(NuSmv, VerificationPreservesTranslationAndExecutionFailures) {
     EXPECT_EQ(result.summary.lower_bound, evrostos::RobustValue::b0000);
     EXPECT_EQ(result.summary.upper_bound, evrostos::RobustValue::b1111);
     for (const auto& check_result : result.checks) {
-        ASSERT_TRUE(check_result);
+        ASSERT_TRUE(check_result.has_value());
         EXPECT_EQ(check_result->outcome, evrostos::backends::CheckOutcome::execution_error);
         EXPECT_FALSE(check_result->commands.empty());
     }
@@ -332,8 +332,8 @@ TEST_F(NuSmv, SupportsLiteralPathsAndConcurrentVerification) {
     const auto b = std::get<evrostos::backends::NuSmvVerification>(second.get());
     EXPECT_EQ(a.summary.exact_value(), evrostos::RobustValue::b0011);
     EXPECT_EQ(b.summary.exact_value(), evrostos::RobustValue::b0011);
-    ASSERT_TRUE(a.checks[3]);
-    ASSERT_TRUE(b.checks[3]);
+    ASSERT_TRUE(a.checks[3].has_value());
+    ASSERT_TRUE(b.checks[3].has_value());
     EXPECT_NE(a.checks[3]->workspace, b.checks[3]->workspace);
     EXPECT_EQ(std::filesystem::current_path(), parent_cwd);
     std::ifstream input(model);
@@ -355,7 +355,7 @@ TEST_F(NuSmv, AgreesWithSpinOnEquivalentTransitionSystems) {
         SCOPED_TRACE(formula);
         const auto a = std::get<evrostos::backends::NuSmvVerification>(nusmv.verify(smv, formula));
         const auto b = std::get<evrostos::backends::SpinVerification>(spin.verify(pml, formula));
-        ASSERT_TRUE(a.summary.exact_value());
+        ASSERT_TRUE(a.summary.exact_value().has_value());
         EXPECT_EQ(a.summary.exact_value(), b.summary.exact_value());
     }
 }

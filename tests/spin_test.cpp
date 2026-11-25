@@ -197,16 +197,20 @@ TEST_F(Spin, DepthAndMemoryLimitsAreInconclusive) {
 }
 
 // Tiny pipeline and capture budgets stop execution before a result is available.
-// The output-limited run also records that its captured stream was truncated.
+// The final command records which budget stopped the run.
 TEST_F(Spin, PipelineTimeoutAndOutputLimitAreInconclusive) {
     options.timeout = std::chrono::milliseconds(1);
     const auto timed = check("bool p = true; init { skip }", "p");
     EXPECT_EQ(timed.outcome, evrostos::backends::CheckOutcome::inconclusive) << diagnostics(timed);
+    ASSERT_FALSE(timed.commands.empty());
+    EXPECT_TRUE(timed.commands.back().timed_out);
+    EXPECT_FALSE(timed.commands.back().output_truncated);
     options.timeout = std::chrono::seconds(60);
     options.max_output_bytes = 1;
     const auto limited = check("bool p = true; init { skip }", "p");
     EXPECT_EQ(limited.outcome, evrostos::backends::CheckOutcome::inconclusive) << diagnostics(limited);
     ASSERT_FALSE(limited.commands.empty());
+    EXPECT_FALSE(limited.commands.back().timed_out);
     EXPECT_TRUE(limited.commands.back().output_truncated);
 }
 

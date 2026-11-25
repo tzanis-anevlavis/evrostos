@@ -23,7 +23,15 @@ foreach(tool IN ITEMS CMAKE_C_COMPILER BISON_EXECUTABLE FLEX_EXECUTABLE Python3_
         message(FATAL_ERROR "NuSMV build tool paths cannot contain quotes or newlines")
     endif()
 endforeach()
-file(WRITE "${nusmv_native}" "[binaries]\nc = '${CMAKE_C_COMPILER}'\nbison = '${BISON_EXECUTABLE}'\nflex = '${FLEX_EXECUTABLE}'\npython = '${Python3_EXECUTABLE}'\n")
+# Preserve the timestamp when tool paths are unchanged. Meson tracks this
+# file as a configuration input.
+file(CONFIGURE OUTPUT "${nusmv_native}" CONTENT [=[
+[binaries]
+c = '@CMAKE_C_COMPILER@'
+bison = '@BISON_EXECUTABLE@'
+flex = '@FLEX_EXECUTABLE@'
+python = '@Python3_EXECUTABLE@'
+]=] @ONLY)
 get_filename_component(nusmv_ninja_dir "${EVROSTOS_NINJA_EXECUTABLE}" DIRECTORY)
 get_filename_component(nusmv_meson_dir "${EVROSTOS_MESON_EXECUTABLE}" DIRECTORY)
 set(nusmv_environment "PATH=${nusmv_meson_dir}:${nusmv_ninja_dir}:$ENV{PATH}")

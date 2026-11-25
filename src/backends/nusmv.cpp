@@ -101,9 +101,11 @@ void validate_options(const NuSmvOptions& options, const std::filesystem::path& 
         || !valid_path(model)) {
         throw InputError("tool, workspace parent, and model paths must be absolute and contain no NUL");
     }
+    const auto valid_byte_limit = [](std::size_t bytes) {
+        return (bytes > 0) && (bytes <= (256 * 1024 * 1024));
+    };
     if ((options.timeout.count() <= 0) || (options.timeout > std::chrono::hours(24))
-        || (options.max_model_bytes == 0) || (options.max_model_bytes > (256 * 1024 * 1024))
-        || (options.max_output_bytes == 0) || (options.max_output_bytes > (256 * 1024 * 1024))) {
+        || !valid_byte_limit(options.max_model_bytes) || !valid_byte_limit(options.max_output_bytes)) {
         throw InputError("invalid NuSMV resource limits");
     }
     if (!std::filesystem::is_directory(options.workspace_parent)) {
@@ -168,6 +170,7 @@ NuSmvResult NuSmvBackend::check(const std::filesystem::path& model,
             std::min(options_.serialization_limits.max_output_bytes, max_query_formula_bytes)};
         const auto serialized = serialize_nusmv(property, limits);
         if (const auto* error = std::get_if<SerializationDiagnostic>(&serialized)) {
+            result.outcome = CheckOutcome::execution_error;
             result.message = error->message;
             return result;
         }
@@ -190,19 +193,22 @@ NuSmvResult NuSmvBackend::check(const std::filesystem::path& model,
             auto execution = detail::run_process(arguments, result.workspace, deadline,
                                                   options_.max_output_bytes);
             const auto status = execution.status;
-            const auto exit_code = execution.exit_code;
-            result.commands.push_back({stage, std::move(arguments), exit_code, execution.signal,
-                status == detail::ProcessStatus::timed_out,
-                status == detail::ProcessStatus::output_limit,
-                std::move(execution.out), std::move(execution.err), std::move(execution.diagnostic)});
-            if ((status == detail::ProcessStatus::timed_out)
-                || (status == detail::ProcessStatus::output_limit)) {
+            const auto& command = result.commands.emplace_back(NuSmvCommand{
+                .stage = stage, .arguments = std::move(arguments),
+                .exit_code = execution.exit_code, .signal = execution.signal,
+                .timed_out = (status == detail::ProcessStatus::timed_out),
+                .output_truncated = (status == detail::ProcessStatus::output_limit),
+                .standard_output = std::move(execution.out),
+                .standard_error = std::move(execution.err),
+                .diagnostic = std::move(execution.diagnostic)});
+            if (command.timed_out || command.output_truncated) {
                 result.outcome = CheckOutcome::inconclusive;
-                result.message = (status == detail::ProcessStatus::timed_out)
+                result.message = command.timed_out
                     ? "NuSMV pipeline deadline exceeded" : "command output limit exceeded";
                 return false;
             }
-            if ((status != detail::ProcessStatus::exited) || (exit_code != 0)) {
+            if ((status != detail::ProcessStatus::exited) || (command.exit_code != 0)) {
+                result.outcome = CheckOutcome::execution_error;
                 result.message = "NuSMV command failed; see command diagnostics";
                 return false;
             }
@@ -212,6 +218,7 @@ NuSmvResult NuSmvBackend::check(const std::filesystem::path& model,
             return result;
         }
         if (!detail::supported_nusmv_version(result.commands.back().standard_output)) {
+            result.outcome = CheckOutcome::execution_error;
             result.message = "unsupported NuSMV version; use the pinned evrostos_nusmv_tool build";
             return result;
         }
@@ -219,7 +226,8 @@ NuSmvResult NuSmvBackend::check(const std::filesystem::path& model,
             return result;
         }
         const auto finding = detail::inspect_nusmv(result.commands.back().standard_output);
-        if (!finding) {
+        if (!finding.has_value()) {
+            result.outcome = CheckOutcome::execution_error;
             result.message = "unrecognized or inconsistent NuSMV evidence";
             return result;
         }
@@ -239,8 +247,10 @@ NuSmvResult NuSmvBackend::check(const std::filesystem::path& model,
                 : "property holds vacuously: no fair infinite execution starts in an initial state";
         }
     } catch (const InputError& error) {
+        result.outcome = CheckOutcome::execution_error;
         result.message = error.what();
     } catch (const std::filesystem::filesystem_error& error) {
+        result.outcome = CheckOutcome::execution_error;
         result.message = error.what();
     }
     return result;

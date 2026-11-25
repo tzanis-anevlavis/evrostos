@@ -45,7 +45,7 @@ TEST_F(SpinVerification, RecoversAllValuesAndRetainsPerBitEvidence) {
         EXPECT_EQ(result.summary.exact_value(), example.value);
         for (std::size_t bit = 0; bit < 4; ++bit) {
             ASSERT_EQ(result.checks[bit].has_value(), bit >= (4 - example.checks));
-            if (!result.checks[bit]) {
+            if (!result.checks[bit].has_value()) {
                 EXPECT_FALSE(result.summary.outcomes[bit].has_value());
                 continue;
             }
