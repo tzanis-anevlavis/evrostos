@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "backends/spin.hpp"
-#include "spin_test_support.hpp"
+#include "backend_test_support.hpp"
 
 #include <gtest/gtest.h>
 

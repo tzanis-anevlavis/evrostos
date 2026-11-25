@@ -54,24 +54,26 @@ add_test(NAME backends.serialization_integration
             "$<TARGET_FILE:translation_test_driver>")
 set_tests_properties(backends.serialization_integration PROPERTIES TIMEOUT 120 LABELS "serialization")
 
-if(EVROSTOS_ENABLE_SPIN)
+if(EVROSTOS_ENABLE_SPIN OR EVROSTOS_ENABLE_NUSMV)
     # The helper supplies controlled subprocess behavior, including nested runner
     # calls. Its absolute build path is passed to the GoogleTest executable.
     add_executable(process_test_helper process_helper.cpp)
     target_compile_features(process_test_helper PRIVATE cxx_std_20)
     target_compile_definitions(process_test_helper PRIVATE _POSIX_C_SOURCE=200809L)
-    target_link_libraries(process_test_helper PRIVATE evrostos::spin Threads::Threads)
+    target_link_libraries(process_test_helper PRIVATE evrostos_process Threads::Threads)
     evrostos_compile_options(process_test_helper)
     add_executable(process_test process_test.cpp)
     target_compile_definitions(process_test PRIVATE _POSIX_C_SOURCE=200809L
         "$<$<PLATFORM_ID:Darwin>:_DARWIN_C_SOURCE>"
         EVROSTOS_PROCESS_HELPER="$<TARGET_FILE:process_test_helper>")
-    target_link_libraries(process_test PRIVATE evrostos::spin Threads::Threads GTest::gtest_main)
+    target_link_libraries(process_test PRIVATE evrostos_process Threads::Threads GTest::gtest_main)
     add_dependencies(process_test process_test_helper)
     evrostos_compile_options(process_test)
     gtest_discover_tests(process_test TEST_PREFIX "backends."
-        PROPERTIES TIMEOUT 30 LABELS "unit;spin")
+        PROPERTIES TIMEOUT 30 LABELS "unit;process")
+endif()
 
+if(EVROSTOS_ENABLE_SPIN)
     # Protocol fixtures exercise malformed evidence without launching a checker.
     add_executable(spin_result_test spin_result_test.cpp)
     target_link_libraries(spin_result_test PRIVATE evrostos::spin GTest::gtest_main)
@@ -93,6 +95,31 @@ if(EVROSTOS_ENABLE_SPIN)
         gtest_discover_tests(${spin_test_target} TEST_PREFIX "backends."
             PROPERTIES TIMEOUT 120 LABELS "integration;spin")
     endforeach()
+endif()
+
+if(EVROSTOS_ENABLE_NUSMV)
+    add_executable(nusmv_result_test nusmv_result_test.cpp)
+    target_link_libraries(nusmv_result_test PRIVATE evrostos::nusmv GTest::gtest_main)
+    evrostos_compile_options(nusmv_result_test)
+    gtest_discover_tests(nusmv_result_test TEST_PREFIX "backends."
+        PROPERTIES TIMEOUT 30 LABELS "unit;nusmv")
+
+    add_executable(nusmv_test nusmv_test.cpp)
+    target_compile_definitions(nusmv_test PRIVATE _POSIX_C_SOURCE=200809L
+        "$<$<PLATFORM_ID:Darwin>:_DARWIN_C_SOURCE>"
+        EVROSTOS_NUSMV_EXECUTABLE="$<TARGET_FILE:evrostos_nusmv_tool>")
+    target_link_libraries(nusmv_test PRIVATE evrostos::nusmv Threads::Threads GTest::gtest_main)
+    add_dependencies(nusmv_test evrostos_nusmv_tool)
+    if(EVROSTOS_ENABLE_SPIN)
+        target_compile_definitions(nusmv_test PRIVATE
+            EVROSTOS_SPIN_EXECUTABLE="$<TARGET_FILE:evrostos_spin_tool>"
+            EVROSTOS_C_COMPILER="${CMAKE_C_COMPILER}")
+        target_link_libraries(nusmv_test PRIVATE evrostos::spin)
+        add_dependencies(nusmv_test evrostos_spin_tool)
+    endif()
+    evrostos_compile_options(nusmv_test)
+    gtest_discover_tests(nusmv_test TEST_PREFIX "backends."
+        PROPERTIES TIMEOUT 120 LABELS "integration;nusmv")
 endif()
 
 option(EVROSTOS_ENABLE_JAVA_DIFFERENTIAL_TESTS "Test against the repository's Java translator" OFF)

@@ -3,7 +3,9 @@
 `Evrostos::verify` translates an rLTL formula once, checks its LTL bits through
 a caller-supplied checker, and returns bounds on the model-level robust value.
 It belongs to `evrostos::core` and has no dependency on SPIN or filesystem types.
-`SpinBackend::verify` connects this scheduler to the [SPIN backend](spin.md).
+`SpinBackend::verify` and `NuSmvBackend::verify` supply this scheduler with
+native LTL queries and retain the evidence for each attempted bit.
+See the [SPIN backend](spin.md) and [NuSMV backend](nusmv.md).
 
 ## Scheduling and evidence
 
@@ -99,9 +101,9 @@ deadlines and four verifier generations per call. There is no additional overall
 deadline or shared artifact quota. Workspace cleanup remains the caller's
 responsibility. Translation diagnostics occur before model or tool validation.
 
-The SPIN execution profile, including default `X` support, disabled weak fairness,
-and terminal-state stuttering, is unchanged. The legacy application, NuSMV
-execution, and a public CLI are outside this interface.
+SPIN extends terminal executions by stuttering and uses no weak fairness.
+NuSMV quantifies over fair infinite executions from the model's initial states.
+The two backends can therefore assign different values to models that deadlock.
 
 ## Tests
 

@@ -15,7 +15,8 @@ src/
     check.hpp                   Shared single-property checker outcomes
     serialization.hpp / .cpp    Bounded NuSMV and SPIN formula printers
     spin.hpp / spin.cpp         Optional LTL and rLTL SPIN adapter
-    detail/                     Process execution and SPIN result parsing
+    nusmv.hpp / nusmv.cpp       Optional LTL and rLTL NuSMV adapter
+    detail/                     POSIX process execution and checker result parsing
   detail/
     rltl.hpp                    Internal parsed representation and diagnostics
     parser.hpp / parser.cpp     Legacy-compatible grammar
@@ -27,6 +28,8 @@ tests/
   spin_test.cpp                 Native SPIN integration and semantic cases
   spin_verification_test.cpp    End-to-end rLTL verification and per-bit evidence
   spin_result_test.cpp          Verifier output and trail validation
+  nusmv_test.cpp                Native BDD checking, fairness and rLTL scheduling
+  nusmv_result_test.cpp         NuSMV verdict and replay evidence validation
   process_test.cpp              POSIX process execution and resource limits
   translation_driver.cpp        Private bridge to the Python reference tests
   java/LegacyBridge.java        Private bridge to the Java parser and visitors
