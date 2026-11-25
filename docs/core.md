@@ -38,7 +38,7 @@ tests/
 
 `evrostos::Evrostos` is the public API; the parser and translator are internal.
 Link the static CMake target `evrostos_core` or its alias `evrostos::core`.
-There is no separate translator package, install target, or public CLI.
+The [verification CLI](verify.md) uses the native backends and this core.
 
 ## Translation API
 

@@ -19,6 +19,20 @@ add_executable(core_test core_test.cpp)
 target_link_libraries(core_test PRIVATE evrostos::core Threads::Threads GTest::gtest_main)
 evrostos_compile_options(core_test)
 include(GoogleTest)
+if(TARGET evrostos_cli)
+    add_executable(cli_report_test cli_report_test.cpp)
+    target_link_libraries(cli_report_test PRIVATE evrostos_cli_report GTest::gtest_main nlohmann_json::nlohmann_json)
+    evrostos_compile_options(cli_report_test)
+    gtest_discover_tests(cli_report_test TEST_PREFIX "cli." PROPERTIES TIMEOUT 30 LABELS "unit;cli")
+    foreach(backend IN ITEMS spin nusmv)
+        if(TARGET evrostos_${backend})
+            add_test(NAME cli.verify_${backend} COMMAND "${Python3_EXECUTABLE}" -B
+                "${CMAKE_CURRENT_SOURCE_DIR}/verify_cli.py" "$<TARGET_FILE:evrostos_cli>" ${backend})
+            set_tests_properties(cli.verify_${backend} PROPERTIES TIMEOUT 180 LABELS "integration;cli")
+        endif()
+    endforeach()
+endif()
+
 gtest_discover_tests(core_test
     TEST_PREFIX "core.api."
     PROPERTIES TIMEOUT 60 LABELS "unit")

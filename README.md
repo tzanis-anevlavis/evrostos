@@ -14,6 +14,17 @@ and SPIN 6.5.1 (31 July 2020). The optional C++ backends use NuSMV 2.7.1 and SPI
 
 Evrostos is publicly available online at this [github repository](https://github.com/tzanis-anevlavis/evrostos).
 
+## Verify a model
+
+The C++ command checks one or more rLTL formulas on a model and writes the
+results to the console and a JSON report. For example,
+`evrostos verify --backend nusmv --model model.smv --formula 'rG p'` writes
+`report.json`. Use `--formula-list formulas.txt` for one formula per line,
+or `--formula-list formulas.json` for a JSON array of strings. An exact value below `1111` includes
+the validated counterexample for the violated bit. Open `counterexamples.txt`
+beside the report to read the trace with its original line breaks. See the
+[build, usage, and report format](docs/verify.md).
+
 ## C++ translation core
 
 The [C++20 library](docs/core.md) under `src/` exposes `Evrostos::translate`,

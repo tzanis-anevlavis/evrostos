@@ -5,14 +5,6 @@
 #include <stdexcept>
 
 namespace evrostos {
-namespace {
-
-// This sequence defines the algebra's order independently of enum ordinals.
-constexpr std::array robust_chain{
-    RobustValue::b0000, RobustValue::b0001, RobustValue::b0011,
-    RobustValue::b0111, RobustValue::b1111};
-
-} // namespace
 
 std::string_view to_string(RobustValue value) {
     switch (value) {
@@ -26,9 +18,9 @@ std::string_view to_string(RobustValue value) {
 }
 
 bool less_equal(RobustValue left, RobustValue right) {
-    const auto left_position = std::find(robust_chain.begin(), robust_chain.end(), left);
-    const auto right_position = std::find(robust_chain.begin(), robust_chain.end(), right);
-    if ((left_position == robust_chain.end()) || (right_position == robust_chain.end())) {
+    const auto left_position = std::find(robust_values.begin(), robust_values.end(), left);
+    const auto right_position = std::find(robust_values.begin(), robust_values.end(), right);
+    if ((left_position == robust_values.end()) || (right_position == robust_values.end())) {
         throw std::invalid_argument("invalid robust value");
     }
     return left_position <= right_position;
