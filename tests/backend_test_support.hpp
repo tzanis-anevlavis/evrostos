@@ -13,7 +13,7 @@
 class TestWorkspace {
 public:
     TestWorkspace() {
-        auto pattern = (std::filesystem::current_path() / "spin-test-XXXXXX").string();
+        auto pattern = (std::filesystem::current_path() / "backend-test-XXXXXX").string();
         if (::mkdtemp(pattern.data()) == nullptr) {
             throw std::runtime_error("cannot create test workspace");
         }

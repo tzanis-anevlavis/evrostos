@@ -199,6 +199,7 @@ SpinResult SpinBackend::check(const std::filesystem::path& model,
         const auto serialized = serialize_spin(property, {.allow_next = options_.allow_next},
                                                 options_.serialization_limits);
         if (const auto* error = std::get_if<SerializationDiagnostic>(&serialized)) {
+            result.outcome = CheckOutcome::execution_error;
             result.message = error->message;
             return result;
         }
@@ -222,33 +223,37 @@ SpinResult SpinBackend::check(const std::filesystem::path& model,
             auto execution = detail::run_process(arguments, result.workspace, deadline,
                                                   options_.max_output_bytes);
             const auto status = execution.status;
-            const auto exit_code = execution.exit_code;
-            result.commands.push_back({stage, std::move(arguments), exit_code, execution.signal,
-                status == detail::ProcessStatus::timed_out,
-                status == detail::ProcessStatus::output_limit,
-                std::move(execution.out), std::move(execution.err), std::move(execution.diagnostic)});
-            if ((status == detail::ProcessStatus::timed_out)
-                || (status == detail::ProcessStatus::output_limit)) {
+            const auto& command = result.commands.emplace_back(SpinCommand{
+                .stage = stage, .arguments = std::move(arguments),
+                .exit_code = execution.exit_code, .signal = execution.signal,
+                .timed_out = (status == detail::ProcessStatus::timed_out),
+                .output_truncated = (status == detail::ProcessStatus::output_limit),
+                .standard_output = std::move(execution.out),
+                .standard_error = std::move(execution.err),
+                .diagnostic = std::move(execution.diagnostic)});
+            if (command.timed_out || command.output_truncated) {
                 result.outcome = CheckOutcome::inconclusive;
-                result.message = (status == detail::ProcessStatus::timed_out)
+                result.message = command.timed_out
                     ? "SPIN pipeline deadline exceeded" : "command output limit exceeded";
                 return std::nullopt;
             }
             // Search output can identify a resource limit even with a nonzero
             // exit status; the search classifier handles that case below.
             if ((status != detail::ProcessStatus::exited)
-                || ((exit_code != 0) && (stage != SpinStage::search))) {
+                || ((command.exit_code != 0) && (stage != SpinStage::search))) {
+                result.outcome = CheckOutcome::execution_error;
                 result.message = "SPIN pipeline command failed; see command diagnostics";
                 return std::nullopt;
             }
-            return result.commands.back().standard_output;
+            return command.standard_output;
         };
 
         const auto version = execute(SpinStage::version, {options_.executable.string(), "-V"});
-        if (!version) {
+        if (!version.has_value()) {
             return result;
         }
         if (*version != spin_version) {
+            result.outcome = CheckOutcome::execution_error;
             result.message = "unsupported SPIN version; use the pinned evrostos_spin_tool build";
             return result;
         }
@@ -257,7 +262,7 @@ SpinResult SpinBackend::check(const std::filesystem::path& model,
         const auto preprocessed = execute(SpinStage::preprocessing,
             {options_.c_compiler.string(), "-E", "-P", "-x", "c", "-iquote",
              model.parent_path().string(), "input.pml"});
-        if (!preprocessed) {
+        if (!preprocessed.has_value()) {
             return result;
         }
         // Apply the model profile after macros and includes have been expanded.
@@ -265,14 +270,14 @@ SpinResult SpinBackend::check(const std::filesystem::path& model,
         write_file(result.workspace / "model.pml", *preprocessed);
         // Statement merging changes the step count observed by X.
         if (!execute(SpinStage::generation,
-                {options_.executable.string(), "-P/bin/cat", "-o3", "-a", "model.pml"})) {
+                {options_.executable.string(), "-P/bin/cat", "-o3", "-a", "model.pml"}).has_value()) {
             return result;
         }
         // Preserve full-state verification and support step-sensitive formulas.
         // MEMLIM constrains the generated verifier's own allocations.
         if (!execute(SpinStage::compilation,
                 {options_.c_compiler.string(), "-O0", "-DNOREDUCE",
-                 "-DMEMLIM=" + std::to_string(options_.memory_megabytes), "-o", "pan", "pan.c"})) {
+                 "-DMEMLIM=" + std::to_string(options_.memory_megabytes), "-o", "pan", "pan.c"}).has_value()) {
             return result;
         }
         const auto verifier = (result.workspace / "pan").string();
@@ -281,7 +286,7 @@ SpinResult SpinBackend::check(const std::filesystem::path& model,
         const auto search = execute(SpinStage::search,
             {verifier, "-a", "-N", std::string(property_name),
              "-m" + std::to_string(options_.max_depth), "-w18"});
-        if (!search) {
+        if (!search.has_value()) {
             return result;
         }
         // A zero exit code alone carries no truth value: the summary must also
@@ -289,6 +294,7 @@ SpinResult SpinBackend::check(const std::filesystem::path& model,
         const auto finding = detail::inspect_search(*search, result.commands.back().standard_error);
         if ((finding != detail::SearchFinding::incomplete)
             && (result.commands.back().exit_code != 0)) {
+            result.outcome = CheckOutcome::execution_error;
             result.message = "verifier exited unsuccessfully";
         } else if (finding == detail::SearchFinding::holds) {
             result.outcome = CheckOutcome::holds;
@@ -308,21 +314,25 @@ SpinResult SpinBackend::check(const std::filesystem::path& model,
             const auto trail = read_file(result.trail, options_.max_output_bytes);
             const auto replay = execute(SpinStage::replay,
                 {verifier, "-r", "-v", "-N", std::string(property_name)});
-            if (!replay) {
+            if (!replay.has_value()) {
                 return result;
             }
             if (detail::property_counterexample(*search, trail, *replay)) {
                 result.outcome = CheckOutcome::violated;
                 result.message = "selected property has a replayed counterexample";
             } else {
+                result.outcome = CheckOutcome::execution_error;
                 result.message = "verifier error is not a validated property counterexample; see trail and diagnostics";
             }
         } else {
+            result.outcome = CheckOutcome::execution_error;
             result.message = "unrecognized or inconsistent verifier output";
         }
     } catch (const InputError& error) {
+        result.outcome = CheckOutcome::execution_error;
         result.message = error.what();
     } catch (const std::filesystem::filesystem_error& error) {
+        result.outcome = CheckOutcome::execution_error;
         result.message = error.what();
     }
     return result;

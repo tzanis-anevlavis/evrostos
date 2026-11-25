@@ -10,7 +10,7 @@ Therefore, rLTL verification provides much more insight to the designer than cla
 
 Evrostos is easy to use, and works with your favorite LTL model-checker, bridging the gap between classical LTL model-checking, and rLTL model-checking in an effortless way. That is, one has *to only refine the syntax of the LTL specification accordingly, to obtain the rLTL version* (for example replace the always operator `G` with the robust always operator `rG`).
 The Makefile application under `modules/` uses NuSMV 2.6.0 (14 October 2015)
-and SPIN 6.5.1 (31 July 2020). The optional C++ backend uses SPIN 6.5.2.
+and SPIN 6.5.1 (31 July 2020). The optional C++ backends use NuSMV 2.7.1 and SPIN 6.5.2.
 
 Evrostos is publicly available online at this [github repository](https://github.com/tzanis-anevlavis/evrostos).
 
@@ -22,12 +22,11 @@ There is no public translation CLI. See the [translation rules](docs/semantics.m
 [legacy audit](docs/legacy-audit.md), and [tests](tests/semantics/README.md).
 The library also provides [NuSMV and SPIN formula printers](docs/serialization.md)
 with identifier validation and output-size limits.
-The optional [SPIN backend](docs/spin.md) checks one LTL AST against a Promela
-model using a pinned native SPIN 6.5.2 build and returns a typed outcome with
-execution diagnostics and retained artifacts.
-`SpinBackend::verify` provides [end-to-end rLTL checking](docs/verification.md),
-with an exact robust value or remaining bounds and evidence for each queried bit.
-Its scheduler is backend-independent and also available through `Evrostos::verify`.
+The [NuSMV backend](docs/nusmv.md) checks SMV models and the
+[SPIN backend](docs/spin.md) checks Promela models. Each accepts one LTL AST
+through `check`. For an rLTL formula, `verify` uses the shared scheduler and
+returns a robust value or remaining bounds with evidence for each attempted bit.
+See [rLTL verification](docs/verification.md).
 
 Build and test the core:
 

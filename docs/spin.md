@@ -162,6 +162,7 @@ deadlines, descendant cleanup, and argument handling. Output-protocol tests
 reject malformed summaries and missing or inconsistent counterexample evidence.
 
 The real-checker suite establishes SPIN parser acceptance for these fixtures.
-NuSMV execution remains outside this backend and its tests.
+With both backends enabled, the [NuSMV suite](nusmv.md) compares robust values
+on deterministic models with the same infinite sequence of labels.
 `EVROSTOS_ENABLE_SANITIZERS` instruments the Evrostos C++ targets, not upstream
 SPIN or the generated C verifiers.

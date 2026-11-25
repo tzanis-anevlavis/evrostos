@@ -166,39 +166,37 @@ std::optional<SerializationDiagnostic> measure(
 // Expand every occurrence of a node into text. Shared DAG nodes therefore appear
 // multiple times, with parentheses preserving the AST's operand grouping.
 std::string emit(const LtlNode* root, Dialect dialect, std::size_t size) {
+    enum class Phase { enter, after_left, after_right };
     struct Frame {
         const LtlNode* node;
-        // Resume phases: 0 enters the node, 1 follows the left child,
-        // and 2 follows the right child.
-        unsigned int phase;
+        Phase phase = Phase::enter;
     };
     std::string output;
     // Reserve the measured output size, which may be much smaller than the limit.
     output.reserve(size);
-    std::vector<Frame> pending{{root, 0}};
+    std::vector<Frame> pending{{root}};
     while (!pending.empty()) {
         auto& frame = pending.back();
         const auto* node = frame.node;
         if (node->op() == LtlOperator::atom) {
             output += node->atom();
             pending.pop_back();
-        } else if (frame.phase == 0) {
-            // Unary operators precede their child; binary operators are written
-            // between children when this frame resumes in phase 1.
+        } else if (frame.phase == Phase::enter) {
+            // Unary operators precede their child. Binary operators go between children.
             output += '(';
             if (!node->right()) {
                 output += spelling(node->op(), dialect);
                 output += ' ';
             }
             // Save the resume phase before push_back can invalidate frame.
-            frame.phase = 1;
-            pending.push_back({node->left().get(), 0});
-        } else if ((frame.phase == 1) && node->right()) {
+            frame.phase = Phase::after_left;
+            pending.push_back({node->left().get()});
+        } else if ((frame.phase == Phase::after_left) && node->right()) {
             output += ' ';
             output += spelling(node->op(), dialect);
             output += ' ';
-            frame.phase = 2;
-            pending.push_back({node->right().get(), 0});
+            frame.phase = Phase::after_right;
+            pending.push_back({node->right().get()});
         } else {
             // Unary nodes finish after the left child, binary nodes after both.
             output += ')';
@@ -217,7 +215,7 @@ SerializationResult serialize(const SharedPtrLtlNode& formula, Dialect dialect,
     // Both the caller's budget and the string implementation's capacity bound
     // the expanded text. Measuring first avoids allocating a partial result.
     const auto limit = std::min(limits.max_output_bytes, std::string{}.max_size());
-    if (auto error = measure(formula.get(), dialect, allow_next, limit, sizes)) {
+    if (auto error = measure(formula.get(), dialect, allow_next, limit, sizes); error.has_value()) {
         return std::move(*error);
     }
     // Emit only after validation and sizing succeed. Iterative traversal keeps
