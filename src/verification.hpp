@@ -18,6 +18,11 @@ enum class RobustValue {
     b0000, b0001, b0011, b0111, b1111
 };
 
+// Ascending algebraic order for comparison and enumeration.
+inline constexpr std::array robust_values{
+    RobustValue::b0000, RobustValue::b0001, RobustValue::b0011,
+    RobustValue::b0111, RobustValue::b1111};
+
 [[nodiscard]] std::string_view to_string(RobustValue value);
 
 // The chain is 0000 < 0001 < 0011 < 0111 < 1111. Meet is its greatest lower

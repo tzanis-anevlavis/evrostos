@@ -38,6 +38,12 @@ if(EVROSTOS_ENABLE_NUSMV)
 endif()
 
 add_subdirectory(src)
+if(EVROSTOS_ENABLE_SPIN OR EVROSTOS_ENABLE_NUSMV)
+    option(EVROSTOS_BUILD_CLI "Build the evrostos verify command" ON)
+    if(EVROSTOS_BUILD_CLI)
+        add_subdirectory(src/cli)
+    endif()
+endif()
 
 include(CTest)
 if(BUILD_TESTING)
